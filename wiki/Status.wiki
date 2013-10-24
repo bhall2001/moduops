@@ -1,6 +1,6 @@
 #Update on Progress of Development
 
-= Version 0.0.2 October 22, 2013
+= Version 0.0.2 October 22, 2013 =
 
 Made some great progress. There still needs to be a lot added to make it a real app. However, you can now add in rolling stock, modules and industries. You can even add work orders to the industries. Nothing is robust yet. If you download this version plan to just mess around a bit and for it to eventually break on you as I have NO ERROR HANDLING at all in the application.
 
