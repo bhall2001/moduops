@@ -1,4 +1,4 @@
-#summary One-sentence summary of this page.
+#Get a general overview of ModuOPS software.
 
 = Introduction =
 
@@ -6,12 +6,20 @@ ModuOPS is written to meet a specific need for operating modular layouts at setu
 
 While ModuOPS is designed to operate modular setups, the software is used in home layouts as well. At the core of the software is a scheduling engine that is less specific to rollingstock and locations on the layout. Typically ModuOPS operating sessions are easier for guests to get up to speed and learn the system than other software packages.
 
-ModuOPS is more forgiving to errors made during an operating session as well. 
+ModuOPS is more forgiving to errors made during an operating session as well. The system does not maintain any specifics about cars during an operating session. This means that switchlists are not effected by errant car locations on the layout.
 
+= History =
 
-= Details =
+The New England Free-mo group holds regular setups. At these setups, operations on the layout are driven using the software package "Mad River and Big Timber" for The Sacramento Modular Railroaders club and other modular layouts.
 
-Add your content here.  Format your content with:
-  * Text in *bold* or _italic_
-  * Headings, paragraphs, and lists
-  * Automatic links to other wiki pages
+The software is written in Visual Basic for Windows 95 and has not been updated since 2001. As a result of the older source code, it is becoming difficult to find hardware that is able to run the software. Also, there are new features the NE Free-mo group would like to see added that can not be.
+
+= Modern Application =
+
+ModuOPS, while taking inspiration from Mad River and Big Timber, is a completely new application written from the ground up. The development environment is Livecode and ModuOPS is published under the GPL v3 license. It is our hope that ModuOPS being open source will thrive in the Modular layout community and be available for many years to come.
+
+The application is cable of running on Mac OS, Windows, Linux, IOS and Android. Initial focus is being made on desktop OS's. Future versions may include tablets and smartphones.
+
+ModuOPS is being designed in a manner that we hope takes a complex problem (operating a modular layout) and makes it as simple as possible. You will find a system that is based on modules each having any number of Industries/Consignees on the module.
+
+Trains are created in a route the travels through the modules picking up and setting out loads along the way. The software generates prototypical Switchlists and Train Orders for operators to use.
