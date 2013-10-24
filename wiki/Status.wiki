@@ -1,4 +1,4 @@
-#Update on Progress of Development
+#summary Update on Progress of Development
 
 = Version 0.0.2 October 22, 2013 =
 
