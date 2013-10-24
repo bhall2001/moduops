@@ -1,0 +1,13 @@
+#Update on Progress of Development
+
+= Version 0.0.2 October 22, 2013
+
+Made some great progress. There still needs to be a lot added to make it a real app. However, you can now add in rolling stock, modules and industries. You can even add work orders to the industries. Nothing is robust yet. If you download this version plan to just mess around a bit and for it to eventually break on you as I have NO ERROR HANDLING at all in the application.
+
+Before I add in error handling, I'm going to take a stab at creating trains and generating a switchlist!
+
+Oh, and there's no documentation yet so you'll have to figure it out on your own for now ;-)
+
+= Version 0.0.1 August 30, 2013=
+
+I have made an initial screen and linked to other screen from here. No real meat yet. You can drive around but nothing really functions.
