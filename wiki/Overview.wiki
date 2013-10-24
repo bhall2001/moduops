@@ -4,21 +4,19 @@
 
 ModuOPS is written to meet a specific need for operating modular layouts at setups, events or train shows. The software takes into account the specifics of a Free-mo modular setup and issues related to operations of these layouts.
 
-At a Free-mo setup, modules are assembled in to some form of a layout that can be point to point, point to loop, or loop to loop and may include branches off the main line. Module order varies from setup to setup and even the orientation of the modules can be reversed.
+At a Free-mo setup, modules are assembled in to some form of a layout that can be point to point, point to loop, or loop to loop and may include branches off the main line. Module order varies from setup to setup and even the orientation of the modules can be reversed. Other model railroad operations software are expecting a layout to be basically a fixed entity and not vary on a regular basis.
 
-Other model railroad operations software is expecting a layout to be basically a fixed entity and not vary on a regular basis.
+At Free-mo setups, the specifics of rollingstock used is not known prior to the setup. The time and labor needed to enter all the rolling stock for a setup in to an operations application prior to operating the layout is not justified especially when it is not known what is available until the day of the setup.
 
-Also, at Free-mo setups, the specifics of rollingstock used at the setup is not known prior to the setup. The time and labor needed to enter in all the potential rolling stock for a setup in to an operations application prior to operating the layout is not justified.
+Free-mo modular setups require an application that is more generic and less specific than other applications on the market today.
 
-Free-mo modular setups require an Application to be much more generic about the setup and the rolling stock than other applications on the market today.
-
-While ModuOPS is designed to operate modular setups, the software can be and is used in home layouts as well. At the core of the software is a scheduling engine that is less specific to rollingstock and locations on the layout. Typically ModuOPS operating sessions are easier for guests to get up to speed and learn the system than other software packages.
+While ModuOPS is designed to operate modular setups, the software can be  used in home layouts. At the core of the software is a scheduling engine that is less specific to rollingstock and locations on the layout. Typically ModuOPS operating sessions are easier for guests to get up to speed and learn the system than other software packages.
 
 ModuOPS is more forgiving to errors made during an operating session as well. The system does not maintain any specifics about cars during an operating session. This means that switchlists are not effected by errant car locations on the layout.
 
 = History =
 
-The New England Free-mo group holds regular Free-mo setups. At these setups, operations on the layout are driven using the software package "Mad River and Big Timber" original written for The Sacramento Modular Railroaders club and other modular layouts on the west coast of the US.
+The New England Free-mo group holds regular Free-mo setups. At these setups, operations on the layout are driven using the software package "Mad River and Big Timber" originally written for The Sacramento Modular Railroaders club and other modular layouts on the west coast of the US.
 
 Mad River and Big Timber is written in Visual Basic for Windows 95 and has not been updated since 2001. As a result of the older source code, it is becoming difficult to find hardware that is able to run the software. Also, there are new features the NE Free-mo group would like to see added that can not be as the original developer is not adding in any new features to the software.
 
