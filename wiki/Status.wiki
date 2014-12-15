@@ -1,5 +1,17 @@
 #summary Update on Progress of Development
 
+= Version 0.0.16 December 15, 2014 =
+
+Lot's of progress with this release. Data structures are now based on LiveCode arrays. UI is taking shape. Added in menus including Navigation to move around the app.
+
+Some basic error handling is in place. Data is currently being stored in the App. This will be changing before the first standalone is created. Speed is OK. I will look into ways to make it faster.
+
+Car Types include description and a short description. Car lengths are in feet.
+
+Added in additional Module data points to further document Modules included. A module's Details include a list of Consignees, Spots and work orders.
+
+Trains are created with modules. Modules' stops can be re-ordered with Drag and drop to the correct order. Once set, Manifests can be crew
+
 = Version 0.0.2 October 22, 2013 =
 
 Made some great progress. There still needs to be a lot added to make it a real app. However, you can now add in rolling stock, modules and industries. You can even add work orders to the industries. Nothing is robust yet. If you download this version plan to just mess around a bit and for it to eventually break on you as I have NO ERROR HANDLING at all in the application.
