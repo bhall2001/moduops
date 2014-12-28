@@ -1,5 +1,16 @@
 #summary Update on Progress of Development
 
+= Version 0.0.22 December 28, 2014 =
+Cleaned up user interface. Added in initial data validation for numeric fields. Fixed error in scheduler which prevented cars being scheduled in some circumstances.
+
+Frequency is now Cars Per Week which is a relative weighting and not an actual cars per week number.
+
+Added in 1/2 page and Full page MRBT like output. On 1/2 page outputs, single letter car class is displayed.
+
+Data is stored in .txt files. This will change eventually to some other format. However, you are now able to save data out and re-load it back in.
+
+Added in Special Train Orders. Add a Train Orders are scheduled into the trains work flow and added to Manifests.
+
 = Version 0.0.16 December 15, 2014 =
 
 Lot's of progress with this release. Data structures are now based on LiveCode arrays. UI is taking shape. Added in menus including Navigation to move around the app.
