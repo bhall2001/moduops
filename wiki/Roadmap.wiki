@@ -26,10 +26,11 @@ These are the items off the top of my head. The dates and bullets WILL CHANGE. S
 
 = Version 2.0 =
 (Winter 2016)
-
+  
+  * Move to an SQL based DB
   * Car Card Simulator
   * Timetables
-  * ModuOps Module Library
+  * ModuOps Online Module Library
 
 = Version 3.0 =
 (Winter 2017)
