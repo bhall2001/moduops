@@ -8,7 +8,7 @@ At a Free-mo setup, modules are assembled in to some form of a layout that can b
 
 At Free-mo setups, the specifics of rollingstock used is not known prior to the setup. The time and labor needed to enter all the rolling stock for a setup in to an operations application prior to operating the layout is not justified especially when it is not known what is available until the day of the setup.
 
-Free-mo modular setups require an application that is more generic and less specific than other applications on the market today.
+Free-mo modular setups require an application that is more generic and less specific than other applications on the market today (in our opinion).
 
 While ModuOPS is designed to operate modular setups, the software can be  used in home layouts. At the core of the software is a scheduling engine that is less specific to rollingstock and locations on the layout. Typically ModuOPS operating sessions are easier for guests to get up to speed and learn the system than other software packages.
 
@@ -26,11 +26,11 @@ ModuOPS, while taking inspiration from Mad River and Big Timber, is a completely
 
 While LiveCode is not a popular programing environment, it has stood the test of time with it's roots being traced back to the early 1990's to Apple Computer's Hypercard. LiveCode is very easy to develop with and takes into account most modern user interface widgets expected in an application.
 
-ModuOPS is capable of running on Mac OS, Windows, Linux, IOS and Android. Initial focus is being made on Windows and Linux (if anyone is willing to test/fix for Mac OS please raise your hand). Future versions may include tablets and smartphones.
+ModuOPS is capable of running on Mac OS, Windows, Linux, IOS and Android. Initial focus is being made on Mac, Windows (If anyone is willing to test/fix the Linux version raise your hand). Future versions may include tablets and smartphones.
 
-ModuOPS is being designed in a manner that we hope takes a complex problem (operating a modular layout) and makes it as simple as possible while retaining a prototypical feel to an operating session. The application is a system that is based on modules each having any number of Industries and/or Consignees on the module.
+ModuOPS is being designed in a manner that I hope takes a complex problem (operating a modular layout) and makes it as simple as possible while retaining a prototypical feel to an operating session. The application is a system that is based on modules each having any number of Industries and/or Consignees.
 
-Trains are created in a route that travels through the layout picking up and setting out loads along the way. The software generates prototypical Switchlists and Train Orders for operators to use.
+Trains are created in a route that travels through the layout picking up and setting out loads along the way. The software generates Switchlists and Train Orders for operators to use.
 
 = Conclusion =
-I am not quite sure where this journey will take this project, but my intention is to foster an application that is adopted by the modular operating layouts (especially Free-mo groups) to deliver Prototypical operations on setups across the country.
+I am not quite sure where this journey will take us, but my intention is to foster an application that is adopted by Modular Operating layouts (especially Free-mo groups) to deliver Prototypical operations on setups across the country.
