@@ -1,4 +1,4 @@
-#sumary Get a general overview of ModuOPS software.
+#summary get a general overview of ModuOPS software
 
 = Introduction =
 
