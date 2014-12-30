@@ -1,5 +1,4 @@
 #summary Update on Progress of Development
-
 = Version 0.0.22 December 28, 2014 =
 Cleaned up user interface. Added in initial data validation for numeric fields. Fixed error in scheduler which prevented cars being scheduled in some circumstances.
 
