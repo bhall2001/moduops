@@ -1,4 +1,4 @@
-#Planned Roadmap of ModuOps.
+#summary Planned Roadmap of ModuOps
 Here's the planned roadmap for ModuOps. The bullet points listed are the major features I see that warrant the major release. 
 
 These are the items off the top of my head. The dates and bullets WILL CHANGE. Some things might get deleted, some things might get added. If you follow along I think its going to be fun!
