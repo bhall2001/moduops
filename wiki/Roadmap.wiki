@@ -11,13 +11,14 @@ These are the items off the top of my head. The dates and bullets WILL CHANGE. S
   * Car Frequency Weighting
 
 = Version 1.1 =
- 
+(Fall 2015)
+  * Module Orientation
   * Events
   * Manifest 
 
 
 = Version 1.5 =
-(Fall 2015)
+(Winter 2016)
  
   * Add Pickups
   * Car Locations
@@ -25,7 +26,7 @@ These are the items off the top of my head. The dates and bullets WILL CHANGE. S
   * Mobile Conductor
 
 = Version 2.0 =
-(Winter 2016)
+(TBD)
   
   * Move to an SQL based DB
   * Car Card Simulator
@@ -33,8 +34,7 @@ These are the items off the top of my head. The dates and bullets WILL CHANGE. S
   * ModuOps Online Module Library
 
 = Version 3.0 =
-(Winter 2017)
+(TBD)
 
-  * Dispatching
   * Producer/Consumer
   * Publish/Subscribe
