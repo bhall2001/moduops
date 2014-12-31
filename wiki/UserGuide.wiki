@@ -1,4 +1,4 @@
-#Learn how to setup and use ModuOps
+#Summary Learn how to setup and use ModuOps
 
 = Introduction =
 
@@ -28,19 +28,19 @@ Right now I am focusing on the guts of the scheduler and the User Interface. Soo
 = Steps To A Manifest =
 Here's what you need to do to get things flowing.
 
-1. Create Car Types
-2. Save Data File
-3. Create Modules
-4. Save Data File
-5. Create Consignees for Modules
-6. Save Data File
-7. Create Spots for Consignees
-8. Save Data File
-9. Create Work Orders for Spots
-10. Save Data File
-11. Create Trains
-12. Save Data File
-13. Generate a Manifest
+  # Create Car Types
+  # Save Data File
+  # Create Modules
+  # Save Data File
+  # Create Consignees for Modules
+  # Save Data File
+  # Create Spots for Consignees
+  # Save Data File
+  # Create Work Orders for Spots
+  # Save Data File
+  # Create Trains
+  # Save Data File
+  # Generate a Manifest
 
 Did I mention you should make sure you save your work?
 
@@ -74,5 +74,3 @@ You will notice that ModuOps does not ask for Reporting Marks for the cars. I fe
 Reporting marks are handwritten in on the Manifest by the crew building the train.
 
 Now select <Save> in the <File> menu. Name your data file and store it at a location where you'll be able to find it again.
-
-
