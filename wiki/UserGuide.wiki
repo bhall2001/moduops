@@ -1,0 +1,78 @@
+#Learn how to setup and use ModuOps
+
+= Introduction =
+
+No re-hashing for what ModuOps is here. You'll find that elsewhere. Here's a quick and dirty guide on what you need to do to get ModuOps to work.
+
+The software is relatively flexible in how you can do things. There may be multiple ways to arrive at the same solution. With this flexibility comes a level of complication as well. It is possible to arrange things in such a manner that you do not end up with the results you'd expect.
+
+And, to make matters worse, the software is under development and probably contains bugs that will that may make things act weird. Sorry.
+
+Overall, if you stay within the bounds and for now do very simple workorders, things work just fine. If you are looking to do more complex movement of freight, you may be venturing into unknown territory and you'll be on your own. 
+
+
+= Save Often, Keep a Back Up =
+
+You are using a development version (aka. it's really not ready for general release) of ModuOps. As such there are most likely bugs in the code. This may result in the system checking out unexpectedly. 
+
+Fear the worst for now and make sure you save often. I'd even go as far as saying that every once in a while, duplicate your data file just in case things get corrupt or don't act as you'd expect. This way you'll be able to go back to a time where things were better.
+
+= Consider Whatever You Do A Throw-Away =
+
+Again, as this is a development release, the data format for the files is not set in stone yet. As such, you should expect that anything you do with this version of the software will not work in a future version.
+
+I will apologize in advance for this but I am still developing the software and things change. I do want to move the data files to an XML format which as of yet is not defined.
+
+Right now I am focusing on the guts of the scheduler and the User Interface. Soon I will be going back to address the data files and their format.
+
+= Steps To A Manifest =
+Here's what you need to do to get things flowing.
+
+1. Create Car Types
+2. Save Data File
+3. Create Modules
+4. Save Data File
+5. Create Consignees for Modules
+6. Save Data File
+7. Create Spots for Consignees
+8. Save Data File
+9. Create Work Orders for Spots
+10. Save Data File
+11. Create Trains
+12. Save Data File
+13. Generate a Manifest
+
+Did I mention you should make sure you save your work?
+
+Each of these steps is outlined below. If you don't like to read directions you can give it a try but you may find that you get stuck on something. Eventually you should come back here and read what I've written to see if that helps.
+
+= Create Car Types =
+From the Main Menu, click on "Car Types" or select "Car Types" from the Navigation menu. You are taken to the Car Types editor. If there is not data entered the screen will be blank.
+
+For our example, we'll create the good ole 50' standard Box Car. Chances are you'll need this on your layout. 
+
+You will notice items required for input in ModuOps are labeled with Red. These items are required and you will not be able to move on until valid data is entered in these fields.
+
+To create a new car select the Car's Classification "X" from the Pop-Up menu. This is the general classification of a Box car.
+
+Next, enter the description of the new car. We'll enter "Box Car".
+
+Press <tab>
+
+Now enter a short description. This is used when a 1/2 page width printout is desired. Short but descriptive is the rule here. Type "Box".
+
+Press <tab>
+
+Enter in the length in scale feet for this car. Type "50".
+
+Press <tab>
+
+Finally, you can enter a remark relevant to this car type. The remark is optional and is printed on a Manifest each time the car type is displayed.
+
+You will notice that ModuOps does not ask for Reporting Marks for the cars. I feel this is one of the unique characteristics of this software. Specific car reporting marks are not needed in advance to generate Manifests.
+
+Reporting marks are handwritten in on the Manifest by the crew building the train.
+
+Now select <Save> in the <File> menu. Name your data file and store it at a location where you'll be able to find it again.
+
+
