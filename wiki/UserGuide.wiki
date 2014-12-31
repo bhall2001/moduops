@@ -69,8 +69,14 @@ Press <tab>
 
 Finally, you can enter a remark relevant to this car type. The remark is optional and is printed on a Manifest each time the car type is displayed.
 
+Press the <New> button just below the data fields.
+
+You will see a new car type is added to the Car Type table. COOL! Continue this process for all the car types that you'll need for your Operating Sessions.
+
 You will notice that ModuOps does not ask for Reporting Marks for the cars. I feel this is one of the unique characteristics of this software. Specific car reporting marks are not needed in advance to generate Manifests.
 
 Reporting marks are handwritten in on the Manifest by the crew building the train.
+
+If you find a mistake or need to change some data, simply select the Car Type in the table and the data is populated into the data entry fields. Make any changes/corrections to the data and press the <Update> button to update the Car Type in the ModuOps database.
 
 Now select <Save> in the <File> menu. Name your data file and store it at a location where you'll be able to find it again.
