@@ -6,6 +6,7 @@ These are the items off the top of my head. The dates and bullets WILL CHANGE. S
 = Version 1.0 =
 (Spring 2015)
 
+  * Modern User Interface
   * MRBT-like Random Scheduler
   * Car, Spot and Train Lengths
   * Car Frequency Weighting
