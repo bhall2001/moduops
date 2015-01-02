@@ -101,3 +101,12 @@ Type 100 for the track number. Click the Consignee button. This makes the spot n
 Click Save to save you spot.
 
 = Creating a Work Order =
+Select the Team Track spot. Now click New Work Order button. Work orders are what moves cars to a Consignee. You will see a list of all the car types you can select from. In our case, you'll see the 50' boxcar we created.
+
+Click on the boxcar to hilite it. Next we need to tell the system how many "Cars Per Week" the consignee would expect to get a boxcar. Enter 2. This number is a relative weighting of the work order. This number is not the actual number of times the car will be scheduled over a 7 day period.
+
+However, I find that this number allows the random scheduler to schedule cars are a more realistic rate when using the Cars Per Week as a frame of reference.
+
+Remarks are optional and we'll skip them for now. Click the Add button. A notice pops up letting you know that the work order was created. Clicking OK takes you back to create another work order. Click the Close button to go back to the Consignee screen.
+
+You should now see this work order listed for the Team Track spur. 
