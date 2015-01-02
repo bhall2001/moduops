@@ -1,4 +1,4 @@
-#Summary Learn how to setup and use ModuOps
+#summary Learn how to setup and use ModuOps
 
 = Introduction =
 
