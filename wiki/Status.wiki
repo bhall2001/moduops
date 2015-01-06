@@ -3,11 +3,17 @@ NOTE: at this time I am not posting updates. Look for new source/binaries in ear
 
 = Version 0.0.32 January 6, 2015 =
 Changed work orders to Car Types Used by Spot
+
 Fixed issue where Scheduler would not schedule last Spot in a list of potential spots
+
 Changed train numbers to be alpha numeric
+
 Optimized Scheduler code to speed things up a bit
+
 Adjusted format of Consignee screen to better fit data
+
 Fixed issue where MRBT output did not have Spot detail
+
 Lengthened MRBT full page column width to 30 characters
  
 = Version 0.0.22 December 28, 2014 =
