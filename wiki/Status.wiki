@@ -1,7 +1,7 @@
 #summary Update on Progress of Development
 NOTE: at this time I am not posting updates. Look for new source/binaries in early February.
 
-= Version 0.0.2 January 14, 2015 =
+= Version 0.1.2 January 14, 2015 =
 Removed "Switchlist" window. Now a screen called "Trainlists"
 
 Applies new UI design to Trainlist screen
