@@ -1,6 +1,16 @@
 #summary Update on Progress of Development
 NOTE: at this time I am not posting updates. Look for new source/binaries in early February.
 
+= Version 0.0.2 January 14, 2015
+Removed "Switchlist" window. Now a screen called "Trainlists"
+
+Applies new UI design to Trainlist screen
+
+Update MRBT format to show most significant information and "..." for less significant information to maintain sizes for output format
+
+Added Trains to the trainlist screen for quicker generation of Trainlists
+
+
 = Version 0.1.0 January 11, 2015 =
 Fix issue with data entry allowing multiple lines where there should only be 1
 
