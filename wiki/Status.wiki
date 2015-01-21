@@ -1,6 +1,19 @@
 #summary Update on Progress of Development
 NOTE: at this time I am not posting updates. Look for new source/binaries in early February.
 
+= Version 0.2.2 January 21, 2015 =
+Fixed minor User Interface issues
+
+Fixed bug that allowed multiple lines to be input where only 1 line is intended
+
+Added in 2 column 1/2 page printing.
+
+Header from Preferences screen now added to output
+
+Added ModuOps application Icons (Yipee!)
+
+
+
 = Version 0.1.2 January 14, 2015 =
 Removed "Switchlist" window. Now a screen called "Trainlists" and not a separate window.
 
