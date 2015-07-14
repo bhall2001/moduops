@@ -1,0 +1,98 @@
+NOTE: at this time I am not posting updates. Look for new source/binaries in early February.
+
+# Version 0.2.2 January 21, 2015 #
+Fixed minor User Interface issues
+
+Fixed bug that allowed multiple lines to be input where only 1 line is intended
+
+Added in 2 column 1/2 page printing.
+
+Header from Preferences screen now added to output
+
+Added ModuOps application Icons (Yipee!)
+
+
+
+# Version 0.1.2 January 14, 2015 #
+Removed "Switchlist" window. Now a screen called "Trainlists" and not a separate window.
+
+Add Trainlist to Main Menu and Navigation menu
+
+Applies new UI design to Trainlist screen
+
+Update MRBT format to show most significant information and "..." for less significant information to maintain sizes for output format
+
+Added Trains to the trainlist screen for quicker generation of Trainlists
+
+Removed line spacing option from Trainlist screen.
+
+Moved font resizing on Trainlist screen
+
+# Version 0.1.0 January 11, 2015 #
+Fix issue with data entry allowing multiple lines where there should only be 1
+
+Changed Manifest to Trainlist
+
+Fixed reference to Manifest in delete buttons
+
+Changed Train Number to Train Symbol
+
+Numerous bug fixes
+
+Updated Preference screen to new UI
+
+Fixed UI issues on train screen
+
+Added graphic when no track chart is found
+
+Quit now works (Yeah!)
+
+# Version 0.0.32 January 6, 2015 #
+Changed work orders to Car Types Used by Spot
+
+Fixed issue where Scheduler would not schedule last Spot in a list of potential spots
+
+Changed train numbers to be alpha numeric
+
+Optimized Scheduler code to speed things up a bit
+
+Adjusted format of Consignee screen to better fit data
+
+Fixed issue where MRBT output did not have Spot detail
+
+Lengthened MRBT full page column width to 30 characters
+
+# Version 0.0.22 December 28, 2014 #
+Cleaned up user interface. Added in initial data validation for numeric fields. Fixed error in scheduler which prevented cars being scheduled in some circumstances.
+
+Frequency is now Cars Per Week which is a relative weighting and not an actual cars per week number.
+
+Added in 1/2 page and Full page MRBT like output. On 1/2 page outputs, single letter car class is displayed.
+
+Data is stored in .txt files. This will change eventually to some other format. However, you are now able to save data out and re-load it back in.
+
+Added in Special Train Orders. Add a Train Orders are scheduled into the trains work flow and added to Manifests.
+
+# Version 0.0.16 December 15, 2014 #
+
+Lot's of progress with this release. Data structures are now based on LiveCode arrays. UI is taking shape. Added in menus including Navigation to move around the app.
+
+Some basic error handling is in place. Data is currently being stored in the App. This will be changing before the first standalone is created. Speed is OK. I will look into ways to make it faster.
+
+Car Types include description and a short description. Car lengths are in feet.
+
+Added in additional Module data points to further document Modules included. A module's Details include a list of Consignees, Spots and work orders.
+
+Trains are created with modules. Modules' stops can be re-ordered with Drag and drop to the correct order. Once set, Manifests can be crew
+
+# Version 0.0.2 October 22, 2013 #
+
+Made some great progress. There still needs to be a lot added to make it a real app. However, you can now add in rolling stock, modules and industries. You can even add work orders to the industries. Nothing is robust yet. If you download this version plan to just mess around a bit and for it to eventually break on you as I have NO ERROR HANDLING at all in the application.
+
+Before I add in error handling, I'm going to take a stab at creating trains and generating a switchlist!
+
+Oh, and there's no documentation yet so you'll have to figure it out on your own for now ;-)
+
+# Version 0.0.1 August 30, 2013 #
+
+I have made an initial screen and linked to other screen from here. No real meat yet. You can drive around but nothing really functions.

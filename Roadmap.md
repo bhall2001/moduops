@@ -1,0 +1,40 @@
+Here's the planned roadmap for ModuOps. The bullet points listed are the major features I see that warrant the major release.
+
+These are the items off the top of my head. The dates and bullets WILL CHANGE. Some things might get deleted, some things might get added. If you follow along I think its going to be fun!
+
+# Version 1.0 #
+(Spring 2015)
+
+  * Modern User Interface
+  * MRBT-like Random Scheduler
+  * Car, Spot and Train Lengths
+  * Car Frequency Weighting
+
+# Version 1.1 #
+(Fall 2015)
+  * Module Orientation
+  * Events
+  * Manifest
+
+
+# Version 1.5 #
+(Winter 2016)
+
+  * Add Pickups
+  * Car Locations
+  * Source/Destination
+  * Mobile Conductor
+
+# Version 2.0 #
+(TBD)
+
+  * Move to an SQL based DB
+  * Car Card Simulator
+  * Timetables
+  * ModuOps Online Module Library
+
+# Version 3.0 #
+(TBD)
+
+  * Producer/Consumer
+  * Publish/Subscribe

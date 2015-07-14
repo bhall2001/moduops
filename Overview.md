@@ -1,0 +1,34 @@
+# Introduction #
+
+ModuOPS is written to meet a specific need for operating modular layouts at setups, events or train shows. The software takes into account the specifics of a Free-mo modular setup and issues related to operations of these layouts.
+
+At a Free-mo setup, modules are assembled in to some form of a layout that can be point to point, point to loop, or loop to loop and may include branches off the main line. Module order varies from setup to setup and even the orientation of the modules can be reversed. Other model railroad operations software are expecting a layout to be basically a fixed entity and not vary on a regular basis.
+
+At Free-mo setups, the specifics of rollingstock used is not known prior to the setup. The time and labor needed to enter all the rolling stock for a setup in to an operations application prior to operating the layout is not justified especially when it is not known what is available until the day of the setup.
+
+Free-mo modular setups require an application that is more generic and less specific than other applications on the market today (in our opinion).
+
+While ModuOPS is designed to operate modular setups, the software can be  used in home layouts. At the core of the software is a scheduling engine that is less specific to rollingstock and locations on the layout. Typically ModuOPS operating sessions are easier for guests to get up to speed and learn the system than other software packages.
+
+ModuOPS is more forgiving to errors made during an operating session as well. The system does not maintain any specifics about cars during an operating session. This means that switchlists are not effected by errant car locations on the layout.
+
+# History #
+
+The New England Free-mo group holds regular Free-mo setups. At these setups, operations on the layout are driven using the software package "Mad River and Big Timber" originally written for The Sacramento Modular Railroaders club and other modular layouts on the west coast of the US.
+
+Mad River and Big Timber is written in Visual Basic for Windows 95 and has not been updated since 2001. As a result of the older source code, it is becoming difficult to find hardware that is able to run the software. Also, there are new features the NE Free-mo group would like to see added that can not be as the original developer is not adding in any new features to the software.
+
+# Modern Application #
+
+ModuOPS, while taking inspiration from Mad River and Big Timber, is a completely new application written from the ground up. The development environment is LiveCode (www.livecode.com). ModuOPS is published under the GPL v3 license. It is our hope that ModuOPS being open source will thrive in the Modular layout community and be available for many years to come.
+
+While LiveCode is not a popular programing environment, it has stood the test of time with it's roots being traced back to the early 1990's to Apple Computer's Hypercard. LiveCode is very easy to develop with and takes into account most modern user interface widgets expected in an application.
+
+ModuOPS is capable of running on Mac OS, Windows, Linux, IOS and Android. Initial focus is being made on Mac, Windows (If anyone is willing to test/fix the Linux version raise your hand). Future versions may include tablets and smartphones.
+
+ModuOPS is being designed in a manner that I hope takes a complex problem (operating a modular layout) and makes it as simple as possible while retaining a prototypical feel to an operating session. The application is a system that is based on modules each having any number of Industries and/or Consignees.
+
+Trains are created in a route that travels through the layout picking up and setting out loads along the way. The software generates Switchlists and Train Orders for operators to use.
+
+# Conclusion #
+I am not quite sure where this journey will take us, but my intention is to foster an application that is adopted by Modular Operating layouts (especially Free-mo groups) to deliver Prototypical operations on setups across the country.

@@ -1,0 +1,14 @@
+# Introduction #
+
+ModuOps is under development to offer an option to operate a modular layout especially as it relates to Free-mo. The software is easy to setup and does not require entering car data to use.
+
+
+# Details #
+
+ModuOps is an GPL v3 project. The major features are:
+  * unlimited car types
+  * unlimited Modules
+  * unlimted Consignees
+  * detailed Spots and Workorders
+  * create Trains with routes
+  * generate modern, easy to read Manifests for Trains.
