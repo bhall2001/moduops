@@ -1,6 +1,6 @@
 # Introduction #
 
-No re-hashing for what ModuOps is here. You'll find that elsewhere. Here's a quick and dirty guide on what you need to do to get ModuOps to work.
+Here's a quick and dirty guide on what you need to do to get ModuOps to work.
 
 The software is relatively flexible in how you can do things. There may be multiple ways to arrive at the same solution. With this flexibility comes a level of complication as well. It is possible to arrange things in such a manner that you do not end up with the results you'd expect.
 
@@ -33,7 +33,6 @@ Here's what you need to do to get things flowing.
   1. Create Work Orders for Spots
   1. Create Trains
   1. Generate a Manifest
-
 
 Each of these steps is outlined below. If you don't like to read directions you can give it a try but you may find that you get stuck on something. Eventually you should come back here and read what I've written to see if that helps.
 
