@@ -1,7 +1,6 @@
 # Introduction #
 
-ModuOps is under development to offer an option to operate a modular layout especially as it relates to Free-mo. The software is easy to setup and does not require entering car data to use.
-
+ModuOps is a new Operations software package. The software works well in both home layouts and modular setups. ModuOps is being developed with Free-mo setups specifically but many people find the software works well on thier home layouts as well.. The software is easy to setup and does not require entering car data to use.
 
 # Details #
 
