@@ -1,7 +1,7 @@
 # moduops
 Software for Model Railroad Operations
 
-ModuOps is a software project for Free-mo AND home layouts looking for software to assist in operation. ModuOps will generate trainlists (also known as switchlists) used during operating sessions. The software is FREE to download and includes a fully functional system with basic features. A yearly nomimal subscription unlocks aditional features and advanced scheduling engines.
+ModuOps is a software project for Free-mo AND home layouts looking for software to assist in operation. ModuOps will generate trainlists (also known as switchlists) used during operating sessions. The software is FREE to download and includes a fully functional system with basic features. A yearly nominal subscription unlocks additional features and advanced scheduling engines.
 
 ModuOps is designed with the nuances of operating a Free-mo modular setup as it's primary criteria. Operations in this environment are quite different than operating a static layout. As an example, in a Free-mo setup, the "layout" is different every time it is put together.
 
