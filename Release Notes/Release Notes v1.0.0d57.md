@@ -10,6 +10,7 @@
 - all data entry fields default to selecting all text when tabbing between fields.
 - Fixed tab order on Edit Module/Town screen
 - Re-ordered Equipment Needs field columns
+- fixed color on scrolling fields
 
 #### What's Not Working...
 This version is not "Feature Complete". That means you're going to find things that just don't work.
