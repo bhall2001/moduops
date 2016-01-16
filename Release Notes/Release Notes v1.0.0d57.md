@@ -1,6 +1,8 @@
-### ModuOps 1.0.0dp57 Release Notes
+### ModuOps 1.0.0dp58 Release Notes
 
 #### New in this Version
+- Train Orders and Crew Instructions working
+- Trains with no car requests no print trainlists (Passenger trains)
 - All Delete and Clone buttons should be working
 - Changed "Spots" to "Drop Zones" as the terminology caused confusion with how the software defined a Spot versus how the Railroad world defines a Spot.
 - Fixed graphic issue on Windows with sidebar menu
@@ -11,12 +13,9 @@
 - Fixed tab order on Edit Module/Town screen
 - Re-ordered Equipment Needs field columns
 - fixed color on scrolling fields
+- fixed some UI issues that I came across
 
 #### What's Not Working...
-This version is not "Feature Complete". That means you're going to find things that just don't work.
-
-Most significant of these items is Crew Instructions are not working yet.
-
 Drop Zones in a Module/Town have a "Direction" which is the direction the zone faces to be a trailing drop. Currently implemented are the A and B directions. What is not implemented yet is AB (a drop zone that is accessible from both directions). And yes, we know that a module could have any number of "directions". For version 1 you will find 2 directions, A and B with more options coming in future versions.
 
 None of the Preferences screen fields are active yet. Data can be typed in to the fields, but the data is not used, nor is it saved or loaded to/from that data file.
