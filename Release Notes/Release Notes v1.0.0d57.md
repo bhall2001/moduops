@@ -2,7 +2,7 @@
 
 #### New in this Version
 - Train Orders and Crew Instructions working
-- Trains with no car requests no print trainlists (Passenger trains)
+- Trains with no car requests now print trainlists (Passenger trains)
 - All Delete and Clone buttons should be working
 - Changed "Spots" to "Drop Zones" as the terminology caused confusion with how the software defined a Spot versus how the Railroad world defines a Spot.
 - Fixed graphic issue on Windows with sidebar menu
