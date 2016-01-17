@@ -1,4 +1,4 @@
-### ModuOps 1.0.0dp56 Release Notes
+### ModuOps 1.0.0d56 Release Notes
 
 The first officially released version of ModuOps is out. If you were one of the lucky ones using earlier versions you'll notice the User Interface is totally re-designed (for the better).
 

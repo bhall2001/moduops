@@ -1,22 +1,9 @@
-### ModuOps 1.0.0d57 Release Notes
+### ModuOps 1.0.0d59 Release Notes
 
 #### New in this Version
-- All Delete and Clone buttons should be working
-- Changed "Spots" to "Drop Zones" as the terminology caused confusion with how the software defined a Spot versus how the Railroad world defines a Spot.
-- Fixed graphic issue on Windows with sidebar menu
-- Experimenting on Windows how to best show buttons that are disabled. Disabled buttons are not as obvious on Windows compared to Mac OS.
-- fixed position of Train Overview and Crew Instruction fields
-- numeric entry fields now only accept numbers
-- all data entry fields default to selecting all text when tabbing between fields.
-- Fixed tab order on Edit Module/Town screen
-- Re-ordered Equipment Needs field columns
-- fixed color on scrolling fields
+- Added Remarks to Consignee's
 
 #### What's Not Working...
-This version is not "Feature Complete". That means you're going to find things that just don't work.
-
-Most significant of these items is Crew Instructions are not working yet.
-
 Drop Zones in a Module/Town have a "Direction" which is the direction the zone faces to be a trailing drop. Currently implemented are the A and B directions. What is not implemented yet is AB (a drop zone that is accessible from both directions). And yes, we know that a module could have any number of "directions". For version 1 you will find 2 directions, A and B with more options coming in future versions.
 
 None of the Preferences screen fields are active yet. Data can be typed in to the fields, but the data is not used, nor is it saved or loaded to/from that data file.
