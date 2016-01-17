@@ -2,13 +2,13 @@
 
 #### New in this Version
 - Added Remarks to Consignee's
+- Module remarks can now be multiple lines
+- About ModuOps menu now works
 
 #### What's Not Working...
 Drop Zones in a Module/Town have a "Direction" which is the direction the zone faces to be a trailing drop. Currently implemented are the A and B directions. What is not implemented yet is AB (a drop zone that is accessible from both directions). And yes, we know that a module could have any number of "directions". For version 1 you will find 2 directions, A and B with more options coming in future versions.
 
 None of the Preferences screen fields are active yet. Data can be typed in to the fields, but the data is not used, nor is it saved or loaded to/from that data file.
-
-Probably the other item that may trip you up is the "About ModuOps" menu is not working displaying an error if you select this menu option.
 
 #### Feedback and Bugs
 Your feedback and bug reports are important to us. There's big plans for ModuOps but we can't get there without your help.
