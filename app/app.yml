@@ -1,5 +1,5 @@
-name:
-version: 0.0.1
+name: Moduops
+version: 2017.4
 build: 1
 encrypt stacks: false
 multiple instances: false
@@ -7,9 +7,9 @@ relaunch in background: false
 creator code:
 application data folder:
   user:
-    default:
+    default: com.moduops.app
     macos:
-    windows:
+    windows: Moduops
     linux:
     ios:
     android:
@@ -20,8 +20,8 @@ application data folder:
     linux:
 preferences filename:
   user:
-    default:
-    macos:
+    default: moduops.prefs
+    macos: com.moduops.app
     windows:
     linux:
     ios:
@@ -41,7 +41,6 @@ backscripts:
   - folder: ./backscripts
 helpers:
   - folder: ./helpers
-  - filename: "[[FRAMEWORK]]/helpers/preferences"
 behaviors:
   - folder: ./behaviors
 build folder: ../builds
