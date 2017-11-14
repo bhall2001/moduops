@@ -1,15 +1,15 @@
-name: ModuOps
-version: 2017.2.4
+name: Moduops
+version: 2017.4
 build: 1
 encrypt stacks: false
 multiple instances: false
 relaunch in background: false
-creator code: com.bobhall.moduops
+creator code:
 application data folder:
   user:
-    default:
-    macos: 
-    windows: 
+    default: com.moduops.app
+    macos:
+    windows: Moduops
     linux:
     ios:
     android:
@@ -20,9 +20,9 @@ application data folder:
     linux:
 preferences filename:
   user:
-    default: 
-    macos: 
-    windows: 
+    default: moduops.prefs
+    macos: com.moduops.app
+    windows:
     linux:
     ios:
     android:
@@ -46,7 +46,7 @@ behaviors:
 build folder: ../builds
 build profiles:
   all profiles:
-    packager callbacks stackfile:
+    post build script:
     certificates:
       macos:
         name:
