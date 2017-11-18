@@ -1,6 +1,6 @@
 name: ModuOps
 version: 2017.2.4
-build: 1
+build: 3
 encrypt stacks: false
 multiple instances: false
 relaunch in background: false
@@ -20,8 +20,8 @@ application data folder:
     linux:
 preferences filename:
   user:
-    default: 
-    macos: 
+    default: moduops.prefs
+    macos: com.bobhall.moduops
     windows: 
     linux:
     ios:
