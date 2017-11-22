@@ -1,0 +1,9 @@
+# Add the "inno setup" entries to the copy files section
+register components:
+  - key: inno setup
+    kind: copy files
+    target platform: package folder
+    callback stackfile: inno_setup_packager.livecodescript
+packager callbacks stackfile: inno_setup_packager.livecodescript
+# Don't include when packaging an application
+distribute: false

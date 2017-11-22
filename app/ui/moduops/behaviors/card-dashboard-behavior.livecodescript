@@ -27,7 +27,7 @@ on openStack
    set the dgProp[ "dim on focusOut" ] of group "dgRoute" of card "Route" to false
    
    dispatch "mouseUp" to button "Dashboard"
-   send "uiLoadData" to this stack in 100 milliseconds
+   ##send "uiLoadData" to this stack in 100 milliseconds
    
    pass openStack
 end openStack

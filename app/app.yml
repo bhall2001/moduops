@@ -20,8 +20,8 @@ application data folder:
     linux:
 preferences filename:
   user:
-    default: moduops.prefs
-    macos: com.bobhall.moduops
+    default: 
+    macos: 
     windows: 
     linux:
     ios:
@@ -58,5 +58,23 @@ build profiles:
       linux:
       ios:
       android:
+      inno setup:
+        - filename: ../app/helpers/inno_setup/samples/MyApp.iss
+    dropDMG:
+      filename: ModuOps
+
   release:
   beta:
+  
+dropDMG:
+  format: bzip2
+  layout name:
+  license name:
+
+inno setup:
+  file flags: ignoreversion
+  folder flags: ignoreversion recursesubdirs createallsubdirs
+  executable flags: ignoreversion
+  windows compiler: 
+
+
