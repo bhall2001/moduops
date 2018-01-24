@@ -45,43 +45,6 @@ on setData theAction
    put the dgHilitedIndex of group "dgTrains" into tTrainLine
    put the dgVScroll of group "dgTrains" into tTrainScroll
    
-   /*
-   if cd fld "Number" is empty then
-      answer "Please enter a train Number"
-      exit setData
-   end if
-   
-   if cd fld "Name" is empty then
-      answer "Please enter a train Name"
-      exit setData
-   end if
-   
-   if cd fld "Length" is empty then
-      answer "Please enter a train Length"
-      exit setData
-   end if
-   
-   put the cTrains of this stack into tTrains
-   switch theAction
-      case "New"
-         set the cActiveTrain of this stack to cd fld "nextTrain"
-         add 1 to cd fld "nextTrain"
-         break 
-   end switch
-   
-   put the cActiveTrain of this stack into tActiveTrain
-   
-   put tActiveTrain into theDataA["ID"]
-   put line 1 of cd fld "Number" into theDataA["Number"]
-   put line 1 of cd fld "Name" into theDataA["Name"]
-   put line 1 of cd fld "Length" into theDataA["Length"]
-   put line 1 of cd fld "Origin" into theDataA["Origin"]
-   put line 1 of cd fld "Destination" into theDataA["Destination"]
-   put cd fld "Overview" into theDataA["Overview"]
-   put cd fld "Crew Instructions" into theDataA["Crew Instructions"]
-   put cd fld "Special Orders" into theDataA["Special Orders"]
-   
-   */
    put the dgText of group "dgRoute" into tRoute
    put tRoute into theDataA["Route"]
    
@@ -104,7 +67,7 @@ on newPressed
    if yardsDefined() then      
       put uuid() into tUUID
       put tUUID into tDataArray["UUID"]
-      put "SYMBOL" into tDataArray["symbol"]
+      put "**NEW**" into tDataArray["symbol"]
       put "Origin" into tDataArray["origin"]
       put "Destination" into tDataArray["destination"]
       put "0" into tDataArray["length"]
@@ -120,7 +83,9 @@ on newPressed
    else
       // No Yards defined. Display an error
       uiDisplayError "No Yards defined. Atleast 1 Yard must defined before creating a new train."
-   end if
+  end if
+  
+  
 end newPressed
 
 on routePressed
