@@ -1,6 +1,6 @@
 name: ModuOps
-version: 2017.2.4
-build: 3
+version: 2018.1.1
+build: 4
 encrypt stacks: false
 multiple instances: false
 relaunch in background: false
@@ -8,8 +8,8 @@ creator code: com.bobhall.moduops
 application data folder:
   user:
     default:
-    macos: 
-    windows: 
+    macos:
+    windows:
     linux:
     ios:
     android:
@@ -20,9 +20,9 @@ application data folder:
     linux:
 preferences filename:
   user:
-    default: 
-    macos: 
-    windows: 
+    default:
+    macos:
+    windows:
     linux:
     ios:
     android:
@@ -65,7 +65,7 @@ build profiles:
 
   release:
   beta:
-  
+
 dropDMG:
   format: bzip2
   layout name: moduops
@@ -75,6 +75,6 @@ inno setup:
   file flags: ignoreversion
   folder flags: ignoreversion recursesubdirs createallsubdirs
   executable flags: ignoreversion
-  windows compiler: 
+  windows compiler:
 
 

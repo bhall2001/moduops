@@ -70,7 +70,7 @@ on newPressed
       put "**NEW**" into tDataArray["symbol"]
       put "Origin" into tDataArray["origin"]
       put "Destination" into tDataArray["destination"]
-      put "0" into tDataArray["length"]
+      put "350" into tDataArray["length"]
       
       put dbInsert("train", tDataArray) into tResult
       
@@ -168,6 +168,7 @@ on clonePressed
       put tDataA[1] into tDataA
       
       put uuid() into tDataA["UUID"]
+      put tDataA["symbol"] & "-" & random(1000) into tDataA["symbol"]
       put mdbInsertRecord("train", tDataA) into tResult
       if tResult is a number then
          editRecord  tDataA["UUID"]
