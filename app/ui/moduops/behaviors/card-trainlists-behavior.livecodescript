@@ -36,11 +36,11 @@ on buildManifest
     -- Manifest Header
     put outputHeader(tTrainA[1]) after tManifest
     
-    -- Crew Instruction
-    put outputCrewInstructions(tTrainA[1]) after tManifest
-    
     -- Train Origin, Car Count & Length
     put outputTrainOrigin(tTrainA[1], sPageWidth) after tManifest
+    
+    -- Crew Instruction
+    put outputCrewInstructions(tTrainA[1]) after tManifest
     
     -- Train Manifest
     put addManifest(sManifestStyle, sPageWidth) after tManifest
@@ -122,7 +122,7 @@ function addManifest pManifestStyle pPageWidth
       
       ## Check if this is a Train Order and add to output
       if aWorkorder["workorderID"] = "" then
-         put "<p><b>" & aWorkorder["description"] & "</b></p>" after tOutput
+         put "<p>" & aWorkorder["description"] & "</p>" after tOutput
          next repeat
       end if
       
@@ -313,10 +313,12 @@ function outputTerminationInstructions pTrainA
     local tOutput
     
     if pTrainA["terminationInstructions"] is not empty then
-        put return into tOutput
+        put "<br />" into tOutput
         repeat for each line aLine in pTrainA["terminationInstructions"]
             put aline & "<br />" after tOutput
         end repeat
+        // delete the last <br /> tag in output
+        delete char -6 to -1 of tOutput
     end if
     
     return tOutput
@@ -326,18 +328,25 @@ end outputTerminationInstructions
 returns crew instructions as html
 */
 function outputCrewInstructions pTrainA
-   local tTrains, tActiveTrain, tInstructions
-   
-   if pTrainA["instructions"] <> empty then
-      
-      put "<p><b>CREW INSTRUCTIONS</b></p>" & return after tInstructions
-      
-      -- get the crew instructions from the train data
-      put pTrainA["instructions"] into field "convert"
-      put the htmltext of fld "convert" after tInstructions
-   end if  
-   
-   return tInstructions
+    local tTrains, tActiveTrain, tInstructions
+    
+    if pTrainA["instructions"] <> empty then
+        
+        put "<p><b>CREW INSTRUCTIONS</b></p>" & return after tInstructions
+        
+        // output crew instructions from the train data
+        repeat for each line aLine in pTrainA["instructions"]
+            put aLine & "<br />" after tInstructions
+        end repeat
+        
+        delete char -6 to -1 of tInstructions
+        
+        ###put pTrainA["instructions"] into field "convert"
+        ###put the htmltext of fld "convert" after tInstructions
+        
+    end if  
+    
+    return tInstructions
 end outputCrewInstructions
 
 function outputModuleName pStyle, pModule, pStopNum
@@ -416,6 +425,10 @@ function outputTrainOrigin  pTrainA, pPageWidth
       put "</b></p><p><b>" after tTrainOut
    end if
    
+   if the cCarCount of this card is empty then
+       set the cCarCount of this card to 0
+   end if
+
    put " with " & the cCarCount of this card after tTrainOut
    put " cars (" & the cTrainLength of this card & " feet)</b></p>" after tTrainOut
    

@@ -192,10 +192,10 @@ on uiLoadData
    
    put specialFolderPath("Documents") into tPath
    
-   set the visible of group "blocker"  to true
+   set the visible of graphic "blocker"  to true
    --answer file "Input:" with tPath with type "*.mop,*.MOP"
    answer file "Input:" with tPath with type "TEXT|mop"
-   set the visible of group "blocker"  to false
+   set the visible of graphic "blocker"  to false
    wait 300 milliseconds
    
    if it is not empty then
