@@ -57,196 +57,193 @@ local sExcludeConsignee -- List of Consignees that train does not handle
 
 
 command generateManifest
-    
-    ##
-    #------------------------------------------------------
-    # Get the Train's Route
-    #------------------------------------------------------
-    ##
-    
-    local tTrains, tTrainLength, tCarCount, tRandomNum, tSelectedID, tDataA, tConsigneeA
-    local tSelectedWO, tSelectedCar, tManifestIndex, tStopNum, tSpotA, tSpot, tTrainUUID
-    local tCarTypeA, tCarType, t2DataA, tUseConsignee, tConsigneeCnt, tModuleList
-    
-    unlock screen
-    put "Starting sMarty Scheduler..." into field "status" of card "trainlists" of stack "Module Operations"
-    lock screen
-    
-    put 1 into tManifestIndex
-    put the cTrainUUID of card "Trainlists" of stack "Module Operations" into tTrainUUID
-    put mdbQueryByUUID("train", tTrainUUID) into tTrains
-    put tTrains[1]["route"] into sTrainRoute
-    put jsonToArray(sTrainRoute) into sTrainRouteA
-    
-    put 0 into tTrainLength
-    put 0 into sCumTotal
-    put 0 into tConsigneeCnt
-    
-    put "" into sManifestA
-    put "" into sWorkordersA
-    put "" into tModuleList
-    put "" into tUseConsignee
-    
-    smtClearSpotUsed
-    
-    ##
-    #------------------------------------------------------
-    # Generate the weighted Workorder data
-    #------------------------------------------------------
-    ##
-    smtCreateWorklist
-    
-    ## Start a DB Transaction
-    get mdbExecuteSQL("BEGIN TRANSACTION")
-    
-    -- if there is no train route defined, display an error
-    if sWorkordersA is empty then
-        put "" into field "trainlist" of card "Trainlists" of stack "Module Operations"
-        put "" into field "status" of card "Trainlists" of stack "Module Operations"
-        answer error "This train has no route defined!"
-        exit to top
-    end if
-    
-    if sWorkordersA is an array then
-        repeat 1000 times
-            
-            ##
-            #------------------------------------------------------
-            # Select a Workorder
-            #------------------------------------------------------
-            ##
-            
-            ## Select a random number from 1 to the Cumulative Total
-            put random(sCumTotal) into tRandomNum
-            
-            put smtBinarySearchWO(sWorkordersA, tRandomNum, 1, (number of elements of sWorkordersA)) into tSelectedID
-            
-            put sWorkordersA[tSelectedID] into tSelectedWO
-            
-            if sTrainRouteA[tSelectedWO["stop"]]["consigneeID"] is in "A, B, AB" then
-                if sTrainRouteA[tSelectedWO["stop"]]["consigneeID"] <> tSelectedWO["direction"] then
-                    if tSelectedWO["direction"] <> "AB" then
-                        next repeat
-                    end if
-                end if
+   
+   ##
+   #------------------------------------------------------
+   # Get the Train's Route
+   #------------------------------------------------------
+   ##
+   
+   local tTrains, tTrainLength, tCarCount, tRandomNum, tSelectedID, tDataA, tConsigneeA
+   local tSelectedWO, tSelectedCar, tManifestIndex, tStopNum, tSpotA, tSpot, tTrainUUID
+   local tCarTypeA, tCarType, t2DataA, tUseConsignee, tConsigneeCnt, tModuleList
+   
+   unlock screen
+   put "Starting sMarty Scheduler..." into field "status" of card "trainlists" of stack "Module Operations"
+   lock screen
+   
+   put 1 into tManifestIndex
+   put the cTrainUUID of card "Trainlists" of stack "Module Operations" into tTrainUUID
+   put mdbQueryByUUID("train", tTrainUUID) into tTrains
+   put tTrains[1]["route"] into sTrainRoute
+   put jsonToArray(sTrainRoute) into sTrainRouteA
+   
+   put 0 into tTrainLength
+   put 0 into sCumTotal
+   put 0 into tConsigneeCnt
+   
+   put "" into sManifestA
+   put "" into sWorkordersA
+   put "" into tModuleList
+   put "" into tUseConsignee
+   
+   smtClearSpotUsed
+   
+   ##
+   #------------------------------------------------------
+   # Generate the weighted Workorder data
+   #------------------------------------------------------
+   ##
+   smtCreateWorklist
+   
+   ## Start a DB Transaction
+   get mdbExecuteSQL("BEGIN TRANSACTION")
+   
+   -- if there is no train route defined, display an error
+   if sWorkordersA is empty then
+      put "" into field "trainlist" of card "Trainlists" of stack "Module Operations"
+      put "" into field "status" of card "Trainlists" of stack "Module Operations"
+      answer error "This train has no route defined!"
+      exit to top
+   end if
+   
+   if sWorkordersA is an array then
+      repeat 1000 times
+         
+         ##
+         #------------------------------------------------------
+         # Select a Workorder
+         #------------------------------------------------------
+         ##
+         
+         ## Select a random number from 1 to the Cumulative Total
+         put random(sCumTotal) into tRandomNum
+         
+         put smtBinarySearchWO(sWorkordersA, tRandomNum, 1, (number of elements of sWorkordersA)) into tSelectedID
+         
+         put sWorkordersA[tSelectedID] into tSelectedWO
+         
+         if sTrainRouteA[tSelectedWO["stop"]]["consigneeID"] is in "A, B, AB" then
+            if sTrainRouteA[tSelectedWO["stop"]]["consigneeID"] <> tSelectedWO["direction"] then
+               if tSelectedWO["direction"] <> "AB" then
+                  next repeat
+               end if
             end if
-            
-            if tTrains[1]["limitModules"] <> "" then
-                if the number of lines of tModuleList = tTrains[1]["limitModules"] then
-                else
-                    if lineOffset(tSelectedWO["moduleID"], tModuleList) = 0 then
-                        put tSelectedWO["moduleID"] & return after tModuleList
-                    end if
-                end if
-                
-                if lineOffset(tSelectedWO["moduleID"], tModuleList) = 0 then
-                    next repeat
-                end if
-            end if
-            
-            if (tUseConsignee <> "") then
-                ###if (tSelectedWO["spotID"] = tUseConsignee) then
-                if (tSelectedWO["track"] = tUseConsignee) then
-                    add 1 to tConsigneeCnt
-                    if tConsigneeCnt > 60 then -- catches an infinite loop if no Consignee's match
-                        put 0 into tConsigneeCnt
-                        put "" into tUseConsignee
-                        next repeat
-                    end if
-                else -- select another workorder for looking for the consignee
-                    next repeat
-                end if
-            end if
-            
-            ## once a workorder is selected, favor re-using the consignee
-            if (random(10) <=  8*(tSelectedWO["CPW"]/7)) then 
-            
-           ### if random(tSelectedWO["CPW"]) >= random(4) then
-                ###put tSelectedWO["spotID"] into tUseConsignee
-                put tSelectedWO["track"] into tUseConsignee
+         end if
+         
+         if tTrains[1]["limitModules"] <> "" then
+            if the number of lines of tModuleList = tTrains[1]["limitModules"] then
             else
-                put "" into tUseConsignee
-                put 0 into tConsigneeCnt
+               if lineOffset(tSelectedWO["moduleID"], tModuleList) = 0 then
+                  put tSelectedWO["moduleID"] & return after tModuleList
+               end if
             end if
             
-            ##
-            #------------------------------------------------------
-            # Check If Spot Has Room for Car Selected
-            #------------------------------------------------------
-            ##
-            
-            put mdbQueryByUUID("carType", tSelectedWO["carID"]) into tCarTypeA
-            
-            -- if there are no cars matching request move to next WO
-            if tCarTypeA is not an array then
-                next repeat
+            if lineOffset(tSelectedWO["moduleID"], tModuleList) = 0 then
+               next repeat
             end if
-            
-            put tCarTypeA[1] into tCarType
-            
-            put mdbQueryByUUID("spot", tSelectedWO["spotID"]) into tSpotA
-            put tSpotA[1] into tSpot
-            
-            ## If the spot is full, go to the next Workorder
-            if tSpot["used"] + tCarType["length"] > tSpot["length"] then
-                put "" into tUseConsignee
-                put 0 into tConsigneeCnt
-                next repeat
+         end if
+         
+         if (tUseConsignee <> "") then
+            ###if (tSelectedWO["spotID"] = tUseConsignee) then
+            if (tSelectedWO["track"] = tUseConsignee) then
+               add 1 to tConsigneeCnt
+               if tConsigneeCnt > 60 then -- catches an infinite loop if no Consignee's match
+                  put 0 into tConsigneeCnt
+                  put "" into tUseConsignee
+                  next repeat
+               end if
+            else -- select another workorder for looking for the consignee
+               next repeat
             end if
+         end if
+         
+         ## once a workorder is selected, favor re-using the selected track
+         if reuseConsignee(tSelectedWO["CPW"]) then
+            put tSelectedWO["track"] into tUseConsignee
+         else
+            put "" into tUseConsignee
+            put 0 into tConsigneeCnt
+         end if
+         
+         ##
+         #------------------------------------------------------
+         # Check If Spot Has Room for Car Selected
+         #------------------------------------------------------
+         ##
+         
+         put mdbQueryByUUID("carType", tSelectedWO["carID"]) into tCarTypeA
+         
+         -- if there are no cars matching request move to next WO
+         if tCarTypeA is not an array then
+            next repeat
+         end if
+         
+         put tCarTypeA[1] into tCarType
+         
+         put mdbQueryByUUID("spot", tSelectedWO["spotID"]) into tSpotA
+         put tSpotA[1] into tSpot
+         
+         ## If the spot is full, go to the next Workorder
+         if tSpot["used"] + tCarType["length"] > tSpot["length"] then
+            put "" into tUseConsignee
+            put 0 into tConsigneeCnt
+            next repeat
+         end if
+         
+         ##
+         #------------------------------------------------------
+         # Add to Manifest
+         #------------------------------------------------------
+         ##
+         
+         --put mdbQueryByUUID("carType", tSelectedWO["carID"]) into tSelectedCar
+         if (tTrainLength + tCarType["length"]) < tTrains[1]["length"] then
+            put tTrainUUID into sManifestA[tManifestIndex]["trainID"]
+            put tSelectedWO["UUID"] into sManifestA[tManifestIndex]["workorderID"]
+            put tSelectedWO["stop"] into sManifestA[tManifestIndex]["stop"]
+            add 1 to tManifestIndex
+            add 1 to tCarCount
+            add tCarType["length"] to tTrainLength
+            put tSpot["used"] + tCarType["length"] into tSpot["used"]
+            get mdbUpdateRecord(tSelectedWO["spotID"], "spot", tSpot)
             
-            ##
-            #------------------------------------------------------
-            # Add to Manifest
-            #------------------------------------------------------
-            ##
+            unlock screen
+            put "Scheduled " & tCarCount & " cars." into field "status" of card "trainlists" of stack "Module Operations"
+            lock screen
             
-            --put mdbQueryByUUID("carType", tSelectedWO["carID"]) into tSelectedCar
-            if (tTrainLength + tCarType["length"]) < tTrains[1]["length"] then
-                put tTrainUUID into sManifestA[tManifestIndex]["trainID"]
-                put tSelectedWO["UUID"] into sManifestA[tManifestIndex]["workorderID"]
-                put tSelectedWO["stop"] into sManifestA[tManifestIndex]["stop"]
-                add 1 to tManifestIndex
-                add 1 to tCarCount
-                add tCarType["length"] to tTrainLength
-                put tSpot["used"] + tCarType["length"] into tSpot["used"]
-                get mdbUpdateRecord(tSelectedWO["spotID"], "spot", tSpot)
-                
-                unlock screen
-                put "Scheduled " & tCarCount & " cars." into field "status" of card "trainlists" of stack "Module Operations"
-                lock screen
-                
-            else
-                exit repeat
-            end if
-        end repeat
-    end if
-    
-    ## End a DB Transaction
-    get mdbExecuteSQL("COMMIT")
-    
-    ##
-    #------------------------------------------------------
-    # Return the final Manifest
-    #------------------------------------------------------
-    ##
-    
-    unlock screen
-    put "Generating Manifest..." into field "status" of card "trainlists" of stack "Module Operations"
-    lock screen
-    
-    set the cCarCount of card "Trainlists" of stack "Module Operations" to tCarCount
-    set the cTrainLength of card "Trainlists" of stack "Module Operations" to tTrainLength
-    
-    get mdbDeleteManifestByTrainID(tTrainUUID)
-    
-    if sManifestA is an array then
-        get mdbArrayToTable("manifest", sManifestA)
-    end if
-    
-    --return sManifestA
-    set the cManifestA of card "Trainlists" of stack "Module Operations" to sManifestA
-    put "" into field "status" of card "trainlists" of stack "Module Operations"
-    
+         else
+            exit repeat
+         end if
+      end repeat
+   end if
+   
+   ## End a DB Transaction
+   get mdbExecuteSQL("COMMIT")
+   
+   ##
+   #------------------------------------------------------
+   # Return the final Manifest
+   #------------------------------------------------------
+   ##
+   
+   unlock screen
+   put "Generating Manifest..." into field "status" of card "trainlists" of stack "Module Operations"
+   lock screen
+   
+   set the cCarCount of card "Trainlists" of stack "Module Operations" to tCarCount
+   set the cTrainLength of card "Trainlists" of stack "Module Operations" to tTrainLength
+   
+   get mdbDeleteManifestByTrainID(tTrainUUID)
+   
+   if sManifestA is an array then
+      get mdbArrayToTable("manifest", sManifestA)
+   end if
+   
+   --return sManifestA
+   set the cManifestA of card "Trainlists" of stack "Module Operations" to sManifestA
+   put "" into field "status" of card "trainlists" of stack "Module Operations"
+   
 end generateManifest
 
 on smtClearSpotUsed
@@ -359,4 +356,19 @@ function smtBinarySearchWO @pArray pItem pLeft pRight
    end if
    return tResult
 end smtBinarySearchWO
+
+/*
+Shoud the Consignee be scheduled again to favor current selected
+
+Parameters:
+pCPW integer for Cars per week
+Returns:
+boolean
+*/
+private function reuseConsignee pCPW
+   ## Removed on 01/27/19 RDH
+   ## Evaluating if random based on CPW works better
+   ## random(10) <=  8*(tSelectedWO["CPW"]/7)
+   return random(pCPW) <= pCPW/2
+end reuseConsignee
 
