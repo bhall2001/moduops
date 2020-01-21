@@ -14,6 +14,12 @@ on openCard
    pass openCard
 end openCard
 
+
+on preOpenCard
+   put myVersion() into field "myVersion" of card "Dashboard" of stack "Module Operations"
+end preOpenCard
+
+
 on openStack
    set the dgProp[ "dim on focusOut" ] of group "dgTrains" of card "Trains" to false
    set the dgProp[ "dim on focusOut" ] of group "dgCarTypes" of card "Equipment Register" to false
@@ -27,7 +33,6 @@ on openStack
    set the dgProp[ "dim on focusOut" ] of group "dgRoute" of card "Route" to false
    
    dispatch "mouseUp" to button "Dashboard"
-   ##send "uiLoadData" to this stack in 100 milliseconds
    
    pass openStack
 end openStack

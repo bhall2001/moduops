@@ -4,6 +4,11 @@
 #
 local sCarTypeID -- active car type ID
 
+// Version number
+local sMajor = 20
+local sMinor = 1
+local sPatch = 1
+
 ##
 #  Script Local Setters
 #
@@ -153,7 +158,7 @@ on uiNewData
    answer  "All data will be lost. Are you sure you want to do this?" with "OK" and "Cancel"
    if it is "OK" then
       set cursor to watch
-            
+      
       _clearAllData -- clears all data from Database
       
       if the short name of this card is "Dashboard" then
@@ -161,7 +166,7 @@ on uiNewData
       else
          send "mouseUp" to button "Dashboard" in 0 seconds
       end if
-
+      
       set cursor to hand
       
       answer info "All Data Reset..." with "OK"
@@ -347,7 +352,7 @@ private function loadDBTable pTableName, @pDataA
    updateStatus "Loading " & pTableName & " table..."
    
    if sDatabaseID is not a number then databaseConnect
-      
+   
    repeat for each element aItem in pDataA
       if aItem is an array then
          put the keys of aItem into tKeys
@@ -393,11 +398,11 @@ command databaseConnect
 end databaseConnect
 
 command setDatabaseID pDatabaseID
-    put pDatabaseID into sDatabaseID
+   put pDatabaseID into sDatabaseID
 end setDatabaseID
 
 function getDatabaseID
-    return sDatabaseID
+   return sDatabaseID
 end getDatabaseID
 */
 
@@ -426,9 +431,6 @@ function saveData
 end saveData
 
 
-
-
-
 on goesInta
    ## Bug in LC 8 prevents this from working. Removed.
    ## set cursor to hand
@@ -439,6 +441,7 @@ on goesInta
    end if
 end goesInta
 
+
 on goesOuta
    if the backgroundColor of the target is not "#008080" then
       set the backgroundColor of the target to "#2E2E2E"
@@ -448,11 +451,13 @@ on goesOuta
    ## unlock cursor
 end goesOuta
 
+
 on mouseLeave
    ## Bug in LC 8 prevents this from working. Removed.
    ## set cursor to arrow
    ## unlock cursor
 end mouseLeave
+
 
 on updateSidebarUI
    local lBtnCT, tButtonID
@@ -466,12 +471,14 @@ on updateSidebarUI
    end repeat
 end updateSidebarUI
 
+
 on openCard
    if there is a field "cardName" then
       put the short name of this card into field "cardName"
    end if
    pass openCard
 end openCard
+
 
 function linearArrayIndex @pArray
    local i, tArray
@@ -483,12 +490,14 @@ function linearArrayIndex @pArray
    return tArray
 end linearArrayIndex
 
+
 command updateStatus pMsg
    set the text of field "Status" to pMsg
    wait 25 milliseconds
    unlock screen
    lock screen
 end updateStatus
+
 
 function wordWrappedHTML pText,pMaxLength
    local tWrappedText
@@ -573,9 +582,10 @@ private function getFTPPath
    local ftpPath
    ## Set the ftp location
    put "ftp://moduops5:Ioyou4it!@ftp.moduops.com/public_html/nts/" into ftpPath
-      
+   
    return ftpPath
 end getFTPPath
+
 
 on _clearAllData
    local tResult
@@ -682,30 +692,21 @@ function indexArray @pAssociativeA
 end indexArray
 
 
+function myVersion
+   return (sMajor & "." & sMinor & "." & sPatch)
+end myVersion
+
+
 on preOpenStack
-      local tPath, tDataFile
+   local tPath, tDataFile
    
-   //put glxapp_getProp("application stack file path") into tPath
    put the effective filename of this stack into tPath
    set the itemDelimiter to "/"
    delete the last item of tPath
    set the cAppPath of stack "Module Operations" to tPath
-   --put glxapp_getProp("long version") into field "myVersion"
-   put the cVersion of stack "Module Operations" into field "myVersion"
    
    ## Set default filename and set the Window Name
    _resetFileName
    
-   /*
-   -- Load dbLib
-   start using stack (tPath & "/libraries/aagDBLib.livecode")
-   
-   -- Load Database Library
-   start using stack (tPath & "/libraries/mopDBLib.livecode")
-   
-   -- Load fastJSON library
-   start using stack (tPath & "/libraries/fastJson.livecode")
-   */
-
    _clearAllData
 end preOpenStack
