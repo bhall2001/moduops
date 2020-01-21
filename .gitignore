@@ -4,3 +4,4 @@
 # Misc
 .env
 /app/ui/moduops/moduops.db
+*.zip

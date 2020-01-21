@@ -1,4 +1,4 @@
-script "sMarty"
+﻿script "sMarty"
 ## ------------------------------------------------------------------------
 
 ##
@@ -78,16 +78,6 @@ command generateManifest
    put tTrains[1]["route"] into sTrainRoute
    put jsonToArray(sTrainRoute) into sTrainRouteA
    
-   --put "" into sTrainRouteA
-   
-   /*
-   set the itemDelimiter to tab
-   repeat with i = 1 to number of elements of sTrainRoute
-      put item 4 of line i of sTrainRoute into sTrainRouteA[i]["moduleID"]
-      put item 5 of line i of sTrainRoute into sTrainRouteA[i]["direction"]
-   end repeat
-   */
-   
    put 0 into tTrainLength
    put 0 into sCumTotal
    put 0 into tConsigneeCnt
@@ -126,7 +116,6 @@ command generateManifest
          #------------------------------------------------------
          ##
          
-         
          ## Select a random number from 1 to the Cumulative Total
          put random(sCumTotal) into tRandomNum
          
@@ -156,7 +145,8 @@ command generateManifest
          end if
          
          if (tUseConsignee <> "") then
-            if (tSelectedWO["spotID"] = tUseConsignee) then
+            ###if (tSelectedWO["spotID"] = tUseConsignee) then
+            if (tSelectedWO["track"] = tUseConsignee) then
                add 1 to tConsigneeCnt
                if tConsigneeCnt > 60 then -- catches an infinite loop if no Consignee's match
                   put 0 into tConsigneeCnt
@@ -168,11 +158,9 @@ command generateManifest
             end if
          end if
          
-         ## once a workorder is selected, favor re-using the consignee
-         --if (random(10) <=  8*(tSelectedWO["CPW"]/7)) then 
-         
-         if random(tSelectedWO["CPW"]) >= random(4) then
-            put tSelectedWO["spotID"] into tUseConsignee
+         ## once a workorder is selected, favor re-using the selected track
+         if reuseConsignee(tSelectedWO["CPW"]) then
+            put tSelectedWO["track"] into tUseConsignee
          else
             put "" into tUseConsignee
             put 0 into tConsigneeCnt
@@ -230,7 +218,7 @@ command generateManifest
       end repeat
    end if
    
-   ## Start a DB Transaction
+   ## End a DB Transaction
    get mdbExecuteSQL("COMMIT")
    
    ##
@@ -368,4 +356,19 @@ function smtBinarySearchWO @pArray pItem pLeft pRight
    end if
    return tResult
 end smtBinarySearchWO
+
+/*
+Shoud the Consignee be scheduled again to favor current selected
+
+Parameters:
+pCPW integer for Cars per week
+Returns:
+boolean
+*/
+private function reuseConsignee pCPW
+   ## Removed on 01/27/19 RDH
+   ## Evaluating if random based on CPW works better
+   ## random(10) <=  8*(tSelectedWO["CPW"]/7)
+   return random(pCPW) <= pCPW/2
+end reuseConsignee
 
