@@ -544,35 +544,35 @@ function wordWrappedHTML pText,pMaxLength
 end wordWrappedHTML
 
 on sendJson
-   local tJsonData, tSequence, oldDelimiter, ftpPath
-   
-   put the dgText of group "dgSequence" of card "Train Sequence" into tSequence
-   
-   put "{" & return & quote & "data" & quote & ": [" & return into tJsonData
-   
-   put the itemDelimiter into oldDelimiter
-   set the itemDelimiter to tab
-   repeat with i = 1 to number of lines of tSequence
-      if item 2 of line i of tSequence <> "void" then
-         put "[" & return after tJsonData
-         put quote & item 2 of line i of tSequence & quote & comma & return after tJsonData
-         put quote & item 3 of line i of tSequence & quote & comma & return after tJsonData
-         put quote & item 4 of line i of tSequence & quote & comma & return after tJsonData
-         put quote & item 5 of line i of tSequence & quote & return after tJsonData
-         put "]" & comma & return after tJsonData
-      end if
-   end repeat
-   set the itemDelimiter to oldDelimiter
-   
-   delete last char of tJsonData
-   delete last char of tJsonData
-   put return & "]" & return & "}" after tJsonData
-   
-   ## Set the path for the Json paths
-   put getFTPPath() into  ftpPath
-   
-   ## Output JSON files to the server
-   put tJsonData into URL (ftpPath & "/arrays.txt")
+  local tJsonData, tSequence, oldDelimiter, ftpPath
+  
+  put the dgText of group "dgSequence" of card "Train Sequence" into tSequence
+  
+  put "{" & return & quote & "data" & quote & ": [" & return into tJsonData
+  
+  put the itemDelimiter into oldDelimiter
+  set the itemDelimiter to tab
+  repeat with i = 1 to number of lines of tSequence
+    if item 2 of line i of tSequence <> "void" then
+      put "[" & return after tJsonData
+      put quote & item 2 of line i of tSequence & quote & comma & return after tJsonData
+      put quote & item 3 of line i of tSequence & quote & comma & return after tJsonData
+      put quote & item 4 of line i of tSequence & quote & comma & return after tJsonData
+      put quote & item 5 of line i of tSequence & quote & return after tJsonData
+      put "]" & comma & return after tJsonData
+    end if
+  end repeat
+  set the itemDelimiter to oldDelimiter
+  
+  delete last char of tJsonData
+  delete last char of tJsonData
+  put return & "]" & return & "}" after tJsonData
+  
+  ## Set the path for the Json paths
+  put getFTPPath() into  ftpPath
+  
+  ## Output JSON files to the server
+  --   put tJsonData into URL (ftpPath & "/arrays.txt")
 end sendJson
 
 ## 
@@ -581,7 +581,6 @@ end sendJson
 private function getFTPPath
    local ftpPath
    ## Set the ftp location
-   put "ftp://moduops5:Ioyou4it!@ftp.moduops.com/public_html/nts/" into ftpPath
    
    return ftpPath
 end getFTPPath
