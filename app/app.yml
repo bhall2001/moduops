@@ -1,0 +1,80 @@
+name: ModuOps
+version: 2018.1.1
+build: 4
+encrypt stacks: false
+multiple instances: false
+relaunch in background: false
+creator code: com.bobhall.moduops
+application data folder:
+  user:
+    default:
+    macos:
+    windows:
+    linux:
+    ios:
+    android:
+  shared:
+    default:
+    macos:
+    windows:
+    linux:
+preferences filename:
+  user:
+    default:
+    macos:
+    windows:
+    linux:
+    ios:
+    android:
+  shared:
+    default:
+    macos:
+    windows:
+    linux:
+ui:
+  - folder: ./ui
+libraries:
+  - folder: ./libraries
+frontscripts:
+  - folder: ./frontscripts
+backscripts:
+  - folder: ./backscripts
+helpers:
+  - folder: ./helpers
+behaviors:
+  - folder: ./behaviors
+build folder: ../builds
+build profiles:
+  all profiles:
+    packager callbacks stackfile:
+    certificates:
+      macos:
+        name:
+    copy files:
+      all platforms:
+        - filename: assets
+      macos:
+      windows:
+      linux:
+      ios:
+      android:
+      inno setup:
+        - filename: ../app/helpers/inno_setup/samples/MyApp.iss
+    dropDMG:
+      filename: ModuOps
+
+  release:
+  beta:
+
+dropDMG:
+  format: bzip2
+  layout name: moduops
+  license name:
+
+inno setup:
+  file flags: ignoreversion
+  folder flags: ignoreversion recursesubdirs createallsubdirs
+  executable flags: ignoreversion
+  windows compiler:
+
+

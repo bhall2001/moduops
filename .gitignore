@@ -1,0 +1,7 @@
+# Don't sync build folder
+/builds
+
+# Misc
+.env
+/app/ui/moduops/moduops.db
+*.zip

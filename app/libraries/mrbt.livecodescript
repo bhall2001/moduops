@@ -1,0 +1,241 @@
+script "mrbt"
+
+## ------------------------------------------------------------------------
+
+##
+# MRBT engine
+#
+# A Scheduling Engine for ModuOps
+# Based on the algorithm for the 90's software "Mad River and Big Timber"
+#
+# @package   MRBT
+# @author       bhall_2001@yahoo.com
+# @copyright  Copyright (c) 2009 - 2015, Robert D. Hall
+# @link		      http://www.moduops.com
+#
+#
+# This is the simpliest of the scheduling engines for ModuOps and is included
+# free in the Application. In a nut shell, this scheduler randomly selects a module
+# listed on a train's path, then random selects a Consignee, then randomly selects 
+# a Car from the workorders of the Consignee.
+#
+# There is no weighting of any data and at each stage all items have an equal chance
+# of selection.
+#
+# A Manifest is generated form the work selected for the train is returned to 
+# ModuOps for processing and output.
+#
+##
+
+## ------------------------------------------------------------------------
+
+##
+# Generate Manifest
+#
+# Function called by ModuOps to generate a Train's Manifest
+#
+# @package        MRBT
+# @category	    Scheduler
+# @author            bhall_2001@yahoo.com
+# @link	                 http://www.moduops.com
+##
+
+## ------------------------------------------------------------------------
+
+##
+#------------------------------------------------------
+# Script Local Variables
+#------------------------------------------------------
+##
+local sTrainRoute -- Active Train's Route
+local sManifestA -- Train's Manifest
+
+command generateManifest
+   
+   ##
+   #------------------------------------------------------
+   # Get the Train's Route
+   #------------------------------------------------------
+   ##
+   
+   local tTrains, tTrainLength, tCarCount, tRandomNum, tSelectedID, tDataA, tConsigneeA
+   local tSelectedWO, tSelectedCar, tManifestIndex, tStopNum, tSpotA, tSpot, tTrainUUID
+   local tCarTypeA, tCarType, t2DataA, tModuleList
+   
+   unlock screen
+   put "Starting MRBT Scheduler..." into field "status" of card "trainlists" of stack "Module Operations"
+   lock screen
+   
+   put 1 into tManifestIndex
+   put the cTrainUUID of card "Trainlists" of stack "Module Operations" into tTrainUUID
+   put mdbQueryByUUID("train", tTrainUUID) into tTrains
+   put tTrains[1]["route"] into sTrainRoute
+   put jsonToArray(sTrainRoute) into sTrainRoute
+   put 0 into tTrainLength
+   
+   put "" into sManifestA
+   clearSpotUsed
+   put "" into tModuleList
+   
+   repeat 1000 times
+      ##
+      #------------------------------------------------------
+      # Select a Module
+      #------------------------------------------------------
+      ##
+      
+      if sTrainRoute is empty then 
+         -- If the train does not have a route then don't schedule anything
+         put "" into field "trainlist" of card "Trainlists" of stack "Module Operations"
+         put "" into field "status" of card "Trainlists" of stack "Module Operations"
+         answer error "This train does not have a route defined."
+         exit to top 
+      end if
+      
+      --put random(the number of lines of sTrainRoute) into tStopNum
+      put random(the number of elements of sTrainRoute) into tStopNum
+      --set the itemDelimiter to tab
+      --put item 4 of line tStopNum of sTrainRoute into tSelectedID
+      put sTrainRoute[tStopNum]["moduleID"] into tSelectedID
+      
+      ## Check for an empty moduleID
+      ## empty moduleID implies this line on the train's route is a Train Order
+      if tSelectedID is not empty then
+         if the number of lines of tModuleList = 4 then
+         else
+            if lineOffset(tSelectedID, tModuleList) = 0 then
+               put tSelectedID & return after tModuleList
+            end if
+         end if
+         
+         if lineOffset(tSelectedID, tModuleList) = 0 then
+            next repeat
+         end if
+         
+         ##
+         #------------------------------------------------------
+         # Select a Consignee
+         #------------------------------------------------------
+         ##
+         
+         put mdbQueryByModuleID( "consignee", tSelectedID) into tDataA
+         if tDataA is not an array then
+            --answer "Error..."
+            next repeat
+         end if
+         put random(the number of elements of tDataA) into tRandomNum
+         put tDataA[tRandomNum]["UUID"] into tSelectedID
+         
+         ##
+         #------------------------------------------------------
+         # Select a Workorder
+         #------------------------------------------------------
+         ##
+         
+         put mdbQueryByConsigneeID("workorder", tSelectedID) into t2DataA
+         
+         -- If no workorders exist for consignee move on to the next WO
+         if t2DataA is not an array then
+            next repeat
+         end if
+         
+         put random(the number of elements of t2DataA) into tRandomNum
+         put t2DataA[tRandomNum] into tSelectedWO
+         
+         ##
+         #------------------------------------------------------
+         # Check If Spot Has Room for Car Selected
+         #------------------------------------------------------
+         ##
+         
+         put mdbQueryByUUID("carType", tSelectedWO["carID"]) into tCarTypeA
+         
+         -- if there are no cars matching request move to next WO
+         if tCarTypeA is not an array then
+            next repeat
+         end if
+         
+         put tCarTypeA[1] into tCarType
+         
+         put mdbQueryByUUID("spot", tSelectedWO["spotID"]) into tSpotA
+         put tSpotA[1] into tSpot
+         
+         ## valid selected car fits in the spot
+         if tSpot["used"] + tCarType["length"] > tSpot["length"] then
+            next repeat
+         end if
+         
+         ##
+         #------------------------------------------------------
+         # Add to Manifest
+         #------------------------------------------------------
+         ##
+         
+         put mdbQueryByUUID("carType", tSelectedWO["carID"]) into tSelectedCar
+         if tTrainLength + tSelectedCar[1]["length"] < tTrains[1]["length"] then
+            put tTrainUUID into sManifestA[tManifestIndex]["trainID"]
+            put tSelectedWO["UUID"] into sManifestA[tManifestIndex]["workorderID"]
+            put tStopNum into sManifestA[tManifestIndex]["stop"]
+            add 1 to tManifestIndex
+            add 1 to tCarCount
+            add tSelectedCar[1]["length"] to tTrainLength
+            put tSpot["used"] + tCarType["length"] into tSpot["used"]
+            get mdbUpdateRecord(tSelectedWO["spotID"], "spot", tSpot)
+            unlock screen
+            put "Scheduled " & tCarCount & " cars." into field "status" of card "trainlists" of stack "Module Operations"
+            lock screen
+         else
+            exit repeat
+         end if
+      end if
+   end repeat
+   
+   ## Add Train Orders to Manifest
+   repeat with i = 1 to the number of elements of sTrainRoute
+      if sTrainRoute[i]["Name"] = "Train Order" then
+         put i into sManifestA[tManifestIndex]["stop"]
+         put tTrainUUID into sManifestA[tManifestIndex]["trainID"]
+         put sTrainRoute[i]["consignee"] into sManifestA[tManifestIndex]["trainOrder"]
+         add 1 to tManifestIndex
+      end if
+   end repeat
+   
+   unlock screen
+   put "Generating Manifest..." into field "status" of card "trainlists" of stack "Module Operations"
+   lock screen
+   
+   ##
+   #------------------------------------------------------
+   # Return the final Manifest
+   #------------------------------------------------------
+   ##
+   
+   set the cCarCount of card "Trainlists" of stack "Module Operations" to tCarCount
+   set the cTrainLength of card "Trainlists" of stack "Module Operations" to tTrainLength
+   
+   get mdbDeleteManifestByTrainID(tTrainUUID)
+   
+   repeat for each element aOrder in sManifestA
+      get mdbInsertRecord("manifest", aOrder)
+   end repeat
+   
+   --return sManifestA
+   set the cManifestA of stack "Module Operations" to sManifestA
+   put "" into field "status" of card "trainlists" of stack "Module Operations"
+   
+end generateManifest
+
+on clearSpotUsed
+   local tSpotsA
+   
+   put mdbTableToArray("spot") into tSpotsA
+   
+   repeat for each element aSpot in tSpotsA
+      put 0 into aSpot["used"]
+      get mdbUpdateRecord(aSpot["UUID"], "spot", aSpot)
+      
+   end repeat
+end clearSpotUsed
+
+
+
