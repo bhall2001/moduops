@@ -1,4 +1,4 @@
-﻿script "libTrain"
+﻿script "ModelTrain"
 /*
 Get all trains
 */

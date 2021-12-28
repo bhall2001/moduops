@@ -1,4 +1,4 @@
-﻿script "libModules"
+﻿script "ModelModules"
 /*
 *  get all the modules associated with the active layout
 *
