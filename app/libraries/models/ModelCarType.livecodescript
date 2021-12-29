@@ -51,24 +51,53 @@ end carType.update
 
 
 /*
-return equipment in database
+return a single item by id in database
 */
-function carType.get pId
+function carType.findOne pId
   local tEquipmentA
   
-  if pId is not empty then
-    datalayer.where "id", pId
+  if pId is empty then
+    throw "ERROR: id required to to find car type"
   end if
+  
+  datalayer.where "id", pId
   
   put datalayer.select("carType") into tEquipmentA
   
-  // return first item when id is given
-  if pId is not empty then
-    return tEquipmentA[1]
+  // when no array, return the entire result
+  if tEquipmentA is not an array then
+    return tEquipmentA
   end if
   
-  return tEquipmentA
-end carType.get
+  // return first item of result array
+  return tEquipmentA[1]
+end carType.findOne
+
+
+/**
+select records from database based on parameters provided
+
+Example:
+put carType.findMany(tCriteriaA) into tCarTypeA
+
+Description:
+using an array of criteria, selects records from the database
+
+Parameters:
+pCriteriaA array of fields/values to select on
+
+Returns:
+array of car type records found in database
+**/
+function carType.findMany pCriteriaA
+  local tTeamA
+  
+  repeat for each key aCriteria in pCriteriaA
+    datalayer.where aCriteria, pCriteriaA[aCriteria]
+  end repeat
+  
+  return datalayer.select("carType", pCriteriaA)
+end carType.findMany
 
 
 /**

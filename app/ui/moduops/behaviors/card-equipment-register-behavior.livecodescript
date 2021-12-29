@@ -7,7 +7,7 @@ end preOpenCard
 on openCard
   local tTemp
   
-  set the dgData of group "dgCarTypes" to carType.get()
+  set the dgData of group "dgCarTypes" to carType.findMany()
   
   dispatch "SortDataByKey" to group "dgCarTypes" with \
         "length", "international", "ascending", false
@@ -137,7 +137,7 @@ on clonePressed
     answer info "Please select Equipment to Copy."
   else
     put the uSelectedID of group "dgCarTypes" into theSelectedID
-    put carType.get(theSelectedID) into tDataA
+    put carType.findOne(theSelectedID) into tDataA
     
     put uuid() into tDataA["id"]
     put carType.create(tDataA) into tResult

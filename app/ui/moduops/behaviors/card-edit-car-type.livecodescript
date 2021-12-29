@@ -11,7 +11,7 @@ on openCard
   
   put getCarTypeID() into sActiveID
   
-  put carType.get(sActiveId) into tCarType
+  put carType.findOne(sActiveId) into tCarType
   
   put tCarType["class"] into tClass
   

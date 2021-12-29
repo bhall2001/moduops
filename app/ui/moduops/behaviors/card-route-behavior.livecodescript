@@ -36,7 +36,7 @@ on preOpenCard
     set the dgData of group "dgRoute" to tTempA
     
     // List all Modules
-    put module.getAll() into tModuleA
+    put module.findMany() into tModuleA
     set the dgData of group "dgModules" to tModuleA
     
     if the cSchedulingEngine of stack "Module Operations" = "MRBT" then

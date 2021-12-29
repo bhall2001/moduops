@@ -15,7 +15,7 @@ on openCard
   put train.count() into tTemp["train"]
   
   repeat for each line aStat in tStatsA
-    put item 2 of aStat && tTemp[item 1 of tStatsA] into field item 1 of aStat
+     put item 2 of aStat && tTemp[item 1 of aStat] into field (item 1 of aStat) of card "Dashboard" of stack "Module Operations"
   end repeat
   
   unlock screen

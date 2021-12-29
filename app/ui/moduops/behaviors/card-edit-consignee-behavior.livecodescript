@@ -1,0 +1,246 @@
+﻿script "card-edit-consignee-behavior"
+local sActiveModule
+local sActiveConsignee
+
+on openCard
+  local tDataA, t2DataA
+  
+  lock screen
+  uiDisableButtons
+  put the cActiveModule of this card into sActiveModule
+  put the cActiveConsignee of this card into sActiveConsignee
+  
+  // get active consignee data
+  put consignee.findOne(sActiveConsignee) into tDataA
+  
+  // find the active module
+  put module.findOne(sActiveModule) into t2DataA
+  
+  // add name field to data for ui display
+  put t2DataA["name"] into tDataA["module"]
+  
+  uiUpdateData tDataA
+  
+  pass openCard
+end openCard
+
+on closeCard
+  uiDisableButtons
+  uiClearFields
+  set the cModuleUUID of card "Modules/Towns" to the cActiveModule of this card
+  
+end closeCard
+
+on goModulesScreen
+  set the cModuleUUID of card "Modules/Towns" to the cActiveModule of this card
+  dispatch "mouseUp" to button "Modules/Towns"
+end goModulesScreen
+
+on cancelPressed
+  if not the disabled of button "save" then
+    answer  info "Would you like to save your changes?" with "No" or "Yes"
+    if it is "Yes" then
+      savePressed
+      exit cancelPressed
+    end if
+  end if
+  
+  goModulesScreen
+end cancelPressed
+
+on savePressed
+  local tResult
+  
+  put saveRecord() into tResult
+  
+  if tResult then
+    goModulesScreen
+  end if
+end savePressed
+
+command uiUpdateData pDataA
+  lock screen
+  put pDataA["name"] into field "name"
+  put pDataA["module"] into field "module"
+  put pDataA["remarks"] into field "remarks"
+  
+  loadWorkorders
+  
+  unlock screen
+end uiUpdateData
+
+on uiClearFields
+  lock screen
+  
+  put "" into field "name"
+  put "" into field "remarks"
+  put "" into field "module"
+  set the dgText of group "dgWorkorders" to ""
+  
+  set the disabled of button "Save" to true
+  unlock screen
+end uiClearFields
+
+on uiDisableButtons
+  set the disabled of button "Save" to true
+  
+  set the disabled of button "Edit Request" to true
+  set the foregroundColor of button "Edit Request" to ""
+  --set the blendLevel of button "Edit Request" to 60
+  
+  set the disabled of button "Clone Request" to true
+  set the foregroundColor of button "Clone Request" to ""
+  --set the blendLevel of button "Clone Request" to 60
+  
+  set the disabled of button "Delete" to true
+  set the foregroundColor of button "Delete" to ""
+  --set the blendLevel of button "Delete" to 60
+  
+end uiDisableButtons
+
+/*
+Save Form data to DB
+*/
+function saveData
+  local tDataA, tResult
+  
+  --  lock screen
+  
+  --  // Validate data entry. If failure, show error message and exit.
+  --  validateData
+  
+  --  // Check validation result
+  --  if the result is not empty then
+  --    put the Result into tResult
+  --    answer error tResult["errorText"][1]
+  --    exit to top
+  --  end if
+  
+  
+  --  ## Move data entry fields into an array
+  --  put sActiveModule into tDataA["moduleID"]
+  --  put sActiveConsignee into tDataA["UUID"]
+  --  put field "name" into tDataA["name"]
+  --  put field "remarks" into tDataA["remarks"]
+  
+  --  put mdbUpdateRecord(sActiveConsignee, "consignee", tDataA) into tResult
+  --  if tResult is not a number then
+  --    answer error tResult
+  --    return false
+  --  end if
+  
+  --  unlock screen
+  return true
+  
+end saveData
+
+command validateData
+  local tErrorIndex = 0
+  local tErrorA
+  
+  -- Confirm there is a Consignee name
+  if field "name" = "" then
+    add 1 to tErrorIndex
+    put "Please enter a Consignee Name" into tErrorA["errorText"][tErrorIndex]
+  end if
+  
+  if tErrorIndex > 0 then
+    return tErrorA for error
+  end if
+end validateData
+
+/*
+on textChanged
+  set the disabled of button "Save" to false
+  pass textChanged
+end textChanged
+*/
+
+on loadWorkOrders
+  local tSQL, tDataA
+  
+  put "SELECT  workorder.CPW, spot.track, spot.spot, workorder.UUID," && \
+        "carType.class, carType.description, carType.length" & return & \
+        "FROM     spot" & return & \
+        "INNER JOIN workorder  ON spot.UUID = workorder.spotID" & return & \
+        "INNER JOIN carType  ON carType.UUID = workorder.carID" & return & \
+        "WHERE workorder.consigneeID = " & quote & sActiveConsignee & quote into tSQL
+  
+  dbResetQuery
+  dbSetSQL tSQL
+  put dbGet() into tDataA
+  
+  set the dgData of group "dgWorkorders" to tDataA
+end loadWorkOrders
+
+on editPressed
+  local tSelectedLine, theSelectedID
+  
+  put the dghilitedline of group "dgWorkorders" into tSelectedLine
+  if tSelectedLine is empty then
+    answer info "Please select a Line to edit."
+  else
+    put the uSelectedID of group "dgWorkorders" into theSelectedID
+    editRecord  theSelectedID
+  end if
+end editPressed
+
+-- Duplicate a requested car request
+on clonePressed
+  local tSelectedLine, theSelectedID, tDataA, tResult
+  
+  put the dghilitedline of group "dgWorkorders" into tSelectedLine
+  if tSelectedLine is empty then
+    answer info "Please select a Line to edit."
+  else
+    put the uSelectedID of group "dgWorkorders" into theSelectedID
+    put mdbQueryByUUID("workorder", theSelectedID) into tDataA
+    put tDataA[1] into tDataA
+    
+    put uuid() into tDataA["UUID"]
+    put mopInsertRecord("workorder", tDataA) into tResult
+    if tResult is a number then
+      editRecord  theSelectedID
+    else
+      answer error tResult
+    end if
+  end if
+end clonePressed
+
+on editRecord pSelectedID
+  set the cWorkorderUUID of card "Equipment Request" to pSelectedID
+  go to card "Equipment Request"
+end editRecord
+
+on newPressed
+  set the cWorkorderUUID of card "Equipment Request" to ""
+  go to card "Equipment Request"
+end newPressed
+
+on deletePressed
+  local theIndex, tUUID, tResult
+  
+  if (the dgHilitedIndex of group "dgWorkorders") is empty then 
+    answer "Please select Equipment Request to Delete"
+    exit deletePressed
+  end if
+  
+  answer warning "Delete Current Equipment Request? (THIS CAN NOT BE UNDONE.)" with "Yes" or "No"
+  if it is "no" then exit to top
+  
+  put the dgHilitedIndex of group "dgWorkorders" into theIndex
+  put the uSelectedID of group "dgWorkorders" into tUUID
+  
+  put mdbDeleteByUUID("workorder", tUUID) into tResult
+  
+  dispatch "DeleteIndex" to group "dgWorkorders" with theIndex
+  
+  set the dgfocus  of group "dgWorkorders" to true
+  
+  ## enable/disable delete and update buttons
+  uiDisableButtons
+  
+  dispatch "ResetList" to group "dgWorkorders"
+end deletePressed
+
+
