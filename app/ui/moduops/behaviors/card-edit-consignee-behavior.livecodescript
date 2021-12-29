@@ -1,6 +1,9 @@
 ﻿script "card-edit-consignee-behavior"
+constant kFIELD_NAMES = "id,name,remarks"
+
 local sActiveModule
 local sActiveConsignee
+
 
 on openCard
   local tDataA, t2DataA
@@ -24,6 +27,7 @@ on openCard
   pass openCard
 end openCard
 
+
 on closeCard
   uiDisableButtons
   uiClearFields
@@ -31,43 +35,27 @@ on closeCard
   
 end closeCard
 
+
 on goModulesScreen
   set the cModuleUUID of card "Modules/Towns" to the cActiveModule of this card
   dispatch "mouseUp" to button "Modules/Towns"
 end goModulesScreen
 
-on cancelPressed
-  if not the disabled of button "save" then
-    answer  info "Would you like to save your changes?" with "No" or "Yes"
-    if it is "Yes" then
-      savePressed
-      exit cancelPressed
-    end if
-  end if
-  
-  goModulesScreen
-end cancelPressed
-
-on savePressed
-  local tResult
-  
-  put saveRecord() into tResult
-  
-  if tResult then
-    goModulesScreen
-  end if
-end savePressed
 
 command uiUpdateData pDataA
   lock screen
+  
+  put pDataA["id"] into field "id"
   put pDataA["name"] into field "name"
   put pDataA["module"] into field "module"
   put pDataA["remarks"] into field "remarks"
   
-  loadWorkorders
+  // TODO: activate this
+  --  loadWorkorders
   
   unlock screen
 end uiUpdateData
+
 
 on uiClearFields
   lock screen
@@ -80,6 +68,7 @@ on uiClearFields
   set the disabled of button "Save" to true
   unlock screen
 end uiClearFields
+
 
 on uiDisableButtons
   set the disabled of button "Save" to true
@@ -97,6 +86,7 @@ on uiDisableButtons
   --set the blendLevel of button "Delete" to 60
   
 end uiDisableButtons
+
 
 /*
 Save Form data to DB
@@ -134,6 +124,7 @@ function saveData
   
 end saveData
 
+
 command validateData
   local tErrorIndex = 0
   local tErrorA
@@ -148,6 +139,7 @@ command validateData
     return tErrorA for error
   end if
 end validateData
+
 
 /*
 on textChanged
@@ -173,6 +165,7 @@ on loadWorkOrders
   set the dgData of group "dgWorkorders" to tDataA
 end loadWorkOrders
 
+
 on editPressed
   local tSelectedLine, theSelectedID
   
@@ -184,6 +177,7 @@ on editPressed
     editRecord  theSelectedID
   end if
 end editPressed
+
 
 -- Duplicate a requested car request
 on clonePressed
@@ -207,15 +201,18 @@ on clonePressed
   end if
 end clonePressed
 
+
 on editRecord pSelectedID
   set the cWorkorderUUID of card "Equipment Request" to pSelectedID
   go to card "Equipment Request"
 end editRecord
 
+
 on newPressed
   set the cWorkorderUUID of card "Equipment Request" to ""
   go to card "Equipment Request"
 end newPressed
+
 
 on deletePressed
   local theIndex, tUUID, tResult
@@ -244,3 +241,23 @@ on deletePressed
 end deletePressed
 
 
+/*
+update db when characters are typed in field
+*/
+private command __updateConsigneeField pFieldname
+  local tDataA, tResult
+  
+  if pFieldName is not among the items of kFIELD_NAMES then
+    exit __updateConsigneeField
+  end if
+  
+  put field pFieldname into tDataA[pFieldname]
+  put field "id" into tDataA["id"]
+  
+  put consignee.update(tDataA) into tResult
+end __updateConsigneeField
+
+
+on textChanged
+  __updateConsigneeField the short name of the target
+end textChanged
