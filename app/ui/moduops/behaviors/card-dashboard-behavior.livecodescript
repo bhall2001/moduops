@@ -5,9 +5,17 @@ on openCard
   
   put field "Stats Array" into tStatsA
   set the itemDelimiter to comma
+  
+  // gather counts
+  put module.count() into tTemp["module"]
+  put carType.count() into tTemp["carType"]
+  put consignee.count() into tTemp["consignee"]
+  put spot.count() into tTemp["spot"]
+  put workorder.count() into tTemp["workorder"]
+  put train.count() into tTemp["train"]
+  
   repeat for each line aStat in tStatsA
-    put mdbNumRecords(item 1 of aStat) into tTemp
-    put item 2 of aStat && tTemp into field item 1 of aStat
+    put item 2 of aStat && tTemp[item 1 of tStatsA] into field item 1 of aStat
   end repeat
   
   unlock screen

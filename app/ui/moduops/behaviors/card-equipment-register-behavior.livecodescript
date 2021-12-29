@@ -1,16 +1,13 @@
 ﻿script "card-equipment-register-behavior"
-local sCarTypes
-
 on preOpenCard
   lock screen
 end preOpenCard
 
+
 on openCard
   local tTemp
   
-  put mdbTableToArray("carType") into sCarTypes
-  
-  set the dgData of group "dgCarTypes" to sCarTypes
+  set the dgData of group "dgCarTypes" to carType.get()
   
   dispatch "SortDataByKey" to group "dgCarTypes" with \
         "length", "international", "ascending", false
@@ -31,9 +28,11 @@ on openCard
   ##pass openCard
 end openCard
 
+
 on uiViewRecordOfID theDataA
   put theDataA[2] into card field "Description"
 end uiViewRecordOfID
+
 
 on editPressed
   local tSelectedLine, theSelectedID
@@ -43,9 +42,10 @@ on editPressed
     answer info "Please select a Car Type to edit."
   else
     put the uSelectedID of group "dgCarTypes" into theSelectedID
-    editRecord  theSelectedID
+    editRecord theSelectedID
   end if
 end editPressed
+
 
 on editRecord pSelectedID
   setCarTypeID(pSelectedID)
@@ -73,6 +73,7 @@ on uiButtonState
   unlock screen
 end uiButtonState
 
+
 on closeCard
   ## Update buttons based on conditions of car types
   uiButtonState
@@ -80,26 +81,28 @@ on closeCard
   set the dgText of group "dgCarTypes" to ""
 end closeCard
 
+
 on newPressed
-  local tDataArray, tCarTypes, tUUID, tTemp, tResult
+  local tDataA, tCarTypes, tUUID, tTemp, tResult
   
   --
   -- setup a new record with dummy data for required elements
-  put uuid() into  tUUID
-  put tUUID into tDataArray["UUID"]
-  put "New Car Type" into tDataArray["description"]
-  put "New" into tDataArray["short"]
-  put "0" into tDataArray["length"]
+  put uuid() into tUUID
+  put tUUID into tDataA["id"]
+  put "New Car Type" into tDataA["description"]
+  put "New" into tDataA["short"]
+  put "0" into tDataA["length"]
   
   -- insert the dummy record into the carType table
-  put dbInsert("carType", tDataArray) into tResult
+  put carType.create(tDataA) into tResult
   
   -- now edit the record as if it is a real record
   editRecord tUUID
 end newPressed
 
+
 on deletePressed
-  local theIndex, tUUID, tResult
+  local theIndex, tId, tResult
   
   if (the dgHilitedIndex of group "dgCarTypes") is empty then 
     answer "Please select Equipment to Delete"
@@ -110,9 +113,9 @@ on deletePressed
   if it is "no" then exit to top
   
   put the dgHilitedIndex of group "dgCarTypes" into theIndex
-  put the uSelectedID of group "dgCarTypes" into tUUID
+  put the uSelectedID of group "dgCarTypes" into tId
   
-  put mdbDeleteByUUID("carType", tUUID) into tResult
+  put carType.delete(tId) into tResult
   
   dispatch "DeleteIndex" to group "dgCarTypes" with theIndex
   
@@ -124,6 +127,7 @@ on deletePressed
   dispatch "ResetList" to group "dgCarTypes"
 end deletePressed
 
+
 -- Duplicate a Car Type
 on clonePressed
   local tSelectedLine, theSelectedID, tDataA, tResult
@@ -133,16 +137,15 @@ on clonePressed
     answer info "Please select Equipment to Copy."
   else
     put the uSelectedID of group "dgCarTypes" into theSelectedID
-    put mdbQueryByUUID("cartype", theSelectedID) into tDataA
-    put tDataA[1] into tDataA
+    put carType.get(theSelectedID) into tDataA
     
-    put uuid() into tDataA["UUID"]
-    put mdbInsertRecord("cartype", tDataA) into tResult
+    put uuid() into tDataA["id"]
+    put carType.create(tDataA) into tResult
+    
     if tResult is a number then
-      editRecord  theSelectedID
+      editRecord tDataA["id"]
     else
       answer error tResult
     end if
   end if
 end clonePressed
-

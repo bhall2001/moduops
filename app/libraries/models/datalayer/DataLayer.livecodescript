@@ -48,7 +48,7 @@ returns
 
 Tags: tags
 **/
-function datalayer.where columnName, pValue
+command datalayer.where columnName, pValue
   dbWhere columnName, pValue
 end datalayer.where
 
@@ -64,7 +64,7 @@ end datalayer.orderBy
 /*
 apply NOT IN paramter to where clause
 */
-function datalayer.notIn pColumnName, pValues
+command datalayer.notIn pColumnName, pValues
   dbNotIn pColumnName, pValues
 end datalayer.notIn
 
