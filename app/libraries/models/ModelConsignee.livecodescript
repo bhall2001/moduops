@@ -137,13 +137,6 @@ function consignee.count
 end consignee.count
 
 
-/*
-count number of records
-*/
-function consignee.count
-  return datalayer.count("consignee")
-end consignee.count
-
 
 /*
 find consignees by module id

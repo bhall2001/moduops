@@ -80,26 +80,24 @@ end editConsignee
 
 
 on newSpotPressed
-  local tDataA, tUUID, tResult
-  local tSelectedLine, moduleUUID
+  local tDataA, tId, tResult
+  local tSelectedLine, moduleId
   
   put the dghilitedline of group "dgModules" into tSelectedLine
   if tSelectedLine is empty then
     answer info "Please select a Module first."
   else
-    put the uSelectedID of group "dgModules" into moduleUUID
+    put the uSelectedID of group "dgModules" into moduleId
     
-    put uuid() into  tUUID
-    
-    put tUUID into tDataA["UUID"]
+    put uuid() into tDataA["id"]
     put "Spot Name" into tDataA["spot"]
     put "0" into tDataA["length"]
     put "A" into tDataA["direction"]
     put true into tDataA["active"]
-    put moduleUUID into tDataA["moduleID"]
+    put moduleId into tDataA["moduleId"]
     
-    put dbInsert("spot", tDataA) into tResult
-    editSpot tDataA["UUID"]
+    put spot.create(tDataA) into tResult
+    editSpot tDataA["id"]
   end if
 end newSpotPressed
 
@@ -310,13 +308,13 @@ on clonePressed
     answer info "Please select Spot to Copy."
   else
     put the uSelectedID of group "dgSpots" into theSelectedID
-    put mdbQueryByUUID("spot", theSelectedID) into tDataA
-    put tDataA[1] into tDataA
+    put spot.findOne(theSelectedID) into tDataA
     
-    put uuid() into tDataA["UUID"]
-    put mdbInsertRecord("spot", tDataA) into tResult
+    put uuid() into tDataA["id"]
+    put spot.create(tDataA) into tResult
+    
     if tResult is a number then
-      editSpot  tDataA["UUID"]
+      editSpot  tDataA["id"]
     else
       answer error tResult
     end if
