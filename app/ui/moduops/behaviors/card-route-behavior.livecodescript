@@ -11,41 +11,41 @@ function getSpots
 end getSpots
 
 on preOpenCard    
-    local tTempA, tTrainA, tModuleA
-    local tTransferA
-    
-    // set up transfer train menu
-    set the text of button "transferTrainMenu" to transferMenuText()
-    set the menuhistory of button "transferTrainMenu" to 1 -- make the first tab from the left the active one
-    set the hilited of button "transfer" to false
-    
-    put the cTrainUUID of this card into sTrainUUID
-    put trainByUUID(sTrainUUID) into tTrainA
-    
-    put tTrainA["symbol"] into field "symbol"
-    put quote & tTrainA["name"] & quote into field "name"
-    
-    put yardDetail(tTrainA["origin"]) into field "origin"
-    put yardDetail(tTrainA["destination"]) into field "destination"
-    
-    set the dgText of group "dgOrders" to tTrainA["orders"]
-    
-    put tTrainA["route"] into tTempA
-    put jsonToArray(tTempA) into tTempA
-    
-    set the dgData of group "dgRoute" to tTempA
-    
-    // List all Modules
-    put module.findMany() into tModuleA
-    set the dgData of group "dgModules" to tModuleA
-    
-    if the cSchedulingEngine of stack "Module Operations" = "MRBT" then
-        hide group "Select Consignee"
-    else
-        show group "Select Consignee"
-    end if
-    
-    set the menuhistory of button "tabSelect" to 1 -- make the first tab from the left the active one
+  local tTempA, tTrainA, tModuleA
+  local tTransferA
+  
+  // set up transfer train menu
+  set the text of button "transferTrainMenu" to transferMenuText()
+  set the menuhistory of button "transferTrainMenu" to 1 -- make the first tab from the left the active one
+  set the hilited of button "transfer" to false
+  
+  put the cTrainUUID of this card into sTrainUUID
+  put trainByUUID(sTrainUUID) into tTrainA
+  
+  put tTrainA["symbol"] into field "symbol"
+  put quote & tTrainA["name"] & quote into field "name"
+  
+  put yard.nameById(tTrainA["origin"]) into field "origin"
+  put yard.nameById(tTrainA["destination"]) into field "destination"
+  
+  set the dgText of group "dgOrders" to tTrainA["orders"]
+  
+  put tTrainA["route"] into tTempA
+  put jsonToArray(tTempA) into tTempA
+  
+  set the dgData of group "dgRoute" to tTempA
+  
+  // List all Modules
+  put module.findMany() into tModuleA
+  set the dgData of group "dgModules" to tModuleA
+  
+  if the cSchedulingEngine of stack "Module Operations" = "MRBT" then
+    hide group "Select Consignee"
+  else
+    show group "Select Consignee"
+  end if
+  
+  set the menuhistory of button "tabSelect" to 1 -- make the first tab from the left the active one
 end preOpenCard
 
 function transferMenuText

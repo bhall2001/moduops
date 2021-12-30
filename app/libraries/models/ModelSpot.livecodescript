@@ -172,6 +172,56 @@ end __sql.spotByModuleId
 
 
 /*
-get spots from module Id
+find yard by id
 */
+function yard.findOne pId
+  local tResultA
+  if pId is empty or pId = " " then
+    return empty
+  end if
+  
+  datalayer.where "isYard", true
+  datalayer.where "id", pId
+  put datalayer.select("spot") into tResultA
+  
+  if tResultA is not an array then
+    throw "ERROR:" && tResultA
+  end if
+  
+  return tResultA[1]
+end yard.findOne
 
+
+/*
+find all yards
+*/
+function yard.findMany
+  datalayer.where "isYard", true
+  return datalayer.select("spot")
+end yard.findMany
+
+
+/*
+returns true if any yards exist
+*/
+function yard.exist
+  return number of elements of yard.findMany() > 0
+end yard.exist
+
+
+/*
+return yard name from id
+*/
+function yard.nameById pId
+  if pId is empty then return " "
+  
+  local tResultA
+  
+  put yard.findOne(pId) into tResultA
+  
+  if tResultA is an array then
+    return tResultA["spot"]
+  else
+    return " "
+  end if
+end yard.nameById

@@ -399,59 +399,24 @@ end getFTPPath
 
 
 /**
-* Yard List
-* 
-* Returns all Yards as an Array
-*/
-function yardList
-  local tResultsA
-  
-  dbResetQuery
-  dbWhere "isYard", true
-  put dbGet("spot") into tResultsA
-  
-  return tResultsA
-end yardList
-
-/**
-* Yard Detail
-*
-* Returns Detail record of a Yard for a given Yard ID
-* 
-* @parameter 
-*/
-function yardDetail pId
-  local tResultsA
-  
-  dbResetQuery
-  dbWhere "UUID", pId
-  
-  // ensure request only returns Yards
-  dbWhere "isYard", true
-  
-  put dbGet("spot") into tResultsA
-  
-  if tResultsA is an array then
-    return tResultsA[1]["spot"]
-  else
-    return " "
-  end if
-end yardDetail
-
-
-/**
 * Returns a list of all trains as an array
 */
 function trainsAsArray
   local tTrainsA
+  local tTempA
   
   // get all trains from the DB
-  put mdbTableToArray("train") into tTrainsA
+  put train.findMany() into tTrainsA
   
   // add Yard origin and destination names to the array
   repeat for each key aKey in tTrainsA
-    put yardDetail(tTrainsA[aKey]["origin"]) into tTrainsA[aKey]["originName"]
-    put yardDetail(tTrainsA[aKey]["destination"]) into tTrainsA[aKey]["destinationName"]
+    put yard.nameById(tTrainsA[aKey]["origin"]) into tTempA
+    put tTempA["spot"] into  tTrainsA[aKey]["originName"]
+    
+    put empty into tTempA
+    
+    put yard.nameById(tTrainsA[aKey]["destination"]) into tTempA
+    put tTempA["spot"] into tTrainsA[aKey]["destinationName"]
   end repeat
   
   return tTrainsA
