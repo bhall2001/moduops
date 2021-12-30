@@ -42,7 +42,7 @@ on preOpenCard
   put module.findMany() into tModuleA
   set the dgData of group "dgModules" to tModuleA
   
-  if the cSchedulingEngine of stack "Module Operations" = "MRBT" then
+  if the cSchedulingEngine of stack "Module Operations" = "Random" then
     hide group "Select Consignee"
   else
     show group "Select Consignee"

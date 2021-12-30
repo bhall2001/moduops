@@ -141,7 +141,7 @@ end workorder.count
 sql to find by consignee id
 */
 private function __sql.findByConsigneeId
-  return "SELECT workorder.cpw, spot.track, spot.spot, workorder.id," && \
+  return "SELECT workorder.cpw, spot.track, spot.spot, workorder.id,workorder.carId,workorder.spotId," & \
         "carType.class, carType.description, carType.length" & return & \
         "FROM spot" & return & \
         "INNER JOIN workorder ON spot.id = workorder.spotId" & return & \

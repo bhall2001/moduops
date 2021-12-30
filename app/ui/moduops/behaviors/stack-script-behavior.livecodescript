@@ -217,7 +217,6 @@ on uiLoadData
     end if
     
     set the cursor to arrow
-    answer info "File" && last item of tDataFile && "loaded successfullly" with "OK"
   end if
 end uiLoadData
 
