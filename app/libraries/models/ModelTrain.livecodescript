@@ -171,7 +171,7 @@ generate train symbol, train name CSV data
 function trainSymbolNameAsCSV
   local tText, tTrainA, tIndex
   
-  put fetchAllTrains() into tTrainA
+  put train.findMany() into tTrainA
   
   repeat for each element aTrain in tTrainA
     put aTrain["symbol"] after tText

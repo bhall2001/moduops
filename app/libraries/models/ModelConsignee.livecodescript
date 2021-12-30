@@ -137,7 +137,6 @@ function consignee.count
 end consignee.count
 
 
-
 /*
 find consignees by module id
 */
@@ -161,3 +160,32 @@ function consignee.findByModuleId pModuleId
   // return the results
   return tResultA
 end consignee.findByModuleId
+
+
+/*
+find consignee for module by spot direction
+*/
+function consignee.findByDirection pModuleId, pDirection
+  local tSql, tBindingsA
+  local tResultA
+  
+  put __sql.consigneeSpots() into tSql
+  // add direction to sql
+  put "AND spot.direction = :2" after tSql
+  
+  put pModuleId into tBindingsA[1]
+  put pDirection into tBindingsA[2]
+  put datalayer.QueryAsArray(tSql, tBindingsA) into tResultA
+  
+  return tResultA
+end consignee.findByDirection
+
+
+private function __sql.consigneeSpots
+  return "SELECT  DISTINCT consignee.name,spot.direction,consignee.id,consignee.moduleId,consignee.remarks" & return && \
+        "FROM consignee" & return && \
+        "INNER JOIN module ON consignee.moduleId = module.id" & return && \ 
+        "INNER JOIN workorder ON workorder.consigneeId = consignee.id" & return && \
+        "INNER JOIN spot ON workorder.spotId = spot.id" & return && \
+        "WHERE consignee.moduleId = :1" & return
+end __sql.consigneeSpots
