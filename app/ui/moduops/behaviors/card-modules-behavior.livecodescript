@@ -5,19 +5,19 @@ end preOpenCard
 
 
 on openCard
-  local tModuleUUID, tSelectedIndex
+  local tModuleId, tSelectedIndex
   
   set the dgData of group "dgModules" to module.findMany()
   
   ## Update buttons
   uiButtonState
   
-  put the cModuleUUID of this card into tModuleUUID
-  if tModuleUUID is not empty then
-    dispatch "FindIndex" to group "dgModules" with "UUID", tModuleUUID
+  put the cModuleUUID of this card into tModuleId
+  if tModuleId is not empty then
+    dispatch "FindIndex" to group "dgModules" with "id", tModuleId
     put the result into tSelectedIndex
     set the dgHilitedindex of group "dgModules" to tSelectedIndex
-    send "selectionChanged" to group "dgModules" in 20 milliseconds
+    send "selectionChanged" to group "dgModules" in 1 milliseconds
   end if
   
   enable menuitem 6 of menu "File"
@@ -295,7 +295,7 @@ on uiClearData
   set the dgText of group "dgModules" to ""
   set the dgText of group "dgConsignees" to ""
   set the dgText of group "dgSpots" to ""
-  set the cModuleUUID of this card to empty
+  --  set the cModuleUUID of this card to empty
 end uiClearData
 
 

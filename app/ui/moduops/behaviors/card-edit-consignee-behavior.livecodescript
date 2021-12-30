@@ -50,8 +50,7 @@ command uiUpdateData pDataA
   put pDataA["module"] into field "module"
   put pDataA["remarks"] into field "remarks"
   
-  // TODO: activate this
-  --  loadWorkorders
+  loadWorkorders
   
   unlock screen
 end uiUpdateData
@@ -142,25 +141,23 @@ end validateData
 
 
 /*
-on textChanged
-  set the disabled of button "Save" to false
-  pass textChanged
-end textChanged
+comment
 */
-
 on loadWorkOrders
-  local tSQL, tDataA
+  local tDataA
   
-  put "SELECT  workorder.CPW, spot.track, spot.spot, workorder.UUID," && \
-        "carType.class, carType.description, carType.length" & return & \
-        "FROM     spot" & return & \
-        "INNER JOIN workorder  ON spot.UUID = workorder.spotID" & return & \
-        "INNER JOIN carType  ON carType.UUID = workorder.carID" & return & \
-        "WHERE workorder.consigneeID = " & quote & sActiveConsignee & quote into tSQL
+  --  put "SELECT  workorder.CPW, spot.track, spot.spot, workorder.UUID," && \
+  --        "carType.class, carType.description, carType.length" & return & \
+  --        "FROM     spot" & return & \
+  --        "INNER JOIN workorder  ON spot.UUID = workorder.spotID" & return & \
+  --        "INNER JOIN carType  ON carType.UUID = workorder.carID" & return & \
+  --        "WHERE workorder.consigneeID = " & quote & sActiveConsignee & quote into tSQL
   
-  dbResetQuery
-  dbSetSQL tSQL
-  put dbGet() into tDataA
+  --  dbResetQuery
+  --  dbSetSQL tSQL
+  --  put dbGet() into tDataA
+  
+  put workorder.findByConsigneeId(sActiveConsignee) into tDataA
   
   set the dgData of group "dgWorkorders" to tDataA
 end loadWorkOrders
@@ -188,11 +185,10 @@ on clonePressed
     answer info "Please select a Line to edit."
   else
     put the uSelectedID of group "dgWorkorders" into theSelectedID
-    put mdbQueryByUUID("workorder", theSelectedID) into tDataA
-    put tDataA[1] into tDataA
+    put workorder.findOne(theSelectedID) into tDataA
     
-    put uuid() into tDataA["UUID"]
-    put mopInsertRecord("workorder", tDataA) into tResult
+    put uuid() into tDataA["id"]
+    put workorder.create(tDataA) into tResult
     if tResult is a number then
       editRecord  theSelectedID
     else
@@ -215,7 +211,7 @@ end newPressed
 
 
 on deletePressed
-  local theIndex, tUUID, tResult
+  local theIndex, tId, tResult
   
   if (the dgHilitedIndex of group "dgWorkorders") is empty then 
     answer "Please select Equipment Request to Delete"
@@ -226,9 +222,9 @@ on deletePressed
   if it is "no" then exit to top
   
   put the dgHilitedIndex of group "dgWorkorders" into theIndex
-  put the uSelectedID of group "dgWorkorders" into tUUID
+  put the uSelectedID of group "dgWorkorders" into tId
   
-  put mdbDeleteByUUID("workorder", tUUID) into tResult
+  put workorder.delete(tId) into tResult
   
   dispatch "DeleteIndex" to group "dgWorkorders" with theIndex
   
