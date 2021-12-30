@@ -80,7 +80,7 @@ function addManifest pManifestStyle pPageWidth
   if the cSchedulingEngine of stack "Module Operations" = "Random" then
     put mrbt.output(sTrainUUID) into sManifestA
   else
-    put mdbSmartyOutput(sTrainUUID) into sManifestA
+    put smarty.output(sTrainUUID) into sManifestA
   end if
   
   ## add in all train orders of a route into the Manifest

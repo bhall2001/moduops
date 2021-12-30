@@ -64,18 +64,18 @@ command generateManifest
   #------------------------------------------------------
   ##
   
-  local tTrains, tTrainLength, tCarCount, tRandomNum, tSelectedID, tDataA, tConsigneeA
-  local tSelectedWO, tSelectedCar, tManifestIndex, tStopNum, tSpotA, tSpot, tTrainUUID
+  local tTrainsA, tTrainLength, tCarCount, tRandomNum, tSelectedID, tDataA, tConsigneeA
+  local tSelectedWO, tSelectedCar, tManifestIndex, tStopNum, tSpotA, tTrainId
   local tCarTypeA, tCarType, t2DataA, tUseConsignee, tConsigneeCnt, tModuleList
   
   unlock screen
-  put "Starting sMarty Scheduler..." into field "status" of card "trainlists" of stack "Module Operations"
+  put "Starting Smarter Scheduler..." into field "status" of card "trainlists" of stack "Module Operations"
   lock screen
   
   put 1 into tManifestIndex
-  put the cTrainUUID of card "Trainlists" of stack "Module Operations" into tTrainUUID
-  put mdbQueryByUUID("train", tTrainUUID) into tTrains
-  put tTrains[1]["route"] into sTrainRoute
+  put the cTrainUUID of card "Trainlists" of stack "Module Operations" into tTrainId
+  put train.findOne(tTrainId) into tTrainsA
+  put tTrainsA["route"] into sTrainRoute
   put jsonToArray(sTrainRoute) into sTrainRouteA
   
   put 0 into tTrainLength
@@ -87,17 +87,17 @@ command generateManifest
   put "" into tModuleList
   put "" into tUseConsignee
   
-  smtClearSpotUsed
+  __smtClearSpotUsed
   
   ##
   #------------------------------------------------------
   # Generate the weighted Workorder data
   #------------------------------------------------------
   ##
-  smtCreateWorklist
+  __smtCreateWorklist
   
   ## Start a DB Transaction
-  get mdbExecuteSQL("BEGIN TRANSACTION")
+  --  get mdbExecuteSQL("BEGIN TRANSACTION")
   
   -- if there is no train route defined, display an error
   if sWorkordersA is empty then
@@ -123,15 +123,15 @@ command generateManifest
       
       put sWorkordersA[tSelectedID] into tSelectedWO
       
-      if sTrainRouteA[tSelectedWO["stop"]]["consigneeID"] is in "A, B, AB" then
-        if sTrainRouteA[tSelectedWO["stop"]]["consigneeID"] <> tSelectedWO["direction"] then
+      if sTrainRouteA[tSelectedWO["stop"]]["consigneeId"] is in "A, B, AB" then
+        if sTrainRouteA[tSelectedWO["stop"]]["consigneeId"] <> tSelectedWO["direction"] then
           if tSelectedWO["direction"] <> "AB" then
             next repeat
           end if
         end if
         
-        if tTrains[1]["limitModules"] <> "" then
-          if the number of lines of tModuleList = tTrains[1]["limitModules"] then
+        if tTrainsA["limitModules"] <> "" then
+          if the number of lines of tModuleList = tTrainsA["limitModules"] then
           else
             if lineOffset(tSelectedWO["moduleID"], tModuleList) = 0 then
               put tSelectedWO["moduleID"] & return after tModuleList
@@ -174,7 +174,8 @@ command generateManifest
         #------------------------------------------------------
         ##
         
-        put mdbQueryByUUID("carType", tSelectedWO["carID"]) into tCarTypeA
+        --        put mdbQueryByUUID("carType", tSelectedWO["carID"]) into tCarTypeA
+        put carType.findOne(tSelectedWO["carID"]) into tCarTypeA
         
         -- if there are no cars matching request move to next WO
         if tCarTypeA is not an array then
@@ -197,7 +198,7 @@ command generateManifest
       end if
       
       ## once a workorder is selected, favor re-using the selected track
-      if reuseConsignee(tSelectedWO["CPW"]) then
+      if reuseConsignee(tSelectedWO["cpw"]) then
         put tSelectedWO["track"] into tUseConsignee
       else
         put "" into tUseConsignee
@@ -210,20 +211,21 @@ command generateManifest
       #------------------------------------------------------
       ##
       
-      put mdbQueryByUUID("carType", tSelectedWO["carID"]) into tCarTypeA
+      --      put mdbQueryByUUID("carType", tSelectedWO["carID"]) into tCarTypeA
+      put carType.findOne(tSelectedWO["carID"]) into tCarTypeA
       
       -- if there are no cars matching request move to next WO
       if tCarTypeA is not an array then
         next repeat
       end if
       
-      put tCarTypeA[1] into tCarType
+      put tCarTypeA into tCarType
       
-      put mdbQueryByUUID("spot", tSelectedWO["spotID"]) into tSpotA
-      put tSpotA[1] into tSpot
+      --      put mdbQueryByUUID("spot", tSelectedWO["spotID"]) into tSpotA
+      put spot.findOne(tSelectedWO["spotID"]) into tSpotA
       
       ## If the spot is full, go to the next Workorder
-      if tSpot["used"] + tCarType["length"] > tSpot["length"] then
+      if tSpotA["used"] + tCarType["length"] > tSpotA["length"] then
         put "" into tUseConsignee
         put 0 into tConsigneeCnt
         next repeat
@@ -236,15 +238,16 @@ command generateManifest
       ##
       
       --put mdbQueryByUUID("carType", tSelectedWO["carID"]) into tSelectedCar
-      if (tTrainLength + tCarType["length"]) < tTrains[1]["length"] then
-        put tTrainUUID into sManifestA[tManifestIndex]["trainID"]
-        put tSelectedWO["UUID"] into sManifestA[tManifestIndex]["workorderID"]
+      if (tTrainLength + tCarType["length"]) < tTrainsA["length"] then
+        put tTrainId into sManifestA[tManifestIndex]["trainId"]
+        put tSelectedWO["id"] into sManifestA[tManifestIndex]["workorderId"]
         put tSelectedWO["stop"] into sManifestA[tManifestIndex]["stop"]
         add 1 to tManifestIndex
         add 1 to tCarCount
         add tCarType["length"] to tTrainLength
-        put tSpot["used"] + tCarType["length"] into tSpot["used"]
-        get mdbUpdateRecord(tSelectedWO["spotID"], "spot", tSpot)
+        put tSpotA["used"] + tCarType["length"] into tSpotA["used"]
+        --        get mdbUpdateRecord(tSelectedWO["spotID"], "spot", tSpot)
+        get spot.update(tSpotA)
         
         ##
         #------------------------------------------------------
@@ -259,7 +262,7 @@ command generateManifest
   end if
   
   ## End a DB Transaction
-  get mdbExecuteSQL("COMMIT")
+  --  get mdbExecuteSQL("COMMIT")
   
   ##
   #------------------------------------------------------
@@ -274,10 +277,14 @@ command generateManifest
   set the cCarCount of card "Trainlists" of stack "Module Operations" to tCarCount
   set the cTrainLength of card "Trainlists" of stack "Module Operations" to tTrainLength
   
-  get mdbDeleteManifestByTrainID(tTrainUUID)
+  --  get mdbDeleteManifestByTrainID(tTrainUUID)
+  get manifest.deleteByTrainId(tTrainId)
   
   if sManifestA is an array then
-    get mdbArrayToTable("manifest", sManifestA)
+    --    get mdbArrayToTable("manifest", sManifestA)
+    repeat for each element anOrder in sManifestA
+      get manifest.create(anOrder)
+    end repeat
   end if
   
   --return sManifestA
@@ -286,27 +293,31 @@ command generateManifest
   
 end generateManifest
 
-on smtClearSpotUsed
+/*
+reset spots to 0 indicating that all are free of equipment
+*/
+private command __smtClearSpotUsed
   local tSpotsA
   
-  put mdbTableToArray("spot") into tSpotsA
+  put spot.findMany() into tSpotsA
   
   repeat for each element aSpot in tSpotsA
     put 0 into aSpot["used"]
-    get mdbUpdateRecord(aSpot["UUID"], "spot", aSpot)
-    
+    get spot.update(aSpot)
   end repeat
-end smtClearSpotUsed
+end __smtClearSpotUsed
 
-on smtCreateWorkList
+
+private command __smtCreateWorkList
   
-  smtCreateWorkOrderArray
+  __smtCreateWorkOrderArray
   
   --get mdbDeleteTable("workList")
   --get mdbArrayToTable("workList", sWorkordersA)
-end smtCreateWorkList
+end __smtCreateWorkList
 
-on smtCreateWorkOrderArray
+
+private command __smtCreateWorkOrderArray
   local i
   local tStopNum = 1
   
@@ -314,15 +325,15 @@ on smtCreateWorkOrderArray
   
   ## Create the list of Consignees not to service
   repeat for each element aStop in sTrainRouteA
-    if char 1 of aStop["consigneeID"] is "!" then
-      put char 2 to -1 of aStop["consigneeID"] & return after sExcludeConsignee
+    if char 1 of aStop["consigneeId"] is "!" then
+      put char 2 to -1 of aStop["consigneeId"] & return after sExcludeConsignee
     end if
   end repeat
   
   repeat for each element aStop in sTrainRouteA
-    if char 1 of sTrainRouteA[tStopNum]["consigneeID"] is not "!" then
+    if char 1 of sTrainRouteA[tStopNum]["consigneeId"] is not "!" then
       ## Consignee should be scheduled on the train
-      smtAppendWorkorders tStopNum, sTrainRouteA[tStopNum]["moduleID"], sTrainRouteA[tStopNum]["consigneeID"], sTrainRouteA[tStopNum]["dir"]
+      __smtAppendWorkorders tStopNum, sTrainRouteA[tStopNum]["moduleId"], sTrainRouteA[tStopNum]["consigneeId"], sTrainRouteA[tStopNum]["dir"]
     end if
     add 1 to tStopNum
   end repeat
@@ -338,34 +349,39 @@ on smtCreateWorkOrderArray
   put "" into sWorkOrdersA
   put tTempA into sWorkOrdersA
   */
-end smtCreateWorkOrderArray
+end __smtCreateWorkOrderArray
 
-on smtAppendWorkorders pStopNum, pModuleUUID, pConsigneeID, pTrainDir
+
+private command __smtAppendWorkorders pStopNum, pModuleId, pConsigneeId, pTrainDir
   local tDataA
   local tWOIndex
+  local tCriteriaA
   
   put the number of elements of sWorkordersA into tWOIndex
   
   if (pConsigneeID is not in "A,B,AB,ALL") and pConsigneeID is not empty then
-    put mdbStopConsigneeWO(pConsigneeID) into tDataA
+    --    put mdbStopConsigneeWO(pConsigneeID) into tDataA
+    put workorder.findByConsigneeId(pConsigneeId) into tDataA
   else
-    put mdbStopModuleWO(pModuleUUID) into tDataA
+    --    put mdbStopModuleWO(pModuleUUID) into tDataA
+    put workorder.findByModuleId(pModuleId) into tDataA
   end if
   
   repeat for each element aWO in tDataA
     ## Skip this workorder if the Consignee is on the Exclude list
-    if aWO["consigneeID"] is in sExcludeConsignee then
+    if aWO["consigneeId"] is in sExcludeConsignee then
       next repeat
     else
       add 1 to tWOIndex
       put aWO into sWorkordersA[tWOIndex]
       put pTrainDir into sWorkordersA[tWOIndex]["trainDir"]
       put pStopNum into sWorkordersA[tWOIndex]["stop"]
-      put aWO["CPW"] + sCumTotal into sCumTotal
+      put aWO["cpw"] + sCumTotal into sCumTotal
       put sCumTotal into sWorkordersA[tWOIndex]["cumTotal"]
     end if
   end repeat
-end smtAppendWorkorders
+end __smtAppendWorkorders
+
 
 function smtBinarySearchWO @pArray pItem pLeft pRight
   local tIndex
@@ -396,6 +412,7 @@ function smtBinarySearchWO @pArray pItem pLeft pRight
   end if
   return tResult
 end smtBinarySearchWO
+
 
 /*
 Shoud the Consignee be scheduled again to favor current selected

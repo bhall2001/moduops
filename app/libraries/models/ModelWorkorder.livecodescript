@@ -168,3 +168,35 @@ function workorder.findByConsigneeId pConsigneeId
   
   return tDataA
 end workorder.findByConsigneeId
+
+
+/*
+sql to find by consignee id
+*/
+private function __sql.findByModuleId
+  return "SELECT workorder.cpw, spot.track, spot.spot, workorder.id, workorder.carId, workorder.spotId," & \
+        "spot.direction,spot.active,workorder.consigneeId,spot.moduleId" & return & \
+        "FROM workorder" & return & \
+        "INNER JOIN spot ON workorder.spotId = spot.id" & return & \
+        "WHERE (moduleId = :1) AND (active != false)"
+end __sql.findByModuleId
+
+
+/*
+find work orders by module id
+*/
+function workorder.findByModuleId pModuleId
+  local tSql
+  local tBindingsA, tDataA
+  
+  // no consignee id provided? return nothing
+  if pModuleId is empty then
+    return empty
+  end if
+  
+  put __sql.findByModuleId() into tSql
+  put pModuleId into tBindingsA[1]
+  put datalayer.QueryAsArray(tSql, tBindingsA) into tDataA
+  
+  return tDataA
+end workorder.findByModuleId
