@@ -170,12 +170,17 @@ param pTable: string: database table name
 param pDataA: array of fields/values
 */
 function datalayer.create pTable, @pDataA
+  local tResult
   if not datalayer.isConnected() then return empty
   
   if pTable is empty then return "Error: No table name given in" && param(0)
   
   try
-    return dbInsert(pTable, pDataA)
+    put dbInsert(pTable, pDataA) into tResult
+    if tResult is not a number then
+      put tResult & return after message
+    end if
+    return tResult
   catch errorVariable
     return "Error: Unable to create record." for error
     return empty

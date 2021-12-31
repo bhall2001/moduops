@@ -20,13 +20,13 @@ on openCard
     send "selectionChanged" to group "dgModules" in 1 milliseconds
   end if
   
-  enable menuitem 6 of menu "File"
+  enable menuitem 5 of menu "File"
   
   unlock screen
 end openCard
 
 
-on editPressed
+command editPressed
   local tSelectedLine, theSelectedID
   
   put the dghilitedline of group "dgModules" into tSelectedLine
@@ -39,7 +39,7 @@ on editPressed
 end editPressed
 
 
-on editConsigneePressed
+command editConsigneePressed
   local tSelectedLine, theSelectedID
   
   put the dghilitedline of group "dgConsignees" into tSelectedLine
@@ -52,7 +52,7 @@ on editConsigneePressed
 end editConsigneePressed
 
 
-on newConsigneePressed
+command newConsigneePressed
   local tDataA, tResult
   local tSelectedLine, moduleId
   
@@ -72,14 +72,14 @@ on newConsigneePressed
 end newConsigneePressed
 
 
-on editConsignee pSelectedID
+command editConsignee pSelectedID
   set the cActiveModule of card "Edit Consignee" to the uSelectedID of group "dgModules"
   set the cActiveConsignee of card "Edit Consignee" to pSelectedID
   go to card "Edit Consignee"
 end editConsignee
 
 
-on newSpotPressed
+command newSpotPressed
   local tDataA, tId, tResult
   local tSelectedLine, moduleId
   
@@ -102,14 +102,14 @@ on newSpotPressed
 end newSpotPressed
 
 
-on editSpot pSelectedID
+command editSpot pSelectedID
   set the cActiveModule of card "Edit Drop Zone" to the uSelectedID of group "dgModules"
   set the cActiveSpot of card "Edit Drop Zone" to pSelectedID
   go to card "Edit Drop Zone"
 end editSpot
 
 
-on editSpotPressed
+command editSpotPressed
   local tSelectedLine, theSelectedID
   
   put the dghilitedline of group "dgSpots" into tSelectedLine
@@ -128,7 +128,7 @@ on editRecord pSelectedID
 end editRecord
 
 
-on newModulePressed
+command newModulePressed
   local tDataArray, tUUID, tResult
   
   put uuid() into tUUID
@@ -145,11 +145,11 @@ end newModulePressed
 
 on closeCard
   uiClearData
-  disable menuitem 6 of menu "File"
+  disable menuitem 5 of menu "File"
 end closeCard
 
 
-on uiButtonState
+command uiButtonState
   set the disabled of button "Module Edit" to true
   set the fourgroundColor of button "Module Edit" to ""
   set the disabled of button "Module Delete" to true
@@ -169,7 +169,7 @@ on uiButtonState
 end uiButtonState
 
 
-on uiModuleClicked
+command uiModuleClicked
   
   ## Update Button status
   set the disabled of button "Module Edit" to false
@@ -201,97 +201,103 @@ on uiModuleClicked
 end uiModuleClicked
 
 
-on uiImportModule
+command uiImportModule
   local tModuleA, tConsigneeA, tSpotA, tWorkorderA, tCarTypeA, tResultA
   local tPath, tDataA, tTemp, tTempA, i
+  local tCriteriaA
+  local tWorkorderDTO
   
   put specialFolderPath("Documents") into tPath
-  answer file "Import Module:" with tPath with type "TEXT|dat"
-  if it is not empty then
-    put it into tPath
-    
-    updateStatus "Reading File..."
-    put  URL ("binfile:" & tPath) into tTemp
-    
-    updateStatus "Decoding Data..."
-    put arrayDecode(tTemp) into tDataA
-    
-    if tDataA is an array then
-      if mdbQueryByUUID("module", tDataA["module"][1]["UUID"]) is not empty then
-        answer error "Import Failed. Module already exists."
-        exit uiImportModule
-      end if
+  answer file "Import Module:" with tPath with type "TEXT|json"
+  
+  if it is empty then exit uiImportModule
+  
+  
+  put it into tPath
+  
+  updateStatus "Reading File..."
+  put  URL ("binfile:" & tPath) into tTemp
+  
+  updateStatus "Decoding Data..."
+  put JSONToArray(tTemp) into tDataA
+  
+  if tDataA is not an array then exit uiImportModule
+  
+  if module.findOne(tDataA["module"]["id"]) is not empty then
+    answer error "Import Failed. Module already exists."
+    exit uiImportModule
+  end if
+  
+  // add module
+  get module.create(tDataA["module"])
+  
+  // load consignees
+  repeat for each element aConsignee in tDataA["consignee"]
+    if consignee.findOne(aConsignee["id"]) is not empty then
+      // skip if a duplicate
+      next repeat
+    end if
+    get consignee.create(aConsignee)
+  end repeat
+  
+  // remove duplicate spots
+  repeat for each element aSpot in tDataA["spot"]
+    if spot.findOne(aSpot["id"]) is not empty then
+      // skip if a duplicate
+      next repeat
+    end if
+    get spot.create(aSpot)
+  end repeat
+  
+  // update car types
+  // NOTE: this must happen before workorders in the event
+  // that an existing car type can be reused for work orders
+  repeat for each element aCar in tDataA["carType"]
+    ## Online insert car types if they do not already exist in the DB
+    if carType.findOne(aCar["id"]) is empty then
       
-      if tDataA["consignee"]["UUID"] is not empty then
-        if mdbQueryByUUID("consignee", tDataA["consignee"]["UUID"]) is not empty then
-          answer error "Import Failed. Module already exists."
-          exit uiImportModule
-        end if
-      end if
+      ## now let's check if there's a "match" already in the carType table
+      ## We assume if Class, Description and Length match then
+      ## there's a duplicate car type and we should change the imported
+      ## type to the car type that exists.
+      put aCar["class"] into tCriteriaA["class"]
+      put aCar["description"] into tCriteriaA["description"]
+      put aCar["length"] into tCriteriaA["length"]
+      put carType.findMany(tCriteriaA) into tTempA
       
-      if mdbQueryByUUID("spot", tDataA["spot"]["UUID"]) is not empty then
-        answer error "Import Failed. Module already exists."
-        exit uiImportModule
-      end if
-      
-      if mdbQueryByUUID("workorder", tDataA["workorder"]["UUID"]) is not empty then
-        answer error "Import Failed. Module already exists."
-        exit uiImportModule
-      end if        
-      
-      repeat for each element aCar in tDataA["carType"]
-        ## Online insert car types if they do not already exist in the DB
-        if mdbQueryByUUID("carType", aCar["UUID"]) is empty then
-          
-          ## now let's check if there's a "match" already in the carType table
-          ## We assume if Class, Description and Length match then
-          ## there's a duplicate car type and we should change the imported
-          ## type to the car type that exists.
-          dbResetQuery
-          dbWhere "class", aCar["class"]
-          dbWhere "description", aCar["description"]
-          dbWhere "length", aCar["length"]
-          put dbGet("carType") into tTempA
-          
-          if tTempA is empty then
-            get mdbInsertRecord("carType", aCar)
-          else
-            put 1 into i
-            repeat for each element aWorkorder in tDataA["workorder"]
-              if tDataA["workorder"][i]["carID"] = aCar["UUID"] then
-                put tTempA[1]["UUID"] into tDataA["workorder"][i]["carID"]
-              end if
-              add 1 to i
-            end repeat
+      if tTempA is empty then
+        get carType.create(aCar)
+      else
+        repeat with i = 1 to number of elements in tDataA["workorder"]
+          if tDataA["workorder"][i]["carId"] = aCar["id"] then
+            put tTempA[1]["id"] into tDataA["workorder"][i]["carId"]
           end if
-          
-        end if
-      end repeat
-      
-      -- Load Tables from data
-      if tDataA["module"] is an array then
-        get populateTable("module", tDataA["module"])
-      end if
-      
-      if tDataA["consignee"] is an array then
-        get populateTable("consignee", tDataA["consignee"])
-      end if
-      
-      if tDataA["spot"] is an array then
-        get populateTable("spot", tDataA["spot"])
-      end if
-      
-      if tDataA["workorder"] is an array then
-        get populateTable("workorder", tDataA["workorder"])
+        end repeat
       end if
     end if
-  end if
+  end repeat
+  
+  // add workorders
+  repeat for each element aWorkorder in tDataA["workorder"]
+    if workorder.findOne(aWorkorder["id"]) is not empty then
+      // delete duplicate work order
+      get workorder.delete(aWorkorder["id"])
+    end if
+    put aWorkorder["id"] into tWorkorderDTO["id"]
+    put aWorkorder["carId"] into tWorkorderDTO["carId"]
+    put aWorkorder["spotId"] into tWorkorderDTO["spotId"]
+    put aWorkorder["consigneeId"] into tWorkorderDTO["consigneeId"]
+    put aWorkorder["cpw"] into tWorkorderDTO["cpw"]
+    put aWorkorder["remarks"] into tWorkorderDTO["remarks"]
+    
+    get workorder.create(tWorkorderDTO)
+  end repeat
   
   dispatch "openCard" to card "Modules/Towns"
 end uiImportModule
 
 
-on uiClearData
+command uiClearData
   set the dgText of group "dgModules" to ""
   set the dgText of group "dgConsignees" to ""
   set the dgText of group "dgSpots" to ""
@@ -300,7 +306,7 @@ end uiClearData
 
 
 -- Duplicate a Spot
-on clonePressed
+command clonePressed
   local tSelectedLine, theSelectedID, tDataA, tResult
   
   put the dghilitedline of group "dgSpots" into tSelectedLine

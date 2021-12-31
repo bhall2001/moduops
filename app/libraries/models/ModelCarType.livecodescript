@@ -142,3 +142,28 @@ count number of records
 function carType.count
   return datalayer.count("carType")
 end carType.count
+
+
+/*
+find car type by module id (aka. all car types used by a module)
+*/
+function carType.findByModuleId pModuleId
+  local tSql, tResultA, tBindingsA
+  
+  put __sql.carTypeByModuleId() into tSql
+  put pModuleId into tBindingsA[1]
+  put datalayer.QueryAsArray(tSql, tBindingsA) into tResultA
+  
+  return tResultA
+end carType.findByModuleId
+
+
+private function __sql.carTypeByModuleId
+  return "SELECT DISTINCT carType.class,carType.era,carType.code,carType.description," & return & \
+        "carType.short,carType.length,carType.remarks,carType.id,carType.max" & return & \
+        "FROM workorder" & return & \
+        "INNER JOIN consignee ON workorder.consigneeId = consignee.id" & return & \
+        "INNER JOIN module ON consignee.moduleId = module.id" & return & \
+        "INNER JOIN carType ON workorder.carId = carType.id" & return & \
+        "WHERE ( module.id = :1 )"
+end __sql.carTypeByModuleId

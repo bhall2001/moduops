@@ -16,7 +16,7 @@ on openCard
   
   // update ui
   uiUpdateData tModuleA
-  enable menuitem 7 of menu "File"
+  enable menuitem 6 of menu "File"
   
   unlock screen
 end openCard
@@ -25,7 +25,7 @@ end openCard
 on closeCard
   set the cModuleUUID of card "Modules/Towns" to the cActiveModule of this card
   uiClearFields
-  disable menuitem 7 of menu "File"
+  disable menuitem 6 of menu "File"
 end closeCard
 
 
@@ -106,27 +106,22 @@ on validateData
 end validateData
 
 
-on uiExportModule
+command uiExportModule
   local tModuleA, tConsigneeA, tSpotA, tWorkorderA, tCarTypeA, tResultA, tPath, tDataA
   
   updateStatus "Gathering Data..."
-  put mdbQueryByUUID("module", sActiveModule) into tModuleA
-  put mdbQueryByModuleID("consignee", tModuleA[1]["UUID"]) into tConsigneeA
-  put mdbQueryByModuleID("spot", tModuleA[1]["UUID"]) into tSpotA
-  put mdbQueryWOByModuleID(sActiveModule) into tWorkorderA
-  put mdbQueryCarTypeByModuleID(sActiveModule) into tCarTypeA
   
-  put tModuleA into tResultA["module"]
-  put tConsigneeA into tResultA["consignee"]
-  put tSpotA into tResultA["spot"]
-  put tWorkorderA into tResultA["workorder"]
-  put tCarTypeA into tResultA["carType"]
+  put module.findOne(sActiveModule) into tResultA["module"]
+  put consignee.findByModuleId(sActiveModule) into tResultA["consignee"]
+  put spot.findByModuleId(sActiveModule) into tResultA["spot"]
+  put workorder.findByModuleId(sActiveModule) into tResultA["workorder"]
+  put carType.findByModuleId(sActiveModule) into tResultA["carType"]
   
   updateStatus "Creating Export Data..."
-  put arrayEncode(tResultA) into tDataA
+  put ArrayToJSON(tResultA,,true) into tDataA
   
   put specialFolderPath("Documents") into tPath
-  put "/" & tModuleA[1]["name"] & ".dat" after tPath
+  put "/" & tResultA["module"]["name"] & ".json" after tPath
   replace " " with "_" in tPath
   
   updateStatus "Waiting on export file selection..."
