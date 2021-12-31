@@ -211,7 +211,11 @@ private command yardCarTypes
     
     // calculate the total percentage of this car type needed overall by the Yard
     // the percentage is a function of the length of the car * total CPW for the car
-    put round((tResultA[aCar]["totalLength"] / tTotalLength)*100, 2) into tResultA[aCar]["percent"]
+    if tTotalLength > 0 then
+      put round((tResultA[aCar]["totalLength"] / tTotalLength)*100, 2) into tResultA[aCar]["percent"]
+    else
+      put 0 into tResultA[aCar]["percent"]
+    end if
     
   end repeat
   
@@ -269,7 +273,11 @@ on calcCarCount
     local tRatioTotal = 0
     
     repeat for each key aCar in tCarTypeA
-      put ceiling(tCarTypeA[aCar]["totalLength"] / tStDev) into tCarTypeA[aCar]["percent"]
+      if tStDev > 0 then
+        put ceiling(tCarTypeA[aCar]["totalLength"] / tStDev) into tCarTypeA[aCar]["percent"]
+      else
+        put 0 into tCarTypeA[aCar]["percent"]
+      end if
       add tCarTypeA[aCar]["percent"] to tPercentTotal
     end repeat
     
@@ -283,7 +291,11 @@ on calcCarCount
     
     local tRatio
     repeat for each key aCar in tCarTypeA
-      put (tCarTypeA[aCar]["quantity"]/tCarTotal)*100 into tRatio
+      if tCarTotal > 0 then
+        put (tCarTypeA[aCar]["quantity"]/tCarTotal)*100 into tRatio
+      else
+        put 0 into tRatio
+      end if
       put round( tRatio, 0 ) into tCarTypeA[aCar]["percent"]
       add tCarTypeA[aCar]["percent"] to tPercentTotal
     end repeat
@@ -302,7 +314,11 @@ on calcCarCount
       put ((tCarTypeA[aCar]["percent"]/tPercentTotal)) * tYardSize into tCarTypeUsed
     end if
     
-    put tCarTypeUsed / tCarTypeA[aCar]["length"] into tCarTypeUsed
+    if tCarTypeA[aCar]["length"] > 0 then
+      put tCarTypeUsed / tCarTypeA[aCar]["length"] into tCarTypeUsed
+    else
+      put 0 into tCarTypeUsed
+    end if
     
     // store the number of cars for this car type
     put round(tCarTypeUsed) into tCarTypeA[aCar]["actual"]
