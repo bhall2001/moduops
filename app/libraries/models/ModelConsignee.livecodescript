@@ -130,6 +130,14 @@ end consignee.delete
 
 
 /*
+delete all consignees
+*/
+function consignee.deleteAll
+  get datalayer.deleteAll("consignee")
+end consignee.deleteAll
+
+
+/*
 count number of records
 */
 function consignee.count

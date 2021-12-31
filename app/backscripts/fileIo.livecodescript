@@ -7,11 +7,20 @@ function createNewDataFile
   local tSQL
   local tResult
   
+  local tItemDelim
+  
   put saveFileName() into tFileName
   
   if tFileName is not empty then
     
     set the cDataFile of stack "Module Operations" to tFileName
+    
+    put the itemDelimiter into tItemDelim
+    set the itemDelimiter to "."
+    if the last item of tFilename is not ".mop2" then
+      put ".mop2" after tFileName
+    end if
+    set the itemDelimiter to tItemDelim
         
     // check if there's an open default db
     if dbGetDefaultConnectionID() is a number then

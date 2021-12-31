@@ -130,6 +130,13 @@ end carType.delete
 
 
 /*
+delete all car type records
+*/
+function carType.deleteAll
+  return datalayer.deleteAll("carType")
+end carType.deleteAll
+
+/*
 count number of records
 */
 function carType.count

@@ -130,6 +130,14 @@ end manifest.delete
 
 
 /*
+delete all manifests
+*/
+function manifest.deleteAll
+  get datalayer.deleteAll("manifest")
+end manifest.deleteAll
+
+
+/*
 delete manifest by train id
 */
 function manifest.deleteByTrainId pTrainId

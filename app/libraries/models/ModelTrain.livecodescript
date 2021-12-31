@@ -127,6 +127,14 @@ end train.delete
 
 
 /*
+delete all trains
+*/
+function train.deleteAll
+  get datalayer.deleteAll("train")
+end train.deleteAll
+
+
+/*
 get train by Symbol
 
 parameter pSymbol Symbol of train to retrieve

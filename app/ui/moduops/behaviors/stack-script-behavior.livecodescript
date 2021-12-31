@@ -65,7 +65,7 @@ on closeStack
 end closeStack
 
 
-on uiSaveData
+command uiSaveData
   --   local tPath, tSaveData, theEncodedArray, tDataFile
   
   --   put the cDataFile of stack "Module Operations" into tDataFile
@@ -137,7 +137,7 @@ on uiSaveData
 end uiSaveData
 
 
-on uiSaveAs
+command uiSaveAs
   --   local tDataFile, trslt
   --   put the cDataFile of stack "Module Operations" into tDataFile
   
@@ -153,11 +153,15 @@ on uiSaveAs
 end uiSaveAs
 
 
-on uiNewData   
+command uiNewData   
   local tFileName
   
   get datalayer.disconnect()
   put createNewDataFile() into tFileName
+  set the label of stack "Module Operations" to tFileName & " - Module Operations"
+  
+  answer info "Data file created!"
+  go to card "Dashboard"
 end uiNewData
 
 
@@ -167,7 +171,7 @@ end uiNewData
 ## Resets the file name to the default "untitled.mop"
 ## and sets the main window title accordingly.
 ##
-on _resetFileName
+command _resetFileName
   local tPath, tDataFile
   put specialFolderPath("Documents") into tDataFile
   put "/untitled.mop" after tDataFile
@@ -181,16 +185,16 @@ on _resetFileName
 end _resetFileName
 
 
-on uiLoadData
+command uiLoadData
   local tPath, tDataFile
   local tConnect
   
   put specialFolderPath("Documents") into tPath
   
-  set the visible of graphic "blocker"  to true
+  set the visible of graphic "blocker" to true
   --answer file "Input:" with tPath with type "*.mop,*.MOP"
   answer file "Input:" with tPath with type "mop2"
-  set the visible of graphic "blocker"  to false
+  set the visible of graphic "blocker" to false
   wait 300 milliseconds
   
   if it is not empty then
@@ -221,6 +225,133 @@ on uiLoadData
 end uiLoadData
 
 
+/*
+converts a legacy .mop file to a .mop2 format
+*/
+command uiConvertFile
+  local tPath
+  local tDataFile
+  local tInputData
+  local tSaveData
+  
+  // confirm database is open
+  
+  // load old file
+  put specialFolderPath("Documents") into tPath
+  
+  set the visible of graphic "blocker" to true
+  answer file "Input:" with tPath with type "TEXT|mop"
+  set the visible of graphic "blocker" to false
+  wait 300 milliseconds
+  
+  // process old file adding records to the database
+  if it is not empty then
+    put it into tDataFile
+    set cursor to watch
+    
+    updateStatus "Opening File " & tDataFile
+    updateStatus "Reading Data..."
+    
+    put URL ("binfile:" & tDataFile) into tInputData
+    decrypt tInputData using "blowfish" with "moduops5"
+    put it into tInputData
+    
+    put arrayDecode(tInputData) into tSaveData
+    
+    // convert carType
+    updateStatus "Converting Equipment..."
+    get carType.deleteAll()
+    
+    local tCarTypeA
+    repeat for each element aCarType in tSaveData["carType"]
+      put empty into tCarTypeA
+      put legacy.carTypeDto(aCarType) into tCarTypeA
+      get carType.create(tCarTypeA)
+    end repeat
+    
+    // convert spots
+    updateStatus "Converting Spots..."
+    get spot.deleteAll()
+    
+    local tSpotA
+    repeat for each element aSpot in tSaveData["spot"]
+      put empty into tSpotA
+      put legacy.spotDto(aSpot) into tSpotA
+      get spot.create(tSpotA)
+    end repeat
+    
+    // convert modules
+    updateStatus "Converting Modules..."
+    get module.deleteAll()
+    
+    local tModuleA
+    repeat for each element aModule in tSaveData["module"]
+      put empty into tModuleA
+      put legacy.moduleDto(aModule) into tModuleA
+      get module.create(tModuleA)
+    end repeat
+    
+    // convert consignees
+    updateStatus "Converting Consignees..."
+    get consignee.deleteAll()
+    
+    local tConsigneeA
+    repeat for each element aConsignee in tSaveData["consignee"]
+      put empty into tConsigneeA
+      put legacy.consigneeDto(aConsignee) into tConsigneeA
+      get consignee.create(tConsigneeA)
+    end repeat
+    
+    // convert workorders
+    updateStatus "Converting Workorders..."
+    get workorder.deleteAll()
+    
+    local tWorkorderA
+    repeat for each element aWorkorder in tSaveData["workorder"]
+      put empty into tWorkorderA
+      put legacy.workorderDto(aWorkorder) into tWorkorderA
+      get workorder.create(tWorkorderA)
+    end repeat
+    
+    // convert trains
+    updateStatus "Converting Trains..."
+    get train.deleteAll()
+    
+    local tTrainA
+    repeat for each element aTrain in tSaveData["train"]
+      put empty into tTrainA
+      put legacy.trainDto(aTrain) into tTrainA
+      get train.create(tTrainA)
+    end repeat
+    
+    // convert manifests
+    updateStatus "Converting Manifests..."
+    get manifest.deleteAll()
+    
+    local tManifestA
+    repeat for each element aManifest in tSaveData["manifest"]
+      put empty into tManifestA
+      put legacy.manifestDto(aManifest) into tManifestA
+      get manifest.create(tManifestA)
+    end repeat
+    
+    // convert config
+    updateStatus "Converting Configurations..."
+    get config.deleteAll()
+    
+    repeat for each key aConfig in tSaveData["config_data"][1]      
+      if aConfig = "UUID" then
+        next repeat
+      end if
+      
+      get config.set(aConfig, tSaveData["config_data"][1][aConfig])
+    end repeat
+  end if
+  
+  updateStatus ""
+end uiConvertFile
+
+
 function populateTable pTable, tDataA
   local tResult
   
@@ -242,7 +373,7 @@ function saveData
 end saveData
 
 
-on goesInta
+command goesInta
   ## Bug in LC 8 prevents this from working. Removed.
   ## set cursor to hand
   lock cursor
@@ -253,7 +384,7 @@ on goesInta
 end goesInta
 
 
-on goesOuta
+command goesOuta
   if the backgroundColor of the target is not "#008080" then
     set the backgroundColor of the target to "#2E2E2E"
     set the foregroundColor of the target to "#969696"
@@ -270,7 +401,7 @@ on mouseLeave
 end mouseLeave
 
 
-on updateSidebarUI
+command updateSidebarUI
   local lBtnCT, tButtonID
   
   put the number of buttons of group "sidebarMenu" into lBtnCT
@@ -354,7 +485,8 @@ function wordWrappedHTML pText,pMaxLength
   return tWrappedText
 end wordWrappedHTML
 
-on sendJson
+
+command sendJson
   local tJsonData, tSequence, oldDelimiter, ftpPath
   
   put the dgText of group "dgSequence" of card "Train Sequence" into tSequence
@@ -385,6 +517,7 @@ on sendJson
   ## Output JSON files to the server
   --   put tJsonData into URL (ftpPath & "/arrays.txt")
 end sendJson
+
 
 ## 
 ## Return the ftp path for the current event

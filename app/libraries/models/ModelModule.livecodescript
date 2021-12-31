@@ -130,6 +130,14 @@ end module.delete
 
 
 /*
+delete all modules
+*/
+function module.deleteAll
+  get datalayer.deleteAll("module")
+end module.deleteAll
+
+
+/*
 count number of records
 */
 function module.count

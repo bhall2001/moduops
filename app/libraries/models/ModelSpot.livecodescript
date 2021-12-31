@@ -130,6 +130,13 @@ end spot.delete
 
 
 /*
+delete all spots
+*/
+function spot.deleteAll
+  get datalayer.deleteAll("spot")
+end spot.deleteAll
+
+/*
 find spots by module id
 */
 function spot.findByModuleId pModuleId

@@ -130,6 +130,14 @@ end workorder.delete
 
 
 /*
+delete all workorders
+*/
+function workorder.deleteAll
+  get datalayer.deleteAll("workorder")
+end workorder.deleteAll
+
+
+/*
 count number of records
 */
 function workorder.count

@@ -132,6 +132,7 @@ function datalayer.get pTableName, pDataA
   put dbGet(pTableName) into tResultA
   
   if tResultA is not an array then
+    put tResultA & return after message
     return empty
   end if
   
@@ -214,7 +215,6 @@ function datalayer.deleteById pTableName, pId
 end datalayer.deleteById
 
 
-
 /*
 Delete data in the data store using an array of parameters.
 The parameters are added to the where for a sql delete
@@ -239,7 +239,6 @@ function datalayer.delete pTableName, @pParamA
   # delete the record for the given id
   return dbDelete(pTableName)
 end datalayer.delete
-
 
 
 /**
