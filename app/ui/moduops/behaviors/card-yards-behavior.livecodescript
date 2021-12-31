@@ -57,9 +57,9 @@ on displayYard pYardID
   -- Display results in UI
   set the uYardSize of this card to sYardA["length"]
   
-  --  displayTrains
+  displayTrains
   
-  --  yardCarTypes
+  yardCarTypes
   
   unlock screen
 end displayYard
@@ -100,7 +100,12 @@ end uiClear
 * Update UI to display trains that originate from the selected Yard
 */
 private command displayTrains
-  put mdbQueryByValue("train", "origin", sYardA["UUID"]) into sTrainA
+  local tCriteriaA
+  
+  --  put mdbQueryByValue("train", "origin", sYardA["UUID"]) into sTrainA
+  
+  put sYardA["id"] into tCriteriaA["origin"]
+  put train.findMany(tCriteriaA) into sTrainA
   
   set the dgData of group "dgTrains" to sTrainA
 end displayTrains
@@ -136,15 +141,15 @@ private command yardCarTypes
       // Handle a consignee that is NOT included
       if char 1 of tRouteA[aStop]["consigneeID"] = "!" then
         put false into tAddFlag
-        put mdbQueryByValue("workorder", "consigneeID", char 2 to -1 of tRouteA[aStop]["consigneeID"]) into tWorkorderA
+        put workorder.findByConsigneeId(char 2 to -1 of tRouteA[aStop]["consigneeId"]) into tWorkorderA
         
         // if this stop is for a consignee, add only the Consignee's requests
       else if tRouteA[aStop]["consigneeID"] contains "-" then
-        put mdbQueryByValue("workorder", "consigneeID", tRouteA[aStop]["consigneeID"]) into tWorkorderA
+        put workorder.findByConsigneeId(tRouteA[aStop]["consigneeId"]) into tWorkorderA
         
         // If this stop is for a module, add the module requests
       else if tRouteA[aStop]["moduleID"] contains "-" then
-        put mdbQueryWOByModuleID(tRouteA[aStop]["moduleID"]) into tWorkorderA
+        put workorder.findByModuleId(tRouteA[aStop]["moduleId"]) into tWorkorderA
       else
         // if we get here there's nothing we need at this stop so move on
         next repeat
@@ -185,7 +190,8 @@ private command yardCarTypes
     end if
     
     // total length of all cars for this car type
-    put mdbQueryByValue("carType", "UUID", aCar, true) into tCarTypeA
+    --    put mdbQueryByValue("carType", "UUID", aCar, true) into tCarTypeA
+    put carType.findOne(aCar) into tCarTypeA
     add tResultA[aCar]["quantity"] * tCarTypeA["length"] to tResultA[aCar]["totalLength"]
     
     //total length required to store all the cars
@@ -195,7 +201,8 @@ private command yardCarTypes
   // Retrieve data for car class, description and length
   repeat for each key aCar in tResultA
     // returns the DB record for the current car type UUID
-    put mdbQueryByValue("carType", "UUID", aCar, true) into tCarTypeA
+    --    put mdbQueryByValue("carType", "UUID", aCar, true) into tCarTypeA
+    put carType.findOne(aCar) into tCarTypeA
     
     // move the data points needed into the result array
     put tCarTypeA["class"] into tResultA[aCar]["class"]
