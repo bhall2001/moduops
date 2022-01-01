@@ -1,7 +1,7 @@
 name: ModuOps
-version: 2018.1.1
-build: 4
-encrypt stacks: false
+version: 2022.1.1
+build: 1
+encrypt stacks: random
 multiple instances: false
 relaunch in background: false
 creator code: com.bobhall.moduops

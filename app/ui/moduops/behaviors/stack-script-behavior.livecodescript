@@ -68,12 +68,24 @@ end closeStack
 command uiNewData   
   local tFileName
   
+  set cursor to watch
+  lock screen
+  
   get datalayer.disconnect()
   put createNewDataFile() into tFileName
   set the label of stack "Module Operations" to tFileName & " - Module Operations"
   
+  // reset ui depending on where we are
+  if the short name of this card is "Dashboard" then
+    send "openCard" to this card
+  else
+    go to card "Dashboard"
+  end if
+  
+  unlock screen
+  set cursor to arrow
+  
   answer info "Data file created!"
-  go to card "Dashboard"
 end uiNewData
 
 
