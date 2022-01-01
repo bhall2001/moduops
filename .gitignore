@@ -5,3 +5,5 @@
 .env
 /app/ui/moduops/moduops.db
 *.zip
+
+.DS_Store
