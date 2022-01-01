@@ -75,12 +75,7 @@ command uiNewData
   put createNewDataFile() into tFileName
   set the label of stack "Module Operations" to tFileName & " - Module Operations"
   
-  // reset ui depending on where we are
-  if the short name of this card is "Dashboard" then
-    send "openCard" to this card
-  else
-    go to card "Dashboard"
-  end if
+  goDashboard
   
   unlock screen
   set cursor to arrow
@@ -121,31 +116,34 @@ command uiLoadData
   set the visible of graphic "blocker" to false
   wait 300 milliseconds
   
-  if it is not empty then
-    put it into tDataFile
-    
-    set cursor to watch
-    
-    updateStatus "Opening File " & tDataFile
-    set the label of stack "Module Operations" to tDataFile & " - Module Operations"
-    
-    set the cDataFile of stack "Module Operations" to tDataFile
-    
-    updateStatus "Reading Data..."
-    
-    put datalayer.connect(the cDataFile of stack "Module Operations") into tConnect
-    
-    set itemdelimiter to slash
-    updateStatus ""
-    
-    if the short name of this card is "Dashboard" then
-      dispatch "openCard" to card "Dashboard"
-    else
-      dispatch "mouseUp" to button "Dashboard"
-    end if
-    
-    set the cursor to arrow
+  if it is empty then exit uiLoadData
+  
+  lock screen
+  put it into tDataFile
+  
+  set cursor to watch
+  
+  updateStatus "Opening File " & tDataFile
+  set the label of stack "Module Operations" to tDataFile & " - Module Operations"
+  
+  set the cDataFile of stack "Module Operations" to tDataFile
+  
+  updateStatus "Reading Data..."
+  
+  put datalayer.connect(the cDataFile of stack "Module Operations") into tConnect
+  
+  set itemdelimiter to slash
+  updateStatus ""
+  
+  if the short name of this card is "Dashboard" then
+    dispatch "openCard" to card "Dashboard"
+  else
+    dispatch "mouseUp" to button "Dashboard"
   end if
+  
+  goDashboard
+  set the cursor to arrow
+  unlock screen
 end uiLoadData
 
 
