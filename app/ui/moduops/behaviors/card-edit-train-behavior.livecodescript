@@ -145,7 +145,6 @@ function saveTrainData
   local tTemp, tOriginId, tDestinationId
   local tDataA, tCarTypeA, tLimitTypes
   
-  
   put the label of button "origin" into tTemp
   put sYardA[tTemp] into tOriginId
   
@@ -217,7 +216,11 @@ end validateData
 
 
 on closeCard
- 
+  
+  if not isValid(the short name of this card) then
+    exit closeCard
+  end if
+  
   if not saveTrainData() then
     go to this card
     exit closeCard
