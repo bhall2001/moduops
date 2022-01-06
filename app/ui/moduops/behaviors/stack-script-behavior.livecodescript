@@ -57,14 +57,6 @@ on closeStackRequest
 end closeStackRequest
 
 
-on closeStack
-  local tResult
-  set the cursor to watch
-  save this stack
-  pass closeStack
-end closeStack
-
-
 command uiNewData   
   local tFileName
   
