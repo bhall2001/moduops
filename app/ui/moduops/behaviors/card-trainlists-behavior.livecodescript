@@ -152,11 +152,21 @@ function addManifest pManifestStyle pPageWidth
 end addManifest
 
 
-on openCard   
+on openCard
+  local tFavor
+  
   put train.findMany() into sTrainA
   set the dgData of group "dgTrains" to train.addNames(sTrainA)
   
   put "" into cd fld "trainlist"
+  
+  put config.get("favorSlider") into tFavor
+  
+  if tFavor is a number then
+    set the thumbPosition of scrollbar "favorScale" of card "Trainlists" to tFavor
+  else
+    set the thumbPosition of scrollbar "favorScale" of card "Trainlists" to 1
+  end if
   
   pass openCard
 end openCard
@@ -504,9 +514,6 @@ end uiAdjustSpacing
 
 
 on scheduleMRBT
-  // TODO: REMOVE
-  put "***** scheduleMRBT CALLED****" & return after message
-  
   --  -----
   --  local tArrayKey,tSpotID,tCarID
   --  local tManifest,tTrainRoute,tConsignees
@@ -659,9 +666,6 @@ end scheduleMRBT
 
 
 function spurExists moduleName, industryName, spurID, spurName
-  // TODO: REMOVE
-  put "**** spurExists called ****" & return after message
-  
   --  -----
   --  local existingSpurs
   --  -----

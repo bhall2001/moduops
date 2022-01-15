@@ -423,9 +423,30 @@ Returns:
 boolean
 */
 private function reuseConsignee pCPW
-  ## Removed on 01/27/19 RDH
-  ## Evaluating if random based on CPW works better
-  ## random(10) <=  8*(tSelectedWO["CPW"]/7)
-  return random(pCPW) <= pCPW/2
+  local tFavor
+  
+  put config.get("favorSlider") into tFavor
+  
+  // of favor scale not visible don't use it
+  if tFavor is not a number then return false
+  
+  switch tFavor
+    case 1
+      return false
+      break
+    case 2
+      return rand25()
+      break
+    case 3
+      return rand50()
+      break
+    case 4
+      return rand75()
+      break
+    case 5
+      return true
+      break
+    default
+      return false
+  end switch
 end reuseConsignee
-
