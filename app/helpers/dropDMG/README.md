@@ -27,16 +27,21 @@ Before using the dropDMG helper you need to set up DropDMG by doing the followin
 
 ## Configuring settings for the helper
 
-Now that DropDMG is set up you need to tell the helper where to find the command line tool, the [format](https://c-command.com/dropdmg/manual#format) for the DMG file, the layout name, and the license name. For a list of acceptable `format` values type `man dropdmg` in a Terminal window.
+Now that DropDMG is set up you can to tell the helper the [format](https://c-command.com/dropdmg/manual#format) for the DMG file, the `layout name`, the `license name`, and the `volume name`. All of these settings are optional. If the `volume name` is empty then the application bundle name minus the `.app` extension will be used as the volume name.
+
+For a list of acceptable `format` values type `man dropdmg` in a Terminal window. 
+
+You can also provide the path to the `dropdmg` command line tool if for some reason you need to. This shouldn't be required though.
 
 ```
 # app.yml
 
 dropDMG:
-  path: /usr/bin/local/dropdmg
   format: bzip2
   layout name: My App Layout
   license name: My App License
+  volume name: My App
+  path: /usr/bin/local/dropdmg
 ```
 
 ## Specifying the name of the DMG file
@@ -49,12 +54,31 @@ The name of the DMG file is configured in the build profiles section so that you
 build profiles:
   ...
   release:
-    dropDMG:
+    installer name:
       # Name to use for the DMG that will be created
-      filename: My App
+      all platforms: My App
   beta:
-    dropDMG:
+    installer name:
       # Name to use for the DMG that will be created
-      filename: My App Beta
+      all platforms: My App Beta
   ...
 ```
+
+Note that `installer name` is a generic name intended to be shared by other helpers that work with installers. For example, the Auto Updater helper uses `installer name` as does the Inno Setup helper. If you want to use a different name for `macOS` then use the `macos` key rather than the `all platforms` key.
+
+## Adding additional files to the DMG
+
+In DropDMG you can add additional files to your layout. When creating the DMG DropDMG will use the source folder in order to locate these additional files. When the dropDMG helper calls the dropdmg command line tool it sets the `macos` folder as the source folder. In order to copy additional files into the `macos` folder when you package your application you can add file copy opertaions to the `copy files` > `package folder` section of the `app.yml` file.
+
+Here is an example that copies two files into the `macos` folder. In this example the `build files` folder where `instructions.rtf` and `graphic file.jpg` come from was created alongside the `app` and `levure` folders.
+
+```
+build profiles:
+  all profiles:
+    copy files:
+      package folder:
+        - filename: ../build files/instructions.rtf
+          destination: macos
+        - filename: ../build files/graphic file.jpg
+          destination: macos
+```          

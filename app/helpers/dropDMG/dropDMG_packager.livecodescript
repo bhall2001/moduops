@@ -1,37 +1,39 @@
 script "dropDMG Packager"
-command packagingComplete pBuildProfile, pOutputFolder
+command packagingComplete pBuildProfile, pOutputFolder, @xAppA
 
   if the platform is not "macos" then return empty
 
-  local tSettingsA, tProfilesA, tName, tMacAppBundleFolder
+  local tSettingsA, tProfilesA, tName, tLayoutSourceFolder
 
-  if levureAppHasProperty("dropDMG") then
-    put levureAppGet("dropDMG") into tSettingsA
-  end if
-
-  if tSettingsA is not an array then
-    # TODO: Figure out error reporting
-    return empty
-  end if
+  put levureAppGet("dropDMG", true) into tSettingsA
 
   # Only build if a name has been set
   put levureAppGet("build profiles") into tProfilesA
-  put tProfilesA[pBuildProfile]["dropDMG"]["filename"] into tName
+
+  put tProfilesA[pBuildProfile]["installer name"]["macos"] into tName
   if tName is empty then
-    put tProfilesA["all profiles"]["dropDMG"]["filename"] into tName
+    put tProfilesA["all profiles"]["installer name"]["macos"] into tName
   end if
+  if tName is empty then
+    put tProfilesA[pBuildProfile]["installer name"]["all platforms"] into tName
+  end if
+  if tName is empty then
+    put tProfilesA["all profiles"]["installer name"]["all platforms"] into tName
+  end if
+
   # TODO: Figure out error reporting
   if tName is empty then return empty
 
   # Have a name so create DMG
   local tFile, tCmd, tResult, tReturnVal
 
-  put MacAppBundleFolder(pOutputFolder) into tMacAppBundleFolder
+  put DropDMGLayoutSourceFolder(pOutputFolder) into tLayoutSourceFolder
 
   put tName && levureAppGet("version") & "-" & levureAppGet("build") & ".dmg" into tFile
 
   if tSettingsA["path"] is empty then put "/usr/local/bin/dropdmg" into tSettingsA["path"]
   if tSettingsA["format"] is empty then put "bzip2" into tSettingsA["format"]
+  if tSettingsA["volume name"] is empty then put DropDMGVolumeName(pOutputFolder) into tSettingsA["volume name"]
 
   # Create DMG using DropDMG
   put format("\"%s\" --format=\"%s\"", tSettingsA["path"], tSettingsA["format"]) into tCmd
@@ -42,17 +44,31 @@ command packagingComplete pBuildProfile, pOutputFolder
   if tSettingsA["license name"] is not empty then
     put format(" --license-name=\"%s\"", tSettingsA["license name"]) after tCmd
   end if
-  put format(" --base-name=\"%s\" -o \"%s\" \"%s\"", tFile, pOutputFolder, tMacAppBundleFolder) after tCmd
+
+  if xAppA["macos signing certificate"] is not empty then
+    put format(" --signing-identity=\"%s\"", xAppA["macos signing certificate"]) after tCmd
+  end if
+
+  put format(" --volume-name=\"%s\" --base-name=\"%s\" -o \"%s\" \"%s\"", tSettingsA["volume name"], tFile, pOutputFolder, tLayoutSourceFolder) after tCmd
+  dispatch "packagerLog" to stack "Levure Framework Application Packager" with "dropDMG shell command:" && tCmd
   put shell(tCmd) into tResult
   put the result into tReturnVal
 
-  if tReturnVal is not empty then
+  if tReturnVal is empty then
+    # Store so other helpers can use
+    put pOutputFolder & "/" & tFile into xAppA["macos dmg filename"]
+  else
     answer error "dropdmg reported an error in" && param(0) && "[" & textDecode(tResult, "utf8") & "]"
   end if
 end packagingComplete
 
 
-private function MacAppBundleFolder pBuildFolder
+private function DropDMGLayoutSourceFolder pBuildFolder
+  return pBuildFolder & "/macos"
+end DropDMGLayoutSourceFolder
+
+
+private function DropDMGVolumeName pBuildFolder
   local tMacFolder, tMacApp
 
   put pBuildFolder & "/macos" into tMacFolder
@@ -61,8 +77,9 @@ private function MacAppBundleFolder pBuildFolder
   filter tMacApp with "*.app"
 
   if tMacApp is not empty then
-    return tMacFolder & "/" & tMacApp
+    set the itemdelimiter to "."
+    return item 1 to -2 of tMacApp
   else
     return empty
   end if
-end MacAppBundleFolder
+end DropDMGVolumeName
