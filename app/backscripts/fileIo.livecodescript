@@ -13,15 +13,16 @@ function createNewDataFile
   
   if tFileName is not empty then
     
-    set the cDataFile of stack "Module Operations" to tFileName
-    
+    // ensure filename endds with .mop2
     put the itemDelimiter into tItemDelim
     set the itemDelimiter to "."
-    if the last item of tFilename is not ".mop2" then
+    if the last item of tFilename is not "mop2" then
       put ".mop2" after tFileName
     end if
     set the itemDelimiter to tItemDelim
-        
+    
+    set the cDataFile of stack "Module Operations" to tFileName
+    
     // check if there's an open default db
     if dbGetDefaultConnectionID() is a number then
       // close the current open default database
@@ -53,9 +54,15 @@ function saveFileName
   put specialFolderPath("Documents") & "/untitled.mop2" into tFileName
   
   set the itemDelimiter to slash
-
-  ask file "Input:" with tFileName with type "Text|sqlite|mop2"
+  
+  ask file "Create new file..." with tFileName with type "MOP2 File|mop2|MOP2"
   wait 50 milliseconds with messages
+  
+  if it is empty then 
+    set cursor to arrow
+    exit to top
+  end if
+  
   
   return it
 end saveFileName

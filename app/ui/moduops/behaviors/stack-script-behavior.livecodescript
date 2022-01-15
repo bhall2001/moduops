@@ -104,7 +104,7 @@ command uiLoadData
   
   set the visible of graphic "blocker" to true
   --answer file "Input:" with tPath with type "*.mop,*.MOP"
-  answer file "Input:" with tPath with type "mop2"
+  answer file "Select file to open..." with tPath with type "TEXT File|mop2|MOP2"
   set the visible of graphic "blocker" to false
   wait 300 milliseconds
   
@@ -147,14 +147,17 @@ command uiConvertFile
   local tDataFile
   local tInputData
   local tSaveData
+  local tFileName
   
-  // confirm database is open
+  get datalayer.disconnect()
+  put createNewDataFile() into tFileName
+  set the label of stack "Module Operations" to tFileName & " - Module Operations"
   
   // load old file
   put specialFolderPath("Documents") into tPath
   
   set the visible of graphic "blocker" to true
-  answer file "Input:" with tPath with type "TEXT|mop"
+  answer file "Select file to convert..." with tPath with type "MOP File|mop|MOP"
   set the visible of graphic "blocker" to false
   wait 300 milliseconds
   
@@ -263,6 +266,8 @@ command uiConvertFile
   end if
   
   updateStatus ""
+  
+  goDashboard
 end uiConvertFile
 
 
