@@ -7,7 +7,7 @@ local sCarTypeID -- active car type ID
 // Version number
 local sMajor = 2022
 local sMinor = 0
-local sPatch = 0
+local sPatch = 1
 
 
 ##
