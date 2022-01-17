@@ -131,6 +131,10 @@ function datalayer.get pTableName, pDataA
   
   put dbGet(pTableName) into tResultA
   
+  if tResultA is empty then
+    return empty
+  end if
+  
   if tResultA is not an array then
     put tResultA & return after message
     return empty

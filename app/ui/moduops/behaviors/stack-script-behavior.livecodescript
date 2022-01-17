@@ -295,7 +295,7 @@ end saveData
 command goesInta
   ## Bug in LC 8 prevents this from working. Removed.
   ## set cursor to hand
-  lock cursor
+  --  lock cursor
   if the backgroundColor of the target is not "#008080" then
     set the backgroundColor of the target to "#4C4C4C"
     set the foregroundColor of the target to "#FFFFFF"
@@ -524,3 +524,4 @@ on preOpenStack
   ## Set default filename and set the Window Name
   _resetFileName
 end preOpenStack
+
