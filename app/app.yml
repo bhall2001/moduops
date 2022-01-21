@@ -1,5 +1,5 @@
 name: ModuOps
-version: 2022.0.0
+version: 2022.0.1
 build: 1
 encrypt stacks: random
 multiple instances: false

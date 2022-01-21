@@ -97,8 +97,9 @@ end openCard
 
 
 on closeCard  
-  lock screen
   if saveData() then
+    lock screen
+    
     put "" into field "module"
     put "" into field "name"
     put "" into field "CPW"
@@ -106,8 +107,12 @@ on closeCard
     set the dgText of group "dgSpots" to ""
     set the dgText of group "dgCarTypes" to ""
     set the disabled of button "Save" to true
+    unlock screen
+  else
+    go to card "Equipment Request"
+    exit closeCard
   end if
-  unlock screen
+  
 end closeCard
 
 
@@ -156,7 +161,7 @@ function saveData
   if the result is not empty then
     put the Result into tResult
     answer error tResult["errorText"][1]
-    exit to top
+    exit saveData
   end if
   
   // Move data entry fields into an array
@@ -202,9 +207,7 @@ command validateData
   if the dgHilitedLine of group "dgSpots" is "" then
     add 1 to tErrorIndex
     put "Please select a Spot" into tErrorA["errorText"][tErrorIndex]
-  end if
-  
-  if the dgHilitedLine of group "dgCarTypes" is "" then
+  else if the dgHilitedLine of group "dgCarTypes" is "" then
     add 1 to tErrorIndex
     put "Please select a Car Type" into tErrorA["errorText"][tErrorIndex]
   end if
@@ -226,20 +229,12 @@ command goEditConsignee
 end goEditConsignee
 
 
-/*
-update db when characters are typed in field
-*/
---private command __updateRequestField pFieldname
---  local tDataA, tResult
-
---  if pFieldName is not among the items of kFIELD_NAMES then
---    exit __updateRequestField
---  end if
-
---saveDa
---end __updateRequestField
-
-
---on textChanged
---  __updateRequestField the short name of the target
---end textChanged
+command deletePressed
+  local tResult
+  answer warning "Delete Current Equipment Request? (THIS CAN NOT BE UNDONE.)" with "Yes" or "No"
+  if it is "no" then exit to top
+  
+  put workorder.delete(card field "id") into tResult
+  
+  go to card "Edit Consignee"
+end deletePressed
