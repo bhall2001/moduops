@@ -5,11 +5,27 @@ local sActiveModule
 local sActiveConsignee
 
 
-on openCard
+on preOpenCard
   local tDataA, t2DataA
   
   lock screen
   uiDisableButtons
+  
+  if __isNewRequestAllowed() then
+    enable button "New Request"
+    hide field "errorText"
+  else
+    disable button "New Request"
+    
+    if  carType.count() = 0 then
+      put "Unable to create a new request until equipement is defined." into field "errorText"
+    else
+      put "Unable to create a new request until a drop zone is defined." into field "errorText"
+    end if
+    
+    show field "errorText"
+  end if
+  
   put the cActiveModule of this card into sActiveModule
   put the cActiveConsignee of this card into sActiveConsignee
   
@@ -24,8 +40,8 @@ on openCard
   
   uiUpdateData tDataA
   
-  pass openCard
-end openCard
+  pass preOpenCard
+end preOpenCard
 
 
 on closeCard
@@ -257,3 +273,19 @@ end __updateConsigneeField
 on textChanged
   __updateConsigneeField the short name of the target
 end textChanged
+
+
+private function __isNewRequestAllowed
+  local tCarTypeCount
+  local tSpotCount
+  
+  if sActiveModule is empty then return false
+  
+  // get total car counts
+  put carType.count() into tCarTypeCount
+  
+  // get all spots for this module
+  put spot.moduleCount(sActiveModule) into tSpotCount
+  
+  return tCarTypeCount > 0 and tSpotCount > 0
+end __isNewRequestAllowed

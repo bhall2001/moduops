@@ -170,6 +170,26 @@ end spot.count
 
 
 /*
+count number of spots for a given module
+*/
+function spot.moduleCount pModuleId
+  local tSpotA
+  local tCriteriaA
+  
+  if pModuleId is empty then throw "Error: missing parameter."
+  
+  // get all spots for this module
+  put pModuleId into tCriteriaA["moduleId"]
+  put spot.findMany(tCriteriaA) into tSpotA
+  
+  if tSpotA is an array then
+    return the number of elements of tSpotA
+  end if
+  
+  return 0
+end spot.moduleCount
+
+/*
 sql for spots by module id
 */
 private function __sql.spotByModuleId
