@@ -100,7 +100,11 @@ command uiLoadData
   local tPath, tDataFile
   local tConnect
   
-  put specialFolderPath("Documents") into tPath
+  if the uPrevFilePath of stack "Module Operations" is empty then
+    put specialFolderPath("Documents") into tPath
+  else
+    put the uPrevFilePath of stack "Module Operations" into tPath
+  end if
   
   set the visible of graphic "blocker" to true
   --answer file "Input:" with tPath with type "*.mop,*.MOP"
@@ -112,6 +116,9 @@ command uiLoadData
   
   lock screen
   put it into tDataFile
+  
+  // save selected path for next time
+  set the uPrevFilePath of stack "Module Operations" to tDataFile
   
   set cursor to watch
   

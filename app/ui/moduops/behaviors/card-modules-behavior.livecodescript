@@ -207,13 +207,20 @@ command uiImportModule
   local tCriteriaA
   local tWorkorderDTO
   
-  put specialFolderPath("Documents") into tPath
+  if the uPriorImportPath of stack "Module Operations" is not empty then
+    put the uPriorImportPath of stack "Module Operations" into tPath
+  else
+    put specialFolderPath("Documents") into tPath
+  end if
+  
   answer file "Import Module:" with tPath with type "TEXT|json"
   
   if it is empty then exit uiImportModule
   
-  
   put it into tPath
+  
+  // save the path to start from same location if import reselected
+  set the uPriorImportPath of stack "Module Operations" to tPath
   
   updateStatus "Reading File..."
   put  URL ("binfile:" & tPath) into tTemp
