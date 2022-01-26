@@ -61,21 +61,24 @@ command generateManifest
   local tTrains, tTrainLength, tCarCount, tRandomNum, tSelectedID, tDataA, tConsigneeA
   local tSelectedWO, tSelectedCar, tManifestIndex, tStopNum, tSpotA, tSpot, tTrainId
   local tCarTypeA, t2DataA, tModuleList
+  local tUseConsignee, tConsigneeCnt
   
   unlock screen
   put "Starting MRBT Scheduler..." into field "status" of card "trainlists" of stack "Module Operations"
   lock screen
   
+  // initialize local variables
   put 1 into tManifestIndex
   put the cTrainUUID of card "Trainlists" of stack "Module Operations" into tTrainId
   put train.findOne(tTrainId) into tTrains
   put tTrains["route"] into sTrainRoute
   put jsonToArray(sTrainRoute) into sTrainRoute
   put 0 into tTrainLength
-  
   put empty into sManifestA
   clearSpotUsed
   put "" into tModuleList
+  put "" into tUseConsignee
+  put 0 into tConsigneeCnt
   
   repeat 1000 times
     ##
@@ -142,6 +145,32 @@ command generateManifest
       put random(the number of elements of t2DataA) into tRandomNum
       put t2DataA[tRandomNum] into tSelectedWO
       
+      // check if we are re-using prior selected track or consignee
+      if tUseConsignee <> "" then
+        ###if (tSelectedWO["spotID"] = tUseConsignee) then
+        if (tSelectedWO["track"] <> tUseConsignee) then
+          add 1 to tConsigneeCnt
+          if tConsigneeCnt > 60 then -- catches an infinite loop if no Consignee's match
+            put 0 into tConsigneeCnt
+            put "" into tUseConsignee
+            next repeat
+          end if
+        else -- select another workorder for looking for the consignee
+          next repeat
+        end if
+      end if
+      
+      ## once a workorder is selected, check favor re-using the consignee
+      --      if reuseConsignee(tSelectedWO["cpw"]) then 
+      
+      --        ### if random(tSelectedWO["CPW"]) >= random(4) then
+      --        ###put tSelectedWO["spotID"] into tUseConsignee
+      --        put tSelectedWO["track"] into tUseConsignee
+      --      else
+      --        put "" into tUseConsignee
+      --        put 0 into tConsigneeCnt
+      --      end if
+      
       ##
       #------------------------------------------------------
       # Check If Spot Has Room for Car Selected
@@ -157,8 +186,32 @@ command generateManifest
       
       put spot.findOne(tSelectedWO["spotId"]) into tSpotA
       
-      ## valid selected car fits in the spot
+      if (tUseConsignee <> "") then
+        ###if (tSelectedWO["spotID"] = tUseConsignee) then
+        if (tSelectedWO["track"] = tUseConsignee) then
+          add 1 to tConsigneeCnt
+          if tConsigneeCnt > 60 then -- catches an infinite loop if no Consignee's match
+            put 0 into tConsigneeCnt
+            put "" into tUseConsignee
+            next repeat
+          end if
+        else -- select another workorder for looking for the consignee
+          next repeat
+        end if
+      end if
+      
+      ## once a workorder is selected, favor re-using the selected track
+      --      if reuseConsignee(tSelectedWO["cpw"]) then
+      --        put tSelectedWO["track"] into tUseConsignee
+      --      else
+      --        put "" into tUseConsignee
+      --        put 0 into tConsigneeCnt
+      --      end if
+      
+      ## If spot has no room for selected car try again...
       if tSpotA["used"] + tCarTypeA["length"] > tSpotA["length"] then
+        put "" into tUseConsignee
+        put 0 into tConsigneeCnt
         next repeat
       end if
       

@@ -17,10 +17,8 @@
 # @link         http://www.moduops.com
 #
 #
-# This is the simpliest of the scheduling engines for ModuOps and is included
-# free in the Application. In a nut shell, this scheduler randomly selects a module
-# listed on a train's path, then random selects a Consignee, then randomly selects 
-# a Car from the workorders of the Consignee.
+# Smarty uses the CPW of car requests for a weighted random selection.
+# It is also possible to favor re-selection based on ui imput.
 #
 #
 # A Manifest is generated form the work selected for the train is returned to 
@@ -67,6 +65,7 @@ command generateManifest
   local tTrainsA, tTrainLength, tCarCount, tRandomNum, tSelectedID, tDataA, tConsigneeA
   local tSelectedWO, tSelectedCar, tManifestIndex, tStopNum, tSpotA, tTrainId
   local tCarTypeA, tCarType, t2DataA, tUseConsignee, tConsigneeCnt, tModuleList
+  local tTrainFull -- count cars selected but train can't fit
   
   unlock screen
   put "Starting Smarter Scheduler..." into field "status" of card "trainlists" of stack "Module Operations"
@@ -119,7 +118,7 @@ command generateManifest
       ## Select a random number from 1 to the Cumulative Total
       put random(sCumTotal) into tRandomNum
       
-      put smtBinarySearchWO(sWorkordersA, tRandomNum, 1, (number of elements of sWorkordersA)) into tSelectedID
+      put __smtBinarySearchWO(sWorkordersA, tRandomNum, 1, (number of elements of sWorkordersA)) into tSelectedID
       
       put sWorkordersA[tSelectedID] into tSelectedWO
       
@@ -157,8 +156,8 @@ command generateManifest
           end if
         end if
         
-        ## once a workorder is selected, favor re-using the consignee
-        if (random(10) <=  8*(tSelectedWO["CPW"]/7)) then 
+        ## once a workorder is selected, check favor re-using the consignee
+        if reuseConsignee(tSelectedWO["cpw"]) then 
           
           ### if random(tSelectedWO["CPW"]) >= random(4) then
           ###put tSelectedWO["spotID"] into tUseConsignee
@@ -256,7 +255,13 @@ command generateManifest
         ##
         
       else
-        exit repeat
+        add 1 to tTrainFull
+        // after attempting to add 10 cars to train but failing
+        // consider ourselves done
+        if tTrainFull > 10 then 
+          exit repeat
+        end if
+        next repeat
       end if
     end repeat
   end if
@@ -383,7 +388,7 @@ private command __smtAppendWorkorders pStopNum, pModuleId, pConsigneeId, pTrainD
 end __smtAppendWorkorders
 
 
-function smtBinarySearchWO @pArray pItem pLeft pRight
+private function __smtBinarySearchWO @pArray pItem pLeft pRight
   local tIndex
   local tResult
   # create a new range pointer that points to the item that lies
@@ -406,47 +411,10 @@ function smtBinarySearchWO @pArray pItem pLeft pRight
     # value then call logarithmicSearch again with a smaller search range
     # we are effectively halving the search area, each time we call logarithmicSearch
   else if pArray[tIndex]["cumTotal"] > pItem then
-    put smtBinarySearchWO(pArray, pItem, pLeft, tIndex) into tResult
+    put __smtBinarySearchWO(pArray, pItem, pLeft, tIndex) into tResult
   else
-    put smtBinarySearchWO(pArray, pItem, tIndex, pRight) into tResult
+    put __smtBinarySearchWO(pArray, pItem, tIndex, pRight) into tResult
   end if
   return tResult
-end smtBinarySearchWO
+end __smtBinarySearchWO
 
-
-/*
-Shoud the Consignee be scheduled again to favor current selected
-
-Parameters:
-pCPW integer for Cars per week
-Returns:
-boolean
-*/
-private function reuseConsignee pCPW
-  local tFavor
-  
-  put config.get("favorSlider") into tFavor
-  
-  // of favor scale not visible don't use it
-  if tFavor is not a number then return false
-  
-  switch tFavor
-    case 1
-      return false
-      break
-    case 2
-      return rand25()
-      break
-    case 3
-      return rand50()
-      break
-    case 4
-      return rand75()
-      break
-    case 5
-      return true
-      break
-    default
-      return false
-  end switch
-end reuseConsignee
