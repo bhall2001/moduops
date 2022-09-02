@@ -1,4 +1,4 @@
-﻿script "card-edit-consignee-behavior"
+script "card-edit-consignee-behavior"
 constant kFIELD_NAMES = "id,name,remarks"
 
 local sActiveModule
@@ -10,6 +10,9 @@ on preOpenCard
   
   lock screen
   uiDisableButtons
+  
+  // move card property to script variable.
+  put the cActiveModule of this card into sActiveModule 
   
   if __isNewRequestAllowed() then
     enable button "New Request"
