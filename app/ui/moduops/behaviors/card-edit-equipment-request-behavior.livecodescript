@@ -90,13 +90,20 @@ on openCard
   put the dgHilitedLine of group "dgCarTypes" -1 into tSelectedLine
   set the dgVScrollPercent of group "dgCarTypes" to (tSelectedLine)/(the dgNumberOfLines of group "dgCarTypes")
   
+  // set the cancel flag to false
+  set the cIsCancel of this card to false
+  
   unlock screen
   
   pass openCard
 end openCard
 
 
-on closeCard  
+on closeCard 
+  if the cIsCancel of this card then 
+    exit closeCard
+  end if
+  
   if saveData() then
     lock screen
     
