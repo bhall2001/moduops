@@ -42,6 +42,10 @@ on editPressed
     answer info "Please select a Car Type to edit."
   else
     put the uSelectedID of group "dgCarTypes" into theSelectedID
+    
+    // set a flag that we are editing a record on the edit screen
+    set the cIsNew of card "Edit Car Type" to false
+    
     editRecord theSelectedID
   end if
 end editPressed
@@ -89,12 +93,15 @@ on newPressed
   -- setup a new record with dummy data for required elements
   put uuid() into tUUID
   put tUUID into tDataA["id"]
-  put "New Car Type" into tDataA["description"]
-  put "New" into tDataA["short"]
+  put "**New Car Type**" into tDataA["description"]
+  put "**New**" into tDataA["short"]
   put "0" into tDataA["length"]
   
   -- insert the dummy record into the carType table
   put carType.create(tDataA) into tResult
+  
+  // set a flag that this is a new record on the edit screen
+  set the cIsNew of card "Edit Car Type" to true
   
   -- now edit the record as if it is a real record
   editRecord tUUID

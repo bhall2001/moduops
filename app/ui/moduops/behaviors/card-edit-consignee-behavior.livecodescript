@@ -1,4 +1,4 @@
-script "card-edit-consignee-behavior"
+﻿script "card-edit-consignee-behavior"
 constant kFIELD_NAMES = "id,name,remarks"
 
 local sActiveModule
@@ -12,21 +12,37 @@ on preOpenCard
   uiDisableButtons
   
   // move card property to script variable.
-  put the cActiveModule of this card into sActiveModule 
+  put the cActiveModule of this card into sActiveModule
+  
+  set the label of button "Done" of me to "Done"
   
   if __isNewRequestAllowed() then
     enable button "New Request"
+    set the foregroundColor of button "New Request" to "white"
+    hide button "cancel"
     hide field "errorText"
-  else
+  else  
     disable button "New Request"
+    show button "cancel"
     
-    if  carType.count() = 0 then
-      put "Unable to create a new request until equipement is defined." into field "errorText"
+    if the cIsNew of card "Edit Consignee" is false then
+      
+      // TODO: delete
+      put the cIsNew of card "Edit Consignee"
+      
+      
+      if  carType.count() = 0 then
+        put "Unable to create a new request until equipement is defined." into field "errorText"
+      else
+        put "Unable to create a new request until a drop zone is defined." into field "errorText"
+      end if
+      
+      
+      show field "errorText"
     else
-      put "Unable to create a new request until a drop zone is defined." into field "errorText"
+      hide field "errorText"
+      set the label of button "Done" of me to "Create"
     end if
-    
-    show field "errorText"
   end if
   
   put the cActiveModule of this card into sActiveModule
@@ -48,10 +64,17 @@ end preOpenCard
 
 
 on closeCard
+  local tId
+  
+  if the cIsNew of this card is true then
+    put field "id" into tId
+    get consignee.delete(tId)
+    exit closeCard
+  end if
+  
   uiDisableButtons
   uiClearFields
   set the cModuleUUID of card "Modules/Towns" to the cActiveModule of this card
-  
 end closeCard
 
 
@@ -102,6 +125,11 @@ on uiDisableButtons
   set the disabled of button "Delete" to true
   set the foregroundColor of button "Delete" to ""
   --set the blendLevel of button "Delete" to 60
+  
+  if the cIsNew of this card is true then
+    set the disabled of button "New Request" to true
+    set the foregroundColor of button "New Request" to ""
+  end if
   
 end uiDisableButtons
 
@@ -178,6 +206,11 @@ on loadWorkOrders
   
   put workorder.findByConsigneeId(sActiveConsignee) into tDataA
   
+  if the number of elements of tDataA > 0 then
+    set the cIsNew of this card to false
+    set the visible of button id 2590776 to false
+  end if
+  
   set the dgData of group "dgWorkorders" to tDataA
 end loadWorkOrders
 
@@ -190,6 +223,9 @@ on editPressed
     answer info "Please select a Line to edit."
   else
     put the uSelectedID of group "dgWorkorders" into theSelectedID
+    
+    set the cIsNew of card "Equipment Request" to false
+    
     editRecord  theSelectedID
   end if
 end editPressed
@@ -219,12 +255,20 @@ end clonePressed
 
 on editRecord pSelectedID
   set the cWorkorderUUID of card "Equipment Request" to pSelectedID
+  
+  // indicate this is a new record
+  set the cIsNew of card "Equipment Request" to false
+  
   go to card "Equipment Request"
 end editRecord
 
 
 on newPressed
   set the cWorkorderUUID of card "Equipment Request" to ""
+  
+  // indicate this is a new record
+  set the cIsNew of card "Equipment Request" to true
+  
   go to card "Equipment Request"
 end newPressed
 
@@ -290,5 +334,5 @@ private function __isNewRequestAllowed
   // get all spots for this module
   put spot.moduleCount(sActiveModule) into tSpotCount
   
-  return tCarTypeCount > 0 and tSpotCount > 0
+  return the cIsNew of card "Edit Consignee" <> true and tCarTypeCount > 0 and tSpotCount > 0
 end __isNewRequestAllowed

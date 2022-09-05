@@ -22,6 +22,9 @@ on openCard
   
   enable menuitem 5 of menu "File"
   
+  // update card title
+  put the short name of this card into field "cardName"
+  
   unlock screen
 end openCard
 
@@ -32,10 +35,16 @@ command editPressed
   put the dghilitedline of group "dgModules" into tSelectedLine
   if tSelectedLine is empty then
     answer info "Please select a Module to edit."
-  else
-    put the uSelectedID of group "dgModules" into theSelectedID
-    editRecord theSelectedID
+    exit editPressed
   end if
+  
+  put the uSelectedID of group "dgModules" into theSelectedID
+  
+  
+  // set flag indicating this is not a new record
+  set the cIsNew of card "Edit Module/Town" to false
+  
+  editRecord theSelectedID
 end editPressed
 
 
@@ -47,6 +56,10 @@ command editConsigneePressed
     answer info "Please select a Consignee to edit."
   else
     put the uSelectedID of group "dgConsignees" into theSelectedID
+    
+    // set flag that this is not a new record
+    set the cIsNew of card "Edit Consignee" to false
+    
     editConsignee theSelectedID
   end if
 end editConsigneePressed
@@ -63,10 +76,14 @@ command newConsigneePressed
     put the uSelectedID of group "dgModules" into moduleId
     
     put uuid() into tDataA["id"]
-    put "Consignee Name" into tDataA["name"]
+    put "**New Consignee**" into tDataA["name"]
     put moduleId into tDataA["moduleID"]
     
     put consignee.create(tDataA) into tResult
+    
+    // set flag that this is a new record
+    set the cIsNew of card "Edit Consignee" to true
+    
     editConsignee tDataA["id"]
   end if
 end newConsigneePressed
@@ -90,13 +107,17 @@ command newSpotPressed
     put the uSelectedID of group "dgModules" into moduleId
     
     put uuid() into tDataA["id"]
-    put "Spot Name" into tDataA["spot"]
+    put "**New Spot**" into tDataA["spot"]
     put "0" into tDataA["length"]
     put "A" into tDataA["direction"]
     put true into tDataA["active"]
     put moduleId into tDataA["moduleId"]
     
     put spot.create(tDataA) into tResult
+    
+    // set flag to indicate this is a new spot
+    set the cIsNew of card "Edit Drop Zone" to true
+    
     editSpot tDataA["id"]
   end if
 end newSpotPressed
@@ -117,6 +138,10 @@ command editSpotPressed
     answer info "Please select a Spot to edit."
   else
     put the uSelectedID of group "dgSpots" into theSelectedID
+    
+    // set flag to indicate this is NOT a new spot
+    set the cIsNew of card "Edit Drop Zone" to false
+    
     editSpot theSelectedID
   end if
 end editSpotPressed
@@ -134,16 +159,19 @@ command newModulePressed
   put uuid() into tUUID
   
   put tUUID into tDataArray["id"]
-  put "Module Name" into tDataArray["name"]
-  put "Module" into tDataArray["short_name"]
+  put "**New Module/Town**" into tDataArray["name"]
+  put "**New**" into tDataArray["short_name"]
   
   put module.create(tDataArray) into tResult
+  
+  // set flag indicating this is a new record for edit page
+  set the cIsNew of card "Edit Module/Town" to true
   
   editRecord tUUID
 end newModulePressed
 
 
-on closeCard
+on closeCard 
   uiClearData
   disable menuitem 5 of menu "File"
 end closeCard

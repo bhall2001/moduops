@@ -7,6 +7,11 @@ local sCarTypeA
 local sWorkorderId
 
 
+on preOpenCard
+  set the visible of button "cancel" of me to the cIsNew of this card
+end preOpenCard
+
+
 on openCard
   local tSpotA, tConsigneeA, tModuleA, tWorkorderA, tSelectedIndex, tSelectedLine
   local tDataA
@@ -93,6 +98,8 @@ on openCard
   // set the cancel flag to false
   set the cIsCancel of this card to false
   
+  set the visible of button "cancel" of me to the cIsNew of this card
+  
   unlock screen
   
   pass openCard
@@ -104,23 +111,24 @@ on closeCard
     exit closeCard
   end if
   
-  if saveData() then
-    lock screen
-    
-    put "" into field "module"
-    put "" into field "name"
-    put "" into field "CPW"
-    put "" into field "remarks"
-    set the dgText of group "dgSpots" to ""
-    set the dgText of group "dgCarTypes" to ""
-    set the disabled of button "Save" to true
-    unlock screen
-  else
-    go to card "Equipment Request"
-    exit closeCard
-  end if
+  lock screen
+  put "" into field "module"
+  put "" into field "name"
+  put "" into field "CPW"
+  put "" into field "remarks"
+  set the dgText of group "dgSpots" to ""
+  set the dgText of group "dgCarTypes" to ""
+  set the disabled of button "Save" to true
+  unlock screen
   
 end closeCard
+
+
+command handleDone
+  if saveData() then
+    goEditConsignee
+  end if
+end handleDone
 
 
 /*

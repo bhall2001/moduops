@@ -11,6 +11,9 @@ on preOpenCard
   put the cActiveSpot of this card into sActiveSpot
   put the cActiveModule of this card into sActiveModule
   
+  // only show cancel button if this is a new request
+  set the visible of button "cancel" to the cIsNew of this card
+  
   // get the active spot from db
   put spot.findOne(sActiveSpot) into tDataA
   uiUpdateData tDataA
@@ -36,6 +39,14 @@ end buildMenu
 
 
 on closeCard
+  local tId
+  
+  if the cIsNew of this card is true then
+    put field "id" into tId
+    get spot.delete(tId)
+    exit closeCard
+  end if
+  
   set the cModuleUUID of card "Modules/Towns" to the cActiveModule of this card
   
   uiClearFields
