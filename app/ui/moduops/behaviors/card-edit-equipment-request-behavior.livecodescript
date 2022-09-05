@@ -7,6 +7,11 @@ local sCarTypeA
 local sWorkorderId
 
 
+on preOpenCard
+  set the visible of button "cancel" of me to the cIsNew of this card
+end preOpenCard
+
+
 on openCard
   local tSpotA, tConsigneeA, tModuleA, tWorkorderA, tSelectedIndex, tSelectedLine
   local tDataA
@@ -90,30 +95,40 @@ on openCard
   put the dgHilitedLine of group "dgCarTypes" -1 into tSelectedLine
   set the dgVScrollPercent of group "dgCarTypes" to (tSelectedLine)/(the dgNumberOfLines of group "dgCarTypes")
   
+  // set the cancel flag to false
+  set the cIsCancel of this card to false
+  
+  set the visible of button "cancel" of me to the cIsNew of this card
+  
   unlock screen
   
   pass openCard
 end openCard
 
 
-on closeCard  
-  if saveData() then
-    lock screen
-    
-    put "" into field "module"
-    put "" into field "name"
-    put "" into field "CPW"
-    put "" into field "remarks"
-    set the dgText of group "dgSpots" to ""
-    set the dgText of group "dgCarTypes" to ""
-    set the disabled of button "Save" to true
-    unlock screen
-  else
-    go to card "Equipment Request"
+on closeCard 
+  if the cIsCancel of this card then 
     exit closeCard
   end if
   
+  lock screen
+  put "" into field "module"
+  put "" into field "name"
+  put "" into field "CPW"
+  put "" into field "remarks"
+  set the dgText of group "dgSpots" to ""
+  set the dgText of group "dgCarTypes" to ""
+  set the disabled of button "Save" to true
+  unlock screen
+  
 end closeCard
+
+
+command handleDone
+  if saveData() then
+    goEditConsignee
+  end if
+end handleDone
 
 
 /*

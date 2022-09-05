@@ -3,6 +3,16 @@ constant kFIELD_NAMES = "id,name,short_name,owner,size,city,passing,description,
 
 local sActiveModule
 
+
+on preOpenCard
+  if the cIsNew of this card then
+    set the visible of button "cancel" of me to true
+  else
+    set the visible of button "cancel" of me to false
+  end if
+end preOpenCard
+
+
 on openCard
   local tModuleA
   
@@ -23,6 +33,14 @@ end openCard
 
 
 on closeCard
+  local tId
+  
+  if the cIsNew of this card is true then
+    put field "id" of this card into tId
+    get module.delete(tId)
+    exit closeCard
+  end if
+  
   set the cModuleUUID of card "Modules/Towns" to the cActiveModule of this card
   uiClearFields
   disable menuitem 6 of menu "File"

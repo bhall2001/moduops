@@ -4,6 +4,15 @@ constant kFIELD_NAMES = "id,description,short,code,length,remarks"
 local sActiveID, sCarTypes
 
 
+on preOpenCard
+  if the cIsNew of this card is true then
+    set the visible of button "cancel" to true
+  else
+    set the visible of button "cancel" to false
+  end if
+end preOpenCard
+
+
 on openCard
   local tClass, tClassList, tCarType
   
@@ -45,13 +54,10 @@ on goCarTypeScreen
 end goCarTypeScreen
 
 on cancelPressed
-  if not the disabled of button "save" then
-    answer  info "Would you like to save your changes?" with "No" or "Yes"
-    if it is "Yes" then
-      savePressed
-      exit cancelPressed
-    end if
-  end if
+  local tId
+  
+  put field "id" into tId
+  get carType.delete(tId)
   
   goCarTypeScreen
 end cancelPressed
