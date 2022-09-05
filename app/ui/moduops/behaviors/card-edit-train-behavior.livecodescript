@@ -10,6 +10,14 @@ end activeTrain
 on preOpenCard
   lock screen
   buildYardMenu
+  
+  set the visible of button id 2628160 to the cIsNew of card "Edit Train"
+  
+  if the cIsNew of card "Edit Train" is true then
+    set the label of button "done" of card "Edit Train" to "Create"
+  else
+    set the label of button "done" of card "Edit Train" to "Done"
+  end if
 end preOpenCard
 
 
@@ -102,19 +110,6 @@ end uiClear
 on goTrainScreen
   dispatch "mouseUp" to button "Trains"
 end goTrainScreen
-
-
-on cancelPressed 
-  if not the disabled of button "save" then
-    answer  info "Would you like to save your changes?" with "No" or "Yes"
-    if it is "Yes" then
-      savePressed
-      exit cancelPressed
-    end if
-  end if
-  
-  goTrainScreen
-end cancelPressed
 
 
 on savePressed
@@ -216,6 +211,14 @@ end validateData
 
 
 on closeCard
+  local tId
+  
+  // if this is a new train, we need to delete it
+  if the cIsNew of card "Edit Train" is true then
+    put field "id" into tId
+    get train.delete(tId)
+    exit closeCard
+  end if
   
   if not isValid(the short name of this card) then
     exit closeCard

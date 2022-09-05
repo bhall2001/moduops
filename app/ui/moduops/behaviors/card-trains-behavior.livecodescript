@@ -28,7 +28,7 @@ on openCard
 end openCard
 
 
-on closeCard
+on closeCard  
   uiClearData
 end closeCard
 
@@ -66,27 +66,34 @@ end setData
 on newPressed
   local tDataArray, tId, tResult
   
-  // If there's at least 1 yard defined, then create a new train.
-  if yard.exist() then      
-    put uuid() into tId
-    put tId into tDataArray["id"]
-    put "**NEW**" into tDataArray["symbol"]
-    put " " into tDataArray["origin"]
-    put " " into tDataArray["destination"]
-    put "350" into tDataArray["length"]
-    
-    put train.create(tDataArray) into tResult
-    
-    if tResult is not a number then
-      answer tResult
-      exit newPressed
-    else
-      editRecord tId
-    end if
-  else
+  // when no yard defined display an error and get out of here
+  if not yard.exist() then
     // No Yards defined. Display an error
     uiDisplayError "No Yards defined. Atleast 1 Yard must defined before creating a new train."
+    
+    exit newPressed
   end if
+  
+  // If there's at least 1 yard defined, then create a new train.
+  put uuid() into tId
+  put tId into tDataArray["id"]
+  put "**NEW**" into tDataArray["symbol"]
+  put " " into tDataArray["origin"]
+  put " " into tDataArray["destination"]
+  put "350" into tDataArray["length"]
+  
+  put train.create(tDataArray) into tResult
+  
+  if tResult is not a number then
+    answer tResult
+    exit newPressed
+  else
+    // indicate this is a new record
+    set the cIsNew of card "Edit Train" to true
+    
+    editRecord tId
+  end if
+  
 end newPressed
 
 
@@ -112,6 +119,10 @@ on editPressed
     answer info "Please select a Train to edit."
   else
     put the uSelectedID of group "dgTrains" into theSelectedID
+    
+    // indicate this is NOT a new record
+    set the cIsNew of card "Edit Train" to false
+    
     editRecord theSelectedID
   end if
   
