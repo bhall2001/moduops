@@ -8,8 +8,8 @@ AppVerName=[[NAME]] [[APP_VERSION]]
 AppID=[[NAME]][[APP_VERSION]]
 AllowNoIcons=No
 AppPublisher=Bob Hall
-AppPublisherURL=http://www.moduops.com
-AppSupportURL=http://www.moduops.com
+AppPublisherURL=https://www.moduops.com
+AppSupportURL=https://www.moduops.com
 AppVersion=[[APP_VERSION]]
 DefaultDirName={pf}\[[NAME]] [[MAJOR_VERSION]]
 DefaultGroupName=[[NAME]] [[MAJOR_VERSION]]
@@ -20,7 +20,7 @@ OutputDir=.\
 
 UsePreviousTasks=Yes
 VersionInfoCompany=Bob Hall
-VersionInfoCopyright=Copyright (c) 2017 My Company
+VersionInfoCopyright=Copyright (c) 2022 Robert D Hall
 VersionInfoDescription=
 VersionInfoProductVersion=
 VersionInfoTextVersion=
@@ -39,7 +39,7 @@ ChangesAssociations=yes
 ;; uninstall time to check if the target program is running
 ;Source: psvince.dll; DestDir: {app}
 
-[[FilesAndFoldersToInstall]]
+Source: ".\windows\*"; DestDir: "{app}"; Flags: ignoreversion recursesubdirs createallsubdirs
 
 [InstallDelete]
 
