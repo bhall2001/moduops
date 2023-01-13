@@ -5,9 +5,9 @@
 local sCarTypeID -- active car type ID
 
 // Version number
-local sMajor = 2022
-local sMinor = 0
-local sPatch = 2
+local sMajor = 5
+local sMinor = 1
+local sPatch = 1
 
 
 ##
@@ -29,6 +29,7 @@ end getCarTypeID
 function arraySearch @pArray pItem
   local tIndex
   local tResult
+  
   # return 0 if we cannot find an item in the array
   put 0 into tResult
   # get the keys of the array
