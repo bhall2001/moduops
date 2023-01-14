@@ -304,6 +304,13 @@ command goesInta
   ## Bug in LC 8 prevents this from working. Removed.
   ## set cursor to hand
   --  lock cursor
+  
+  // if there is no file loaded just exit
+  if the cDataFile of stack "Module Operations" is empty then
+    exit goesInta
+  end if
+  
+  
   if the backgroundColor of the target is not "#008080" then
     set the backgroundColor of the target to "#4C4C4C"
     set the foregroundColor of the target to "#FFFFFF"
@@ -529,7 +536,13 @@ on preOpenStack
   delete the last item of tPath
   set the cAppPath of stack "Module Operations" to tPath
   
+  loggerOpenLogMonitor
+  
+  set the cDataFile of stack "Module Operations" to empty
+  
+  //TODO: delete
+  loggerLogMsg "preOpenStack" && the cDataFile of stack "Module Operations", "developer"
+  
   ## Set default filename and set the Window Name
-  _resetFileName
+  --  _resetFileName
 end preOpenStack
-
