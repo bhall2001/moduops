@@ -74,16 +74,14 @@ private command _uiEnableNavigation
   put the cDataFile of stack "Module Operations" is not empty into tHasFile
   
   set the visible of graphic "navigationPreferences" to not tHasFile
-  set the visible of graphic "navigationEquipmentRegister" to not tHasFile
-  set the visible of graphic "navigationModules" to not tHasFile
-  set the visible of graphic "navigationTrains" to not tHasFile
-  set the visible of graphic "navigationTrainlists" to not tHasFile
   set the visible of graphic "dashboardModules" to not tHasFile
-  set the visible of graphic "dashboardDropZones" to not tHasFile
-  set the visible of graphic "dashboardRollingstock" to not tHasFile
-  set the visible of graphic "dashboardCarRequests" to not tHasFile
-  set the visible of graphic "dashboardConsignees" to not tHasFile
-  set the visible of graphic "dashboardTrains" to not tHasFile
+  
+  // there is a separate disable graphic over Operations Session menu on dashboard.
+  // this feature is not live yet. In order to prevent a doubling of the 
+  // grey out on the menu, this graphic needs to do the opposite of the other 
+  // hiding graphics.
+  set the visible of graphic "operationsSession" to tHasFile
+
 end _uiEnableNavigation
 
 
