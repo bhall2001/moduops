@@ -2,12 +2,7 @@
 on openCard
   local tTemp, tStatsA
   lock screen
-  
-  //TODO: delete
-  loggerLogMsg "openCard" && the cDataFile of stack "Module Operations", "developer"
-  
-  --  put field "Stats Array" into tStatsA
-  
+    
   put "module,Modules/Towns:" & return & \
         "carType,Rollingstock:" & return & \
         "consignee,Consignees:" & return & \
@@ -16,9 +11,6 @@ on openCard
         "train,Trains:" into tStatsA
   
   set the itemDelimiter to comma
-  
-  // TODO: DELETE THIS LINE
-  put the cDataFile of stack "Module Operations"
   
   if the cDataFile of stack "Module Operations" is not empty then
     
@@ -50,10 +42,7 @@ on openCard
 end openCard
 
 
-on preOpenCard  
-  //TODO: delete
-  loggerLogMsg "preOpenCard" && the cDataFile of stack "Module Operations", "developer"
-  
+on preOpenCard    
   put myVersion() into field "myVersion" of card "Dashboard" of stack "Module Operations"
   
 _uiEnableNavigation
@@ -72,8 +61,6 @@ on openStack
   set the dgProp[ "dim on focusOut" ] of group "dgSequence" of card "Train Sequence" to false
   set the dgProp[ "dim on focusOut" ] of group "dgRoute" of card "Route" to false
   
-  //TODO: delete
-  loggerLogMsg "openStack" && the cDataFile of stack "Module Operations", "developer"
   dispatch "mouseUp" to button "Dashboard"
   
   pass openStack

@@ -539,10 +539,7 @@ on preOpenStack
   loggerOpenLogMonitor
   
   set the cDataFile of stack "Module Operations" to empty
-  
-  //TODO: delete
-  loggerLogMsg "preOpenStack" && the cDataFile of stack "Module Operations", "developer"
-  
+    
   ## Set default filename and set the Window Name
   --  _resetFileName
 end preOpenStack
