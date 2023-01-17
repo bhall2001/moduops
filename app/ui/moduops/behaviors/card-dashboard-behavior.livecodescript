@@ -2,29 +2,50 @@
 on openCard
   local tTemp, tStatsA
   lock screen
+    
+  put "module,Modules/Towns:" & return & \
+        "carType,Rollingstock:" & return & \
+        "consignee,Consignees:" & return & \
+        "spot,Drop Zones:" & return & \
+        "workorder,Car Requests:" & return & \
+        "train,Trains:" into tStatsA
   
-  put field "Stats Array" into tStatsA
   set the itemDelimiter to comma
   
-  // gather counts
-  put module.count() into tTemp["module"]
-  put carType.count() into tTemp["carType"]
-  put consignee.count() into tTemp["consignee"]
-  put spot.count() into tTemp["spot"]
-  put workorder.count() into tTemp["workorder"]
-  put train.count() into tTemp["train"]
+  if the cDataFile of stack "Module Operations" is not empty then
+    
+    // gather counts
+    put module.count() into tTemp["module"]
+    put carType.count() into tTemp["carType"]
+    put consignee.count() into tTemp["consignee"]
+    put spot.count() into tTemp["spot"]
+    put workorder.count() into tTemp["workorder"]
+    put train.count() into tTemp["train"]
+  else
+    put 0 into tTemp["module"]
+    put 0 into tTemp["carType"]
+    put 0 into tTemp["consignee"]
+    put 0 into tTemp["spot"]
+    put 0 into tTemp["workorder"]
+    put 0 into tTemp["train"]
+  end if
+  
   
   repeat for each line aStat in tStatsA
-     put item 2 of aStat && tTemp[item 1 of aStat] into field (item 1 of aStat) of card "Dashboard" of stack "Module Operations"
+    put item 2 of aStat && tTemp[item 1 of aStat] into field (item 1 of aStat) of card "Dashboard" of stack "Module Operations"
   end repeat
+  
+  _uiEnableNavigation
   
   unlock screen
   pass openCard
 end openCard
 
 
-on preOpenCard
+on preOpenCard    
   put myVersion() into field "myVersion" of card "Dashboard" of stack "Module Operations"
+  
+_uiEnableNavigation
 end preOpenCard
 
 
@@ -44,5 +65,23 @@ on openStack
   
   pass openStack
 end openStack
+
+
+private command _uiEnableNavigation
+  local tHasFile
+  
+  // disable/enable buttons if there is a file open
+  put the cDataFile of stack "Module Operations" is not empty into tHasFile
+  
+  set the visible of graphic "navigationPreferences" to not tHasFile
+  set the visible of graphic "dashboardModules" to not tHasFile
+  
+  // there is a separate disable graphic over Operations Session menu on dashboard.
+  // this feature is not live yet. In order to prevent a doubling of the 
+  // grey out on the menu, this graphic needs to do the opposite of the other 
+  // hiding graphics.
+  set the visible of graphic "operationsSession" to tHasFile
+
+end _uiEnableNavigation
 
 

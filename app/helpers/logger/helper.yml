@@ -1,0 +1,4 @@
+frontscripts:
+  - filename: loggerFrontscript.livecodescript
+libraries:
+  - filename: loggerLibrary.livecodescript

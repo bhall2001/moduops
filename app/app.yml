@@ -1,5 +1,5 @@
 name: ModuOps
-version: 5.1.1
+version: 5.1.2
 build: 1
 encrypt stacks: random
 multiple instances: false
