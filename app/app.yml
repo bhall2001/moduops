@@ -49,7 +49,7 @@ build profiles:
     packager callbacks stackfile:
     certificates:
       macos:
-        name:
+        name: Robert Hall (723D68M8DS)
     copy files:
       all platforms:
         - filename: assets
