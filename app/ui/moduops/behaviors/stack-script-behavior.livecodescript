@@ -536,8 +536,6 @@ on preOpenStack
   delete the last item of tPath
   set the cAppPath of stack "Module Operations" to tPath
   
-  loggerOpenLogMonitor
-  
   set the cDataFile of stack "Module Operations" to empty
     
   ## Set default filename and set the Window Name
