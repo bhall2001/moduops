@@ -65,14 +65,21 @@ end transferMenuText
 /*
 Add's details of a trains route. A line item may be a module stop or a train order
 */
-on addStop
+command addStop
   local tDataA, tStopA, theLine, theNewLine
+  
+  lock screen
   
   ## Adding a Module or Route Comment?
   If the visible of group "dgModules" then
     put addModuleStop() into tStopA
   else if the visible of group "dgOrders" then
     put addTrainOrder() into tStopA
+  end if
+  
+  // if there is nothing in module/town, then there is no stop to add
+  if tStopA["name"] is empty then
+    exit addStop
   end if
   
   -- insert after selected line or at end of route
@@ -86,13 +93,34 @@ on addStop
   send "AddData tStopA, theLine" to group "dgRoute"
   
   ## Refresh the data grid
-  dispatch "ResetList" to group "dgRoute"
+  --  dispatch "ResetList" to group "dgRoute"
   
   set the dgProps["sort by column"] of group "dgRoute" to "Stop"
   
   put the dgHilitedLine of group "dgRoute" into theNewLine
   set the dgVScrollPercent of group "dgRoute" to (theNewLine)/(the dgNumberOfLines of group "dgRoute")
+  
+  send "saveData theLine" to this card
 end addStop
+
+
+command removeStop
+  local theLine
+  
+  lock screen
+  -- get the selected module
+  put the dgHilitedLines of group "dgRoute" into theLine
+  if theLine = "" then
+    answer error "No Stop Selected" with "OK"
+    exit removeStop
+  end if
+  
+  dispatch "DeleteLine" to group "dgRoute" with theLine
+  send "RefreshList" to group "dgRoute"
+  
+  send "saveData theLine" to this card
+  
+end removeStop
 
 
 /*
@@ -183,7 +211,7 @@ function addModuleStop
       break
       
   end switch
-  
+    
   return tStopA
 end addModuleStop
 
@@ -215,7 +243,7 @@ on goTrainScreen
 end goTrainScreen
 
 
-on cancelPressed 
+command cancelPressed 
   if not the disabled of button "save" then
     answer  info "Would you like to save your changes?" with "No" or "Yes"
     if it is "Yes" then
@@ -228,7 +256,7 @@ on cancelPressed
 end cancelPressed
 
 
-on savePressed
+command savePressed
   local tResult
   
   set cursor to watch
@@ -240,6 +268,14 @@ on savePressed
     set cursor to arrow
   end if
 end savePressed
+
+
+command saveData tLineNo
+  get saveRecord()
+  
+  set the dgHilitedLine of group "dgRoute" to tLineNo
+  unlock screen
+end saveData
 
 
 function saveRecord
