@@ -50,6 +50,7 @@ end preOpenCard
 
 
 on openStack
+  set cursor to watch
   set the dgProp[ "dim on focusOut" ] of group "dgTrains" of card "Trains" to false
   set the dgProp[ "dim on focusOut" ] of group "dgCarTypes" of card "Equipment Register" to false
   set the dgProp[ "dim on focusOut" ] of group "dgConsignees" of card "Modules/Towns" to false
@@ -61,8 +62,11 @@ on openStack
   set the dgProp[ "dim on focusOut" ] of group "dgSequence" of card "Train Sequence" to false
   set the dgProp[ "dim on focusOut" ] of group "dgRoute" of card "Route" to false
   
+  get net.isConnected()
+  
   dispatch "mouseUp" to button "Dashboard"
   
+  set cursor to arrow
   pass openStack
 end openStack
 
@@ -83,5 +87,39 @@ private command _uiEnableNavigation
   set the visible of graphic "operationsSession" to tHasFile
 
 end _uiEnableNavigation
+
+
+
+/*
+check if this version is valid
+*/
+command __checkVersion
+  local tVersion
+  local tHeaders
+  local tUrl
+  local tResponse
+  local tExpired
+  local tTemp
+  
+  if not net.isConnected() then
+    exit __checkVersion
+  end if
+  
+  // first check if this is expire version
+  put myVersion() into tVersion
+  
+  put net.hostUrl() & "/api/versionCheck/moduops/" & tVersion into tUrl
+  
+  put htmlGetSync(tUrl) into tResponse
+  
+  // true response means this is the current version
+  if tResponse contains "true" then
+    exit __checkVersion
+  end if
+  
+  // if we get here there's a newer version of moduops ready to download
+  answer info "A new version of ModuOps is ready to download at www.moduops.com."
+
+end __checkVersion
 
 
