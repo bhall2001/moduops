@@ -237,7 +237,7 @@ command generateManifest
       ##
       
       --put mdbQueryByUUID("carType", tSelectedWO["carID"]) into tSelectedCar
-      if (tTrainLength + tCarType["length"]) < tTrainsA["length"] then
+      if (tTrainLength + tCarType["length"]) <= tTrainsA["length"] then
         put tTrainId into sManifestA[tManifestIndex]["trainId"]
         put tSelectedWO["id"] into sManifestA[tManifestIndex]["workorderId"]
         put tSelectedWO["stop"] into sManifestA[tManifestIndex]["stop"]

@@ -15,7 +15,7 @@ end mrbt.output
 
 private function __sql.mrbtOutput
   return "SELECT workorder.carId,workorder.spotId,workorder.consigneeId,workorder.Remarks AS workorderRemarks," & return & \
-        "consignee.moduleId,consignee.name AS consigneeName," & return & \
+        "consignee.moduleId,consignee.name AS consigneeName,consignee.remarks AS consigneeRemarks," & return & \
         "module.name AS moduleName,module.short_name,module.remarks AS moduleRemarks," & return & \
         "spot.spot,carType.class,carType.description,carType.code,carType.short," & return & \
         "carType.length,carType.remarks AS carTypeRemarks,spot.track,manifest.workorderId," & return & \

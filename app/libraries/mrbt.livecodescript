@@ -222,7 +222,7 @@ command generateManifest
       ##
       
       put carType.findOne(tSelectedWO["carId"]) into tSelectedCar
-      if tTrainLength + tSelectedCar["length"] < tTrains["length"] then
+      if tTrainLength + tSelectedCar["length"] <= tTrains["length"] then
         put tTrainId into sManifestA[tManifestIndex]["trainId"]
         put tSelectedWO["id"] into sManifestA[tManifestIndex]["workorderId"]
         put tStopNum into sManifestA[tManifestIndex]["stop"]

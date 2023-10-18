@@ -129,7 +129,7 @@ function addManifest pManifestStyle pPageWidth
     end if
     
     -- Module Name only when there's a new module in Manifest
-    if aWorkorder["moduleName"] <> sPrevModule then
+    if aWorkorder["moduleName"] <> sPrevModule then      
       put outputModuleName(pManifestStyle, aWorkorder["moduleName"], aWorkorder["stop"]) after tOutput
       
       -- Add module remarks
@@ -140,11 +140,21 @@ function addManifest pManifestStyle pPageWidth
       put aWorkorder["moduleName"] into sPrevModule
     end if
     
+    -- output work order remarks on next line
+    if aWorkorder["workOrderRemarks"] <> empty then
+      put "<p>" & aWorkorder["workOrderRemarks"] & "</p>" & return after tOutput
+    end if
+    
     put outputSpot(pManifestStyle, pPageWidth, aWorkorder) after tOutput
     
     -- output car remarks on next line
     if aWorkorder["carTypeRemarks"] <> empty then
       put "<p>" & aWorkorder["carTypeRemarks"] & "</p>" & return after tOutput
+    end if
+    
+    -- output consignee remarks on next line
+    if aWorkorder["consigneeRemarks"] <> empty then
+      put "<p>" & aWorkorder["consigneeRemarks"] & "</p>" & return after tOutput
     end if
   end repeat
   
