@@ -280,26 +280,26 @@ end datalayer.deleteAll
 query using SQL returning an array for the resulting records
 */
 function datalayer.QueryAsArray pSQL, pBindingsA
-   local tResultA
-
-   dbSetSQL pSQL, pBindingsA
-   put dbGet() into tResultA
-
-   return tResultA
+  local tResultA
+  
+  dbSetSQL pSQL, pBindingsA
+  put dbGet() into tResultA
+  
+  return tResultA
 end datalayer.QueryAsArray
 
 
 function datalayer.disconnect
-   local tId
-
-   put dbGetDefaultConnectionID() into tId
-
-   // if there is no open database connection just return
-   if tId is empty then
-      return empty
-   end if
-
-   return dbClose(tId)
+  local tId
+  
+  put dbGetDefaultConnectionID() into tId
+  
+  // if there is no open database connection just return
+  if tId is empty then
+    return empty
+  end if
+  
+  return dbClose(tId)
 end datalayer.disconnect
 
 
@@ -313,7 +313,7 @@ returns:
 database id
 */
 function datalayer.connect pFilePath
-   return dbOpenSqlite(pFilePath)
+  return dbOpenSqlite(pFilePath)
 end datalayer.connect
 
 
@@ -324,7 +324,7 @@ parameters:
 pId: number: required database connection ID
 */
 function datalayer.close pId
-   return dbClose(pId)
+  return dbClose(pId)
 end datalayer.close
 
 
@@ -335,17 +335,17 @@ parameters
 pFile: string: file to create including path
 */
 function datalayer.create_db pFile
-   local tDB
-
-   // create new db and initialize it
-   dbCreateNewSQLiteFile pfile,,true
-   return dbOpenSqlite(pFile)
-
+  local tDB
+  
+  // create new db and initialize it
+  dbCreateNewSQLiteFile pfile,,true
+  return dbOpenSqlite(pFile)
+  
 end datalayer.create_db
 
 
 function datalayer.isConnected pConnection
-   return (dbGetDefaultConnectionID() is a number)
+  return (dbGetDefaultConnectionID() is a number)
 end datalayer.isConnected
 
 
@@ -353,16 +353,19 @@ end datalayer.isConnected
 returns the count of records in a given tabel
 */
 function datalayer.count pTableName
-   local tResult
-   if not datalayer.isConnected() then return empty
-
-   if pTableName is empty then return 0
-
-   dbColumns "count(*)"
-   put dbGet(pTableName) into tResult
-
-   return tResult[1]["count(*)"]
+  local tResult
+  if not datalayer.isConnected() then return empty
+  
+  if pTableName is empty then return 0
+  
+  dbColumns "count(*)"
+  put dbGet(pTableName) into tResult
+  
+  return tResult[1]["count(*)"]
 end datalayer.count
+
+
+
 
 
 /*
@@ -375,34 +378,34 @@ Complex primary index format required to be name:value,name2:value2 where multip
 make up the primary index
 */
 private function _primaryId pName, @pDataA
-   local tId
-
-   switch pName
-      case "clubTeam"
-         return "club:" & pDataA["clubId"] & ",id:" & pDataA["id"]
-         break
-      default
-         if pDataA["id"] is empty then throw "Error: ID is required." && param(0)
-         return pDataA["id"]
-   end switch
+  local tId
+  
+  switch pName
+    case "clubTeam"
+      return "club:" & pDataA["clubId"] & ",id:" & pDataA["id"]
+      break
+    default
+      if pDataA["id"] is empty then throw "Error: ID is required." && param(0)
+      return pDataA["id"]
+  end switch
 end _primaryId
 
 
 private function _toAssociative @pDataA, pIndex
-   local tIndex, tResultA
-
-   repeat for each element aRow in pDataA
-
-      # get the index
-      put aRow[pIndex] into tIndex
-
-      # store the row in the associative array
-      put aRow into tResultA[tIndex]
-   end repeat
-
-   # return associative array of results
-   return tResultA
-
+  local tIndex, tResultA
+  
+  repeat for each element aRow in pDataA
+    
+    # get the index
+    put aRow[pIndex] into tIndex
+    
+    # store the row in the associative array
+    put aRow into tResultA[tIndex]
+  end repeat
+  
+  # return associative array of results
+  return tResultA
+  
 end _toAssociative
 
 
