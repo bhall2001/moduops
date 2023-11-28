@@ -68,6 +68,7 @@ on uiUpdate pDataA
   put pDataA["id"] into field "id"
   put pDataA["symbol"] into field "symbol"
   put pDataA["length"] into field "trainLength"
+  put pDataA["minLength"] into field "minLength"
   put pDataA["name"] into field "name"
   put pDataA["note"] into field "note"
   put pDataA["overview"] into field "overview"
@@ -91,6 +92,7 @@ end uiUpdate
 on uiClear
   put "" into field "symbol"
   put "" into field "trainLength"
+  put "" into field "minLength"
   put "" into field "name"
   put "" into field "note"
   put "" into field "overview"
@@ -158,6 +160,7 @@ function saveTrainData
   put the label of button "type" into tDataA["type"]
   
   put field "trainLength" into tDataA["length"]
+  put field "minLength" into tDataA["minLength"]
   put line 1 of field "name" into tDataA["name"]
   put line 1 of field "note" into tDataA["note"]
   put field "overview" into tDataA["overview"]

@@ -2,7 +2,7 @@
 on openCard
   local tTemp, tStatsA
   lock screen
-    
+  
   put "module,Modules/Towns:" & return & \
         "carType,Rollingstock:" & return & \
         "consignee,Consignees:" & return & \
@@ -45,7 +45,7 @@ end openCard
 on preOpenCard    
   put myVersion() into field "myVersion" of card "Dashboard" of stack "Module Operations"
   
-_uiEnableNavigation
+  _uiEnableNavigation
 end preOpenCard
 
 
@@ -85,7 +85,7 @@ private command _uiEnableNavigation
   // grey out on the menu, this graphic needs to do the opposite of the other 
   // hiding graphics.
   set the visible of graphic "operationsSession" to tHasFile
-
+  
 end _uiEnableNavigation
 
 
@@ -119,7 +119,7 @@ command __checkVersion
   
   // if we get here there's a newer version of moduops ready to download
   answer info "A new version of ModuOps is ready to download at www.moduops.com."
-
+  
 end __checkVersion
 
 

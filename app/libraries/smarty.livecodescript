@@ -74,6 +74,14 @@ command generateManifest
   put 1 into tManifestIndex
   put the cTrainUUID of card "Trainlists" of stack "Module Operations" into tTrainId
   put train.findOne(tTrainId) into tTrainsA
+  
+  // in the case where there is a minimum train length
+  // set the length of the train to a random value
+  // between min and max
+  if tTrainsA["minLength"] is a number then
+    put random(tTrainsA["length"] - tTrainsA["minLength"] + 1) + tTrainsA["minLength"] into tTrainsA["length"]
+  end if
+  
   put tTrainsA["route"] into sTrainRoute
   put jsonToArray(sTrainRoute) into sTrainRouteA
   
@@ -237,7 +245,7 @@ command generateManifest
       ##
       
       --put mdbQueryByUUID("carType", tSelectedWO["carID"]) into tSelectedCar
-      if (tTrainLength + tCarType["length"]) < tTrainsA["length"] then
+      if (tTrainLength + tCarType["length"]) <= tTrainsA["length"] then
         put tTrainId into sManifestA[tManifestIndex]["trainId"]
         put tSelectedWO["id"] into sManifestA[tManifestIndex]["workorderId"]
         put tSelectedWO["stop"] into sManifestA[tManifestIndex]["stop"]

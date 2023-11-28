@@ -6,8 +6,8 @@ local sCarTypeID -- active car type ID
 
 // Version number
 local sMajor = 5
-local sMinor = 1
-local sPatch = 3
+local sMinor = 2
+local sPatch = 0
 
 
 ##
@@ -131,6 +131,9 @@ command uiLoadData
   updateStatus "Reading Data..."
   
   put datalayer.connect(the cDataFile of stack "Module Operations") into tConnect
+  
+  // migrate older databases to include any new information...
+  datalayer.migrate
   
   set itemdelimiter to slash
   updateStatus ""
