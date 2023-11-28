@@ -366,6 +366,70 @@ end datalayer.count
 
 
 
+function datalayer.addColumn pTable pColumn pColumnDef
+  local tDbId
+  local tSql
+  local tParamA
+  
+  put pTable into tParamA[1]
+  put pColumn into tParamA[2]
+  put pColumnDef into tParamA[3]
+  
+  put dbGetDefaultConnectionID() into tDbId
+  
+  put "ALTER TABLE :1 ADD COLUMN :2 :3" into tSql
+  
+  dbExecute tSql, tParamA, tDbId
+  
+  return the result
+end datalayer.addColumn
+
+
+
+function datalayer.columnExists pTable, pColumn
+  local tSql
+  local tResult
+  local tDbId
+  local theCursor
+  local theArray
+  local dbA
+  local theError
+  
+  put dbGetDefaultConnectionID() into tDbId
+  
+  put "SELECT COUNT(*) FROM pragma_table_info(:1) WHERE name=:2" into tSql
+  
+  put revQueryDatabase( tDbId, tSql, "pTable", "pColumn") into theCursor
+  put empty into dbA
+  if theCursor is an integer then
+    convertSQLCursorToArray theCursor, theArray
+    
+    put the result into theError
+    
+    if theError is empty then
+      revCloseCursor theCursor
+      return theArray[1]["COUNT(*)"] > 0
+    else
+      ## Close the database cursor
+      revCloseCursor theCursor
+      return theError
+    end if
+  end if
+end datalayer.columnExists
+
+
+
+/*
+migrate db schema. provides compatibility for older data files.
+*/
+command datalayer.migrate
+  // add train min length field if it does not exist
+  if not datalayer.columnExists("train", "minLength") then
+    // add minLength to train table
+    get datalayer.addColumn("train", "minLength", "INTEGER")
+  end if
+end datalayer.migrate
+
 
 
 /*

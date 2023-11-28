@@ -132,6 +132,9 @@ command uiLoadData
   
   put datalayer.connect(the cDataFile of stack "Module Operations") into tConnect
   
+  // migrate older databases to include any new information...
+  datalayer.migrate
+  
   set itemdelimiter to slash
   updateStatus ""
   

@@ -71,6 +71,14 @@ command generateManifest
   put 1 into tManifestIndex
   put the cTrainUUID of card "Trainlists" of stack "Module Operations" into tTrainId
   put train.findOne(tTrainId) into tTrains
+  
+  // in the case where there is a minimum train length
+  // set the length of the train to a random value
+  // between min and max
+  if tTrains["minLength"] is a number then
+    put random(tTrains["length"] - tTrains["minLength"] + 1) + tTrains["minLength"] into tTrains["length"]
+  end if
+  
   put tTrains["route"] into sTrainRoute
   put jsonToArray(sTrainRoute) into sTrainRoute
   put 0 into tTrainLength
