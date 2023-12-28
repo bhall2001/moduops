@@ -32,12 +32,17 @@ on openCard
   put module.findOne(sActiveModule) into tModuleA
   put tModuleA["name"] into field "module"
   
-  if sWorkorderId is not "" then
+  if sWorkorderId is not "" then // we are editting an existing workorder
+    // get workorder from database
     put workorder.findOne(sWorkorderId) into tWorkorderA
     
+    // add data to ui
     put tWorkorderA["id"] into field "id"
     put tWorkorderA["cpw"] into field "cpw"
     put tWorkorderA["remarks"] into field "remarks"
+    
+    // set the equipment list to allow only selecting 1 item
+    set the dgProps["multiple lines"] of group "dgCarTypes" of me to false
     
     // hilite workorder spot
     --    put tWorkorderA["spotId"] into tSpotId
@@ -56,10 +61,13 @@ on openCard
     --      send "selectionChanged" to group "dgModules" in 1 milliseconds
     --    end if
     
-  else
-    put uuid() into field "id"
+  else // we are creating a new workoder
+    --    put uuid() into field "id"
     put "1" into field "cpw"
     put "" into field "remarks"
+    
+    // allow selecting multiple lines
+    set the dgProps["multiple lines"] of group "dgCarTypes" of me to true
   end if
   
   put spot.findByModuleId(sActiveModule) into tSpotA
@@ -166,6 +174,8 @@ end selectClass
 
 function saveData
   local tDataA, tResult
+  local tEquipmentSelected // list of line numbers in data grid for each equipment selected
+  local tEquipmentA // array holding each line of equipement
   
   lock screen
   
@@ -179,30 +189,32 @@ function saveData
     exit saveData
   end if
   
-  // Move data entry fields into an array
-  put field "id" into tDataA["id"]
-  put field "cpw" into tDataA["cpw"]
-  put field "remarks" into tDataA["remarks"]
-  put the uSelectedID of group "dgSpots" into tDataA["spotID"]
-  put the uSelectedID of group "dgCarTypes" into tDataA["carID"]
-  
-  if sWorkorderId is "" then
-    put uuid() into sWorkorderId
-    put sWorkorderId into tDataA["id"]
-    put sActiveConsignee into tDataA["consigneeID"]
-    put workorder.create(tDataA) into tResult
-  else   
-    put workorder.update(tDataA) into tResult
-  end if
-  
-  --  if tResult is not a number then
-  --    answer error tResult
-  --    return false
-  --  end if
+  put the dgHilitedLines of group "dgCarTypes" of me into tEquipmentSelected
+  repeat for each item aLine in tEquipmentSelected
+    put empty into tDataA
+    put the dgDataOfLine[aLine] of group "dgCarTypes" of me into tEquipmentA
+    
+    
+    
+    // Move data entry fields into an array
+    put field "id" into tDataA["id"]
+    put field "cpw" into tDataA["cpw"]
+    put field "remarks" into tDataA["remarks"]
+    put the uSelectedID of group "dgSpots" into tDataA["spotID"]
+    //put the uSelectedID of group "dgCarTypes" into tDataA["carID"]
+    put tEquipmentA["id"] into tDataA["carID"]
+    
+    if sWorkorderId is "" then // this will always be the case when creating new workorders
+      put uuid() into tDataA["id"]
+      put sActiveConsignee into tDataA["consigneeID"]
+      put workorder.create(tDataA) into tResult
+    else   
+      put workorder.update(tDataA) into tResult
+    end if
+  end repeat
   
   unlock screen
   return true
-  
 end saveData
 
 
