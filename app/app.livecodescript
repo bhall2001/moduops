@@ -1,20 +1,20 @@
-script "app"
+﻿script "app"
 
 command PreloadApplication
   # Perform operations before stacks, extensions, and externals in app.yml are loaded.
-
+  
 end PreloadApplication
 
 
 command InitializeApplication
   # Called after script-only stacks, extensions, and externals in app.yml are loaded.
   # Perform initialization operations before UI stack is opened.
-
+  
   # UNCOMMENT the code below to use Sublime Text external editor in development
   if the environment is "development" then
-     levureLoadExternalEditorServer
-   end if
-
+    levureLoadExternalEditorServer
+  end if
+  
   # UNCOMMENT the code below as well as the FirstRun command below to use a
   # preference setting to trigger a FirstRun handler. You must configure the
   # `preferences filename` setting `app.yml` to use preferences.
@@ -24,9 +24,9 @@ command InitializeApplication
   --   FirstRun
   --   prefsSetPref "software build", levureAppGet("build")
   -- end if
-
+  
   # Perform initialization operations every time application runs.
-
+  
   return true
 end InitializeApplication
 
@@ -39,10 +39,16 @@ end InitializeApplication
 command OpenApplication
   # Called after InitializeApplication.
   # Open UI stack
-
+  
   # Open the starter app sample window UI stack
   go stack "Module Operations"
   ###go stack "LevureSampleWindow"
+  
+  
+  if fileSystemFilesToProcessOnOpen() is not empty then
+    ProcessMyFiles fileSystemFilesToProcessOnOpen()  # YOU MUST WRITE A 'ProcessMyFiles' ROUTINE
+  end if
+  
 end OpenApplication
 
 
@@ -60,12 +66,13 @@ end shutdownRequest
 
 command ProcessURL pURLs
   # First parameter is line delimited list of urls your app has been requested to process.
-  # Requires the "[[FRAMEWORK]]/helpers/files_and_urls helper".
+  # Requires the "[[FRAMEWORK]]/helpers/files_and_urls helper"  
 end ProcessURL
 
 
-command ProcessFiles pFiles
+command ProcessMyFiles pFiles
   # First parameter is line delimited list of files your application supports
   # and that you should process.
   # Requires the "[[FRAMEWORK]]/helpers/files_and_urls helper".
-end ProcessFiles
+  dispatch "loadDataFile" to stack "Module Operations" with pFiles
+end ProcessMyFiles

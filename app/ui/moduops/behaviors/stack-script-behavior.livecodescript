@@ -109,24 +109,36 @@ command uiLoadData
   
   set the visible of graphic "blocker" to true
   --answer file "Input:" with tPath with type "*.mop,*.MOP"
-  answer file "Select file to open..." with tPath with type "TEXT File|mop2|MOP2"
+  answer file "Select file to open..." with tPath with type "TEXT File|mop2|MOP2" titled "Open file"
   set the visible of graphic "blocker" to false
   wait 300 milliseconds
   
   if it is empty then exit uiLoadData
   
-  lock screen
   put it into tDataFile
   
+  loadDataFile tDataFile
+  
+end uiLoadData
+
+
+/*
+load the provided data file
+*/
+command loadDataFile pDataFile
+  local tConnect
+  
+  lock screen
+  
   // save selected path for next time
-  set the uPrevFilePath of stack "Module Operations" to tDataFile
+  set the uPrevFilePath of stack "Module Operations" to pDataFile
   
   set cursor to watch
   
-  updateStatus "Opening File " & tDataFile
-  set the label of stack "Module Operations" to tDataFile & " - Module Operations"
+  updateStatus "Opening File " & pDataFile
+  set the label of stack "Module Operations" to pDataFile & " - Module Operations"
   
-  set the cDataFile of stack "Module Operations" to tDataFile
+  set the cDataFile of stack "Module Operations" to pDataFile
   
   updateStatus "Reading Data..."
   
@@ -147,7 +159,10 @@ command uiLoadData
   goDashboard
   set the cursor to arrow
   unlock screen
-end uiLoadData
+  
+  answer info "Data file loaded!" titled "Open file..."
+end loadDataFile
+
 
 
 /*
@@ -540,7 +555,26 @@ on preOpenStack
   set the cAppPath of stack "Module Operations" to tPath
   
   set the cDataFile of stack "Module Operations" to empty
-    
+  
   ## Set default filename and set the Window Name
+  
+  if environment() is "development" then
+    loggerOpenLogMonitor
+  end if
   --  _resetFileName
 end preOpenStack
+
+
+
+on appleEvent pClass, pEventID, pSender
+  local tFileName
+  
+  if pClass is "aevt" and pEventID is "odoc" then         
+    request appleEvent data
+    put it into tFileName
+    
+    // load the file ddatalayer.get(pTableName, pDataA)
+    loadDataFile tFileName
+  end if
+  pass appleEvent   
+end appleEvent

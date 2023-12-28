@@ -20,8 +20,8 @@ application data folder:
     linux:
 preferences filename:
   user:
-    default:
-    macos:
+    default: ModuOps.prefs
+    macos: com.moduops.moduops
     windows:
     linux:
     ios:
@@ -41,6 +41,9 @@ backscripts:
   - folder: ./backscripts
 helpers:
   - folder: ./helpers
+  - filename: '[[FRAMEWORK]]/helpers/preferences'
+  - filename: '[[FRAMEWORK]]/helpers/file_system'
+  - filename: '[[FRAMEWORK]]/helpers/logger'
 behaviors:
   - folder: ./behaviors
 build folder: ../builds
@@ -65,12 +68,12 @@ build profiles:
 
   release:
   beta:
-
+file extensions:
+  MOP2: mop2
 dropDMG:
   format: bzip2
   layout name: moduops
   license name:
-
 inno setup:
   file flags: ignoreversion
   folder flags: ignoreversion recursesubdirs createallsubdirs
