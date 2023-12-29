@@ -21,7 +21,7 @@ OutputBaseFilename=ModuOps_Setup
 
 UsePreviousTasks=Yes
 VersionInfoCompany=Bob Hall
-VersionInfoCopyright=Copyright (c) 2023 Robert D Hall
+VersionInfoCopyright=Copyright (c) 2024 Robert D Hall All right reserved world-wide
 VersionInfoDescription=
 VersionInfoProductVersion=
 VersionInfoTextVersion=

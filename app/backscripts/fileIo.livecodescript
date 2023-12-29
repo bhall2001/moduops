@@ -36,6 +36,10 @@ function createNewDataFile
     put the sql_create_db of stack "Module Operations" into tSQL
     
     put datalayer.execute(tSQL) into tResult
+    
+    // update the recent menu with this new file
+    updateLayoutRecentMenu tFileName
+    
     wait 1 sec with messages
   end if
   

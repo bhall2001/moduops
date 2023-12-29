@@ -1,5 +1,5 @@
 name: ModuOps
-version: 5.2.0
+version: 5.3.0
 build: 1
 encrypt stacks: random
 multiple instances: false
@@ -9,25 +9,25 @@ application data folder:
   user:
     default:
     macos:
-    windows:
-    linux:
+    windows: ModuOps
+    linux: ModuOps
     ios:
     android:
   shared:
     default:
     macos:
-    windows:
-    linux:
+    windows: ModuOps
+    linux: ModuOps
 preferences filename:
   user:
-    default:
-    macos:
+    default: ModuOps.prefs
+    macos: com.moduops.moduops
     windows:
     linux:
     ios:
     android:
   shared:
-    default:
+    default: ModuOps.prefs
     macos:
     windows:
     linux:
@@ -41,6 +41,9 @@ backscripts:
   - folder: ./backscripts
 helpers:
   - folder: ./helpers
+  - filename: '[[FRAMEWORK]]/helpers/preferences'
+  - filename: '[[FRAMEWORK]]/helpers/file_system'
+  - filename: '[[FRAMEWORK]]/helpers/logger'
 behaviors:
   - folder: ./behaviors
 build folder: ../builds
@@ -65,12 +68,12 @@ build profiles:
 
   release:
   beta:
-
+file extensions:
+  MOP2: mop2
 dropDMG:
   format: bzip2
   layout name: moduops
   license name:
-
 inno setup:
   file flags: ignoreversion
   folder flags: ignoreversion recursesubdirs createallsubdirs
