@@ -62,6 +62,13 @@ on openStack
   set the dgProp[ "dim on focusOut" ] of group "dgSequence" of card "Train Sequence" to false
   set the dgProp[ "dim on focusOut" ] of group "dgRoute" of card "Route" to false
   
+  
+  // limit recent menu to last 10 items
+  fileSystemSetMaxRecentFiles 10
+  
+  // build the recent file menu
+  updateLayoutRecentMenu
+  
   get net.isConnected()
   
   dispatch "mouseUp" to button "Dashboard"

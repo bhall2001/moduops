@@ -58,7 +58,7 @@ on closeStackRequest
 end closeStackRequest
 
 
-command uiNewData   
+command uiNewLayout  
   local tFileName
   
   set cursor to watch
@@ -74,7 +74,7 @@ command uiNewData
   set cursor to arrow
   
   answer info "Data file created!"
-end uiNewData
+end uiNewLayout
 
 
 ##
@@ -97,7 +97,7 @@ command _resetFileName
 end _resetFileName
 
 
-command uiLoadData
+command uiLoadLayout
   local tPath, tDataFile
   local tConnect
   
@@ -113,20 +113,23 @@ command uiLoadData
   set the visible of graphic "blocker" to false
   wait 300 milliseconds
   
-  if it is empty then exit uiLoadData
+  if it is empty then exit uiLoadLayout
   
   put it into tDataFile
   
-  loadDataFile tDataFile
+  openLayoutFile tDataFile
   
-end uiLoadData
+end uiLoadLayout
 
 
 /*
 load the provided data file
 */
-command loadDataFile pDataFile
+command openLayoutFile pDataFile
   local tConnect
+  local tRecentFilesMenu
+  
+  if pDataFile is empty then exit to top
   
   lock screen
   
@@ -134,6 +137,8 @@ command loadDataFile pDataFile
   set the uPrevFilePath of stack "Module Operations" to pDataFile
   
   set cursor to watch
+  
+  updateLayoutRecentMenu pDataFile
   
   updateStatus "Opening File " & pDataFile
   set the label of stack "Module Operations" to pDataFile & " - Module Operations"
@@ -160,8 +165,8 @@ command loadDataFile pDataFile
   set the cursor to arrow
   unlock screen
   
-  answer info "Data file loaded!" titled "Open file..."
-end loadDataFile
+  answer info "Layout file loaded!" titled "Open file..."
+end openLayoutFile
 
 
 
@@ -574,7 +579,7 @@ on appleEvent pClass, pEventID, pSender
     put it into tFileName
     
     // load the file ddatalayer.get(pTableName, pDataA)
-    loadDataFile tFileName
+    openLayoutFile tFileName
   end if
   pass appleEvent   
 end appleEvent

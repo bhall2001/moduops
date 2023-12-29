@@ -74,5 +74,5 @@ command ProcessMyFiles pFiles
   # First parameter is line delimited list of files your application supports
   # and that you should process.
   # Requires the "[[FRAMEWORK]]/helpers/files_and_urls helper".
-  dispatch "loadDataFile" to stack "Module Operations" with pFiles
+  dispatch "openLayoutFile" to stack "Module Operations" with pFiles
 end ProcessMyFiles

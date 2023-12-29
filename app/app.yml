@@ -9,15 +9,15 @@ application data folder:
   user:
     default:
     macos:
-    windows:
-    linux:
+    windows: ModuOps
+    linux: ModuOps
     ios:
     android:
   shared:
     default:
     macos:
-    windows:
-    linux:
+    windows: ModuOps
+    linux: ModuOps
 preferences filename:
   user:
     default: ModuOps.prefs
@@ -27,7 +27,7 @@ preferences filename:
     ios:
     android:
   shared:
-    default:
+    default: ModuOps.prefs
     macos:
     windows:
     linux:
