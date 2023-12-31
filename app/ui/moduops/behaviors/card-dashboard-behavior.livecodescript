@@ -93,6 +93,10 @@ private command _uiEnableNavigation
   // hiding graphics.
   set the visible of graphic "operationsSession" to tHasFile
   
+  if not tHasFile then
+    updateSidebarUI
+  end if
+  
 end _uiEnableNavigation
 
 
