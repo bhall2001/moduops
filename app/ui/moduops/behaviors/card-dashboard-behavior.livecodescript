@@ -1,6 +1,7 @@
 ﻿script "card-dashboard-behavior"
 on openCard
   local tTemp, tStatsA
+   
   lock screen
   
   put "module,Modules/Towns:" & return & \
@@ -62,7 +63,6 @@ on openStack
   set the dgProp[ "dim on focusOut" ] of group "dgSequence" of card "Train Sequence" to false
   set the dgProp[ "dim on focusOut" ] of group "dgRoute" of card "Route" to false
   
-  
   // limit recent menu to last 10 items
   fileSystemSetMaxRecentFiles 10
   
@@ -70,6 +70,12 @@ on openStack
   updateLayoutRecentMenu
   
   get net.isConnected()
+  
+  // load most recent layout if pref is set to do so
+  if prefsGetPref("loadRecentLayout") is 1 then
+    // load the last used layout file
+    openMostRecentLayoutFile
+  end if
   
   dispatch "mouseUp" to button "Dashboard"
   

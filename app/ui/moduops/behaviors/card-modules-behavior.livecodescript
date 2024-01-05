@@ -6,6 +6,7 @@ end preOpenCard
 
 on openCard
   local tModuleId, tSelectedIndex
+  local tMenuItemNumber
   
   set the dgData of group "dgModules" to module.findMany()
   
@@ -20,7 +21,9 @@ on openCard
     send "selectionChanged" to group "dgModules" in 1 milliseconds
   end if
   
-  enable menuitem 5 of menu "File"
+  // enable the import menu
+  put getMenuItemNumber("File", "Import Module...") into tMenuItemNumber
+  enable menuitem tMenuItemNumber of menu "File"
   
   // update card title
   put the short name of this card into field "cardName"
@@ -171,9 +174,14 @@ command newModulePressed
 end newModulePressed
 
 
-on closeCard 
+on closeCard
+  local tMenuItemNumber
+  
   uiClearData
-  disable menuitem 5 of menu "File"
+  
+  // disable the import menu
+  put getMenuItemNumber("File", "Import Module...") into tMenuItemNumber
+  disable menuitem tMenuItemNumber of menu "File"
 end closeCard
 
 
@@ -235,11 +243,8 @@ command uiImportModule
   local tCriteriaA
   local tWorkorderDTO
   
-  if the uPriorImportPath of stack "Module Operations" is not empty then
-    put the uPriorImportPath of stack "Module Operations" into tPath
-  else
-    put specialFolderPath("Documents") into tPath
-  end if
+  // get the path to the modules last accessed
+  put getLastFilePath("lastModulePath") into tPath
   
   answer file "Import Module:" with tPath with type "TEXT|json"
   
@@ -248,7 +253,7 @@ command uiImportModule
   put it into tPath
   
   // save the path to start from same location if import reselected
-  set the uPriorImportPath of stack "Module Operations" to tPath
+  setLastFilePath tPath, "lastModulePath" 
   
   updateStatus "Reading File..."
   put  URL ("binfile:" & tPath) into tTemp

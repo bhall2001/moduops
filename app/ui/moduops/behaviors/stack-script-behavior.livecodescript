@@ -66,12 +66,15 @@ command uiNewLayout
   
   get datalayer.disconnect()
   put createNewDataFile() into tFileName
-  set the label of stack "Module Operations" to tFileName & " - Module Operations"
   
+  // set the app window title
+  updateWindowTitle tFileName  
   goDashboard
   
   unlock screen
   set cursor to arrow
+  
+  send "mouseUp" to button "Dashboard" of group "sidebarMenu" of group "groupBackground" of me
   
   answer info "Data file created!"
 end uiNewLayout
@@ -88,8 +91,8 @@ command _resetFileName
   put specialFolderPath("Documents") into tDataFile
   put "/untitled.mop" after tDataFile
   
-  ## set the main window title bar indicating filename
-  set the label of stack "Module Operations" to tDataFile & " - Module Operations"
+  // set the app window title
+  updateWindowTitle tDataFile
   
   ## set the default data file in the main stack
   set the cDataFile of stack "Module Operations" to tDataFile
@@ -101,14 +104,11 @@ command uiLoadLayout
   local tPath, tDataFile
   local tConnect
   
-  if the uPrevFilePath of stack "Module Operations" is empty then
-    put specialFolderPath("Documents") into tPath
-  else
-    put the uPrevFilePath of stack "Module Operations" into tPath
-  end if
+  // get the last file path for file dialog
+  put getLastFilePath() into tPath
   
   set the visible of graphic "blocker" to true
-  --answer file "Input:" with tPath with type "*.mop,*.MOP"
+
   answer file "Select file to open..." with tPath with type "TEXT File|mop2|MOP2" titled "Open file"
   set the visible of graphic "blocker" to false
   wait 300 milliseconds
@@ -117,15 +117,29 @@ command uiLoadLayout
   
   put it into tDataFile
   
+  // set the last file path
+  setLastFilePath tDataFile
+  
   openLayoutFile tDataFile
+  
+  send "mouseUp" to button "Dashboard" of group "sidebarMenu" of group "groupBackground" of me
   
 end uiLoadLayout
 
 
 /*
 load the provided data file
+
+parameters:
+pDataFile string full path to data file to open
+pSkipUpdateRecent boolean true = skip updting the most recent file list
+
+note: skiping updating of recent file list happens when the app
+is first launced and the most recent file is opened. We do not
+want to add this file to the most recent menu as it is already
+the most recent layout file in the menu
 */
-command openLayoutFile pDataFile
+command openLayoutFile pDataFile, pSkipUpdateRecent
   local tConnect
   local tRecentFilesMenu
   
@@ -138,10 +152,14 @@ command openLayoutFile pDataFile
   
   set cursor to watch
   
-  updateLayoutRecentMenu pDataFile
+  if not pSkipUpdateRecent then
+    updateLayoutRecentMenu pDataFile
+  end if
   
   updateStatus "Opening File " & pDataFile
-  set the label of stack "Module Operations" to pDataFile & " - Module Operations"
+  
+  // set the app window title
+  updateWindowTitle pDataFile
   
   set the cDataFile of stack "Module Operations" to pDataFile
   
@@ -182,7 +200,9 @@ command uiConvertFile
   
   get datalayer.disconnect()
   put createNewDataFile() into tFileName
-  set the label of stack "Module Operations" to tFileName & " - Module Operations"
+  
+  // set the app window title
+  updateWindowTitle tFileName
   
   // load old file
   put specialFolderPath("Documents") into tPath
@@ -560,6 +580,12 @@ on preOpenStack
   set the cAppPath of stack "Module Operations" to tPath
   
   set the cDataFile of stack "Module Operations" to empty
+  
+  // set the app window title
+  updateWindowTitle  
+  
+  // start at the Dashboard screen
+  send "mouseUp" to button "Dashboard" of stack "Module Operations"
   
   ## Set default filename and set the Window Name
   
