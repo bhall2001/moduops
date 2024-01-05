@@ -15,6 +15,7 @@ end preOpenCard
 
 on openCard
   local tModuleA
+  local tMenuItemNumber
   
   lock screen
   
@@ -26,7 +27,10 @@ on openCard
   
   // update ui
   uiUpdateData tModuleA
-  enable menuitem 6 of menu "File"
+  
+  // enable the export menu
+  put getMenuItemNumber("File", "Export Module...") into tMenuItemNumber
+  enable menuitem tMenuItemNumber of menu "File"
   
   unlock screen
 end openCard
@@ -34,6 +38,7 @@ end openCard
 
 on closeCard
   local tId
+  local tMenuItemNumber
   
   if the cIsNew of this card is true then
     put field "id" of this card into tId
@@ -43,7 +48,10 @@ on closeCard
   
   set the cModuleUUID of card "Modules/Towns" to the cActiveModule of this card
   uiClearFields
-  disable menuitem 6 of menu "File"
+  
+  // disable the export menu
+  put getMenuItemNumber("File", "Export Module...") into tMenuItemNumber
+  disable menuitem tMenuItemNumber of menu "File"
 end closeCard
 
 

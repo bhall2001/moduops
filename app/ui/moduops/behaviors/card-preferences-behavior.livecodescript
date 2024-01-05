@@ -14,6 +14,8 @@ on openCard
   put config.get("header") into field "header"
   put config.get("footer") into field "footer"
   
+  set the hilite of widget "loadRecentLayout" of me to prefsGetPref("loadRecentLayout") is 1
+  
   unlock screen
 end openCard
 
