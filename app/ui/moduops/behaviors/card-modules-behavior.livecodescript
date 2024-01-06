@@ -367,3 +367,46 @@ command clonePressed
   end if
 end clonePressed
 
+
+/*
+set the active tab and update ui
+param: pTab: string: name of tab clicked
+*/
+setProp activeTab pTab
+  local tButtonLoc
+  
+  switch pTab
+    case "Consignees"
+      lock screen
+      show group "consigneesGroup"
+      hide group "dropZonesGroup"
+      put the loc of button "consigneesButton" into tButtonLoc
+      set the textStyle of button "consigneesButton" to "bold"
+      set the textStyle of button "dropZonesButton" of this card to "plain"
+      set the foregroundColor of button "consigneesButton" to "#356BA1"
+      set the foregroundColor of button "dropZonesButton" to "#AAAAAA"
+      unlock screen
+      move graphic "activeLine" to (item 1 of tButtonLoc), (item 2 of tButtonLoc + 14)  in .1 second
+      
+      break
+    case "Drop Zones"
+      lock screen
+      local tHilitedLine
+      local tDataA
+      
+      hide group "consigneesGroup"
+      show group "dropZonesGroup"
+      put the loc of button "dropZonesButton" into tButtonLoc
+      set the textStyle of button "consigneesButton" to "plain"
+      set the textStyle of button "dropZonesButton" of this card to "bold"
+      set the foregroundColor of button "dropZonesButton" to "#356BA1"
+      set the foregroundColor of button "consigneesButton" to "#AAAAAA"
+      
+      unlock screen
+      move graphic "activeLine" to (item 1 of tButtonLoc), (item 2 of tButtonLoc + 14)  in .1 second
+      
+      break
+  end switch
+  
+  set the activeTab of card "Modules/Towns" to pTab
+end activeTab

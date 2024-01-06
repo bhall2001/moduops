@@ -89,12 +89,14 @@ pKey string options key to get, defaults to "lastFilePath"
 */
 function getLastFilePath pKey
   local tKey
-  
+    
   if pKey is empty then
     put "lastFilePath" into tKey
+  else
+    put pKey into tKey
   end if
   
-  if prefsIsPrefSet(tKey) then
+  if prefsIsPrefSet(tKey) = true then
     return URLDecode(prefsGetPref(tKey))
   else
     return specialFolderPath("Documents")
