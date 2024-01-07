@@ -5,10 +5,7 @@ Fetch all records from a given table
 function datalayer.fetchAll pTable
   if pTable is empty then throw "datalayer.fetchAll Error: pTable is emtpy"
   
-  local tQuery
-  put "SELECT * FROM" && pTable into tQuery
-  
-  return libDBFetchAsArray(tQuery)
+  return dbGet(pTable)
 end datalayer.fetchAll
 
 
