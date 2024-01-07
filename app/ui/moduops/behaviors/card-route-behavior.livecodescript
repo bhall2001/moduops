@@ -34,6 +34,7 @@ on preOpenCard
   set the dgText of group "dgOrders" to tTrainA["orders"]
   
   put tTrainA["route"] into tTempA
+  
   put jsonToArray(tTempA) into tTempA
   
   set the dgData of group "dgRoute" to tTempA
@@ -211,7 +212,7 @@ function addModuleStop
       break
       
   end switch
-    
+  
   return tStopA
 end addModuleStop
 
@@ -294,7 +295,12 @@ function saveRecord
     add 1 to i
   end repeat
   
-  put arrayToJson(tTemp, true) into tDataA["route"]
+  if tTemp is an array then
+    put arrayToJson(tTemp, "array") into tDataA["route"]
+  else
+    put empty into tDataA["route"]
+  end if
+  
   put sTrainId into tDataA["id"]
   
   put train.update(tDataA) into tResult

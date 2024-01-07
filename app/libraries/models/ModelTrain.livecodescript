@@ -287,12 +287,32 @@ command train.deleteModulefromRoute pModuleId
   local tRouteA
   local tNewRouteA
   local tNewRouteIndex
+  local tSpotA
   
   // get all the trains in the layout
   put train.getAll() into tTrainA
   
   // loop over each of the trains
   repeat with tTrainIndex = 1 to number of elements of tTrainA
+    
+    // first up we need to check if module is train origin/destination
+    put spot.findOne(tTrainA[tTrainIndex]["origin"]) into tSpotA
+    if tSpotA["moduleId"] = pModuleId then
+      // delete this train when train origin is on module being deleted
+      get train.delete(tTrainA[tTrainIndex]["id"])
+      next repeat
+    end if
+    
+    put spot.findOne(tTrainA[tTrainIndex]["destination"]) into tSpotA
+    if tSpotA["moduleId"] = pModuleId then
+      // delete this train when train destination is on module being deleted
+      get train.delete(tTrainA[tTrainIndex]["id"])
+      next repeat
+    end if
+    
+    // initialize the new train record
+    put tTrainA[tTrainIndex] into tNewTrainA
+    
     // convert the train's route from json to an array
     put JSONToArray(tTrainA[tTrainIndex]["route"])  into tRouteA
     
@@ -316,8 +336,14 @@ command train.deleteModulefromRoute pModuleId
       put tNewRouteIndex into tNewRouteA[tNewRouteIndex]["stop"]
     end repeat
     
-    put tTrainA[tTrainIndex] into tNewTrainA[tTrainIndex]
-    put ArrayToJSON(tNewRouteA,"object") into tNewTrainA[tTrainIndex]["route"]
-        
+    // add the new route to the new train
+    if tNewRouteA is an array then
+      put ArrayToJSON(tNewRouteA,"object") into tNewTrainA["route"]
+    else
+      put empty into tNewTrainA["route"]
+    end if
+    
+    // update the train in the database
+    get train.update(tNewTrainA)        
   end repeat
 end train.deleteModulefromRoute
