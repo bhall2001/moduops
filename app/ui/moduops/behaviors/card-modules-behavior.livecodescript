@@ -410,3 +410,40 @@ setProp activeTab pTab
   
   set the activeTab of card "Modules/Towns" to pTab
 end activeTab
+
+
+/*
+remove a module reference from all db tables
+
+parameter
+pModuleId string id of module to be removed
+*/
+command removeModule pModuleId
+  local tResult
+  
+  try
+    // start a database transaction
+    datalayer.begin
+    
+    // remove all trains and train routes that reference the module
+    train.deleteModulefromRoute pModuleId
+    
+    // remove all consignees which also has the effect of removing
+    // all consignees and equipment that are no longer in the layout
+    consignee.deleteByModuleId pModuleId
+    
+    // delete all the spots for the module
+    spot.deleteByModuleId pModuleId
+    
+    // remove module from module table
+    put module.delete(pModuleId) into tResult
+    
+    // commit changes to the database
+    datalayer.commit
+  catch error
+    
+    // if an error occurs we'll rollback our changes
+    datalayer.rollback
+  end try
+  
+end removeModule

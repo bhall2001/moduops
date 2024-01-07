@@ -512,3 +512,18 @@ private function _dsToDict @pDataA, pKeyField, pValueField
   return tResultA
   
 end _dsToDict
+
+
+command datalayer.begin
+  dbExecuteSQL "BEGIN" 
+end datalayer.begin
+
+
+command datalayer.commit
+  dbExecuteSQL "COMMIT"
+end datalayer.commit
+
+
+command datalayer.rollback
+  dbExecuteSQL "ROLLBACK"
+end datalayer.rollback
