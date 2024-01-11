@@ -62,6 +62,7 @@ on openStack
   set the dgProp[ "dim on focusOut" ] of group "dgTrains" of card "Train Sequence" to false
   set the dgProp[ "dim on focusOut" ] of group "dgSequence" of card "Train Sequence" to false
   set the dgProp[ "dim on focusOut" ] of group "dgRoute" of card "Route" to false
+  set the dgProp[ "dim on focusOut" ] of group "dgTrains" of card "Trainlists" to false
   
   // limit recent menu to last 10 items
   fileSystemSetMaxRecentFiles 10
@@ -92,12 +93,6 @@ private command _uiEnableNavigation
   
   set the visible of graphic "navigationPreferences" to not tHasFile
   set the visible of graphic "dashboardModules" to not tHasFile
-  
-  // there is a separate disable graphic over Operations Session menu on dashboard.
-  // this feature is not live yet. In order to prevent a doubling of the 
-  // grey out on the menu, this graphic needs to do the opposite of the other 
-  // hiding graphics.
-  set the visible of graphic "operationsSession" to tHasFile
   
   if not tHasFile then
     updateSidebarUI

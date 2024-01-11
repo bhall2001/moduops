@@ -5,6 +5,8 @@ constant kFIELD_NAMES = "setup_name,day,year,header,footer"
 on openCard
   local tConfigA
   
+  if the short name of this card is not "Layout" then pass openCard
+  
   lock screen
   
   put config.get("setup_name") into field "setup_name"
