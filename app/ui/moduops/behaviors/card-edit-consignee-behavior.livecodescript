@@ -59,6 +59,9 @@ on preOpenCard
   
   uiUpdateData tDataA
   
+  // update layout name field
+  put config.get("name") into field "layoutName"
+  
   pass preOpenCard
 end preOpenCard
 

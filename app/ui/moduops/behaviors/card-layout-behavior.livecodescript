@@ -11,6 +11,9 @@ on preOpenCard
   // load ui data
   __uiLoadData
   
+  // update layout name field
+  put config.get("name") into field "layoutName"
+  
 end preOpenCard
 
 
@@ -20,6 +23,11 @@ When a field closes, save the data to the database
 on closeField
   put return & the short name of the target & ": " & the text of the target after message
   get config.set(the short name of the target, the text of the target)
+  
+  // update layout title when layout name field updates
+  if the short name of the target = "name" then
+    put config.get("name") into field "layoutName"
+  end if
 end closeField
 
 

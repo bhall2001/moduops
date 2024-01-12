@@ -71,6 +71,7 @@ end preOpenCard
 
 
 on openCard
+  lock screen
   uiClear
   put yard.findMany() into sYardListA
   set the dgData of group "dgYards" to sYardListA
@@ -79,6 +80,11 @@ on openCard
   put "" into field "totalCars"
   put "" into field "totalCPW"
   put "" into field "yardUsed"
+  
+  // update layout name field
+  put config.get("name") into field "layoutName"
+  
+  unlock screen
 end openCard
 
 

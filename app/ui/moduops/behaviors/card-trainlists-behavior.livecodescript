@@ -165,6 +165,8 @@ end addManifest
 on openCard
   local tFavor
   
+  lock screen
+  
   put train.findMany() into sTrainA
   set the dgData of group "dgTrains" to train.addNames(sTrainA)
   
@@ -177,6 +179,11 @@ on openCard
   else
     set the thumbPosition of scrollbar "favorScale" of card "Trainlists" to 1
   end if
+  
+  // update layout name field
+  put config.get("name") into field "layoutName"
+  
+  unlock screen
   
   pass openCard
 end openCard

@@ -10,6 +10,9 @@ on preOpenCard
   else
     set the visible of button "cancel" to false
   end if
+  
+  // update layout name field
+  put config.get("name") into field "layoutName"
 end preOpenCard
 
 
@@ -39,7 +42,7 @@ on openCard
   put tCarType["short"] into field "short"
   put tCarType["length"] into field "length"
   put tCarType["remarks"] into field "remarks"
-  
+   
   unlock screen
 end openCard
 

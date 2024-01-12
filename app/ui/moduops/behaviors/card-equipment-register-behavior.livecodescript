@@ -20,8 +20,8 @@ on openCard
   ## Update buttons based on conditions of car types
   uiButtonState
   
-  ## set the intial focus to the table of car types
-  ##set the dgfocus of group "dgCarTypes" to true
+  // update layout name field
+  put config.get("name") into field "layoutName"
   
   unlock screen
   

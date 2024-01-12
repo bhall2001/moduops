@@ -4,6 +4,9 @@ on openCard
    
   lock screen
   
+  // update layout name field
+  put config.get("name") into field "layoutName"
+  
   put "module,Modules/Towns:" & return & \
         "carType,Rollingstock:" & return & \
         "consignee,Consignees:" & return & \

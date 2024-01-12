@@ -23,6 +23,9 @@ on openCard
   
   uiUpdateData
   
+  // update layout name field
+  put config.get("name") into field "layoutName"
+  
   unlock screen
   pass openCard
 end openCard

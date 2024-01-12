@@ -9,6 +9,10 @@ local sWorkorderId
 
 on preOpenCard
   set the visible of button "cancel" of me to the cIsNew of this card
+  
+  
+  // update layout name field
+  put config.get("name") into field "layoutName"
 end preOpenCard
 
 

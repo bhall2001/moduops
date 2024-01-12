@@ -60,6 +60,9 @@ on openCard
   
   uiUpdate tTrainA
   
+  // update layout name field
+  put config.get("name") into field "layoutName"
+  
   unlock screen
 end openCard
 

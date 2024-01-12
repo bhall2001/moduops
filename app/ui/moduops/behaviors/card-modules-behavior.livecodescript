@@ -20,13 +20,12 @@ on openCard
     set the dgHilitedindex of group "dgModules" to tSelectedIndex
     send "selectionChanged" to group "dgModules" in 1 milliseconds
   end if
-  
-  // enable the import menu
-  put getMenuItemNumber("File", "Import Module...") into tMenuItemNumber
-  enable menuitem tMenuItemNumber of menu "File"
-  
+    
   // update card title
   put the short name of this card into field "cardName"
+  
+  // update layout name field
+  put config.get("name") into field "layoutName"
   
   unlock screen
 end openCard
@@ -179,27 +178,38 @@ on closeCard
   
   uiClearData
   
-  // disable the import menu
-  put getMenuItemNumber("File", "Import Module...") into tMenuItemNumber
-  disable menuitem tMenuItemNumber of menu "File"
 end closeCard
 
 
 command uiButtonState
   set the disabled of button "Module Edit" to true
   set the fourgroundColor of button "Module Edit" to ""
+  
+  set the disabled of button "Module Save" to true
+  set the fourgroundColor of button "Module Save" to ""
+  
+  // Add button default to enabled
+  set the disabled of button "Module Add" to false
+  set the fourgroundColor of button "Module Add" to "white"
+  
   set the disabled of button "Module Delete" to true
   set the fourgroundColor of button "Module Delete" to ""
+  
   set the disabled of button "Consignee Edit" to true
   set the fourgroundColor of button "Consignee Edit" to ""
+  
   set the disabled of button "Spot Edit" to true
   set the fourgroundColor of button "Spot Edit" to ""
+  
   set the disabled of button "Spot New" to true
   set the fourgroundColor of button "Spot Edit" to ""
+  
   set the disabled of button "Spot Delete" to true
   set the fourgroundColor of button "Spot Edit" to ""
+  
   set the disabled of button "Consignee New" to true
   set the fourgroundColor of button "Consignee New" to ""
+  
   set the disabled of button "Consignee Delete" to true
   set the fourgroundColor of button "Consignee Delete" to ""
 end uiButtonState
@@ -210,6 +220,12 @@ command uiModuleClicked
   ## Update Button status
   set the disabled of button "Module Edit" to false
   set the fourgroundColor of button "Module Edit" to "white"
+  
+  set the disabled of button "Module Save" to false
+  set the fourgroundColor of button "Module Save" to "white"
+  
+  set the disabled of button "Module Add" to false
+  set the fourgroundColor of button "Module Add" to "white"
   
   set the disabled of button "Module Delete" to false
   set the fourgroundColor of button "Module Delete" to "white"
@@ -335,6 +351,49 @@ command uiImportModule
   
   dispatch "openCard" to card "Modules/Towns"
 end uiImportModule
+
+
+
+command uiExportModule
+  local tModuleA, tConsigneeA, tSpotA, tWorkorderA, tCarTypeA, tResultA, tPath, tDataA
+  
+  updateStatus "Gathering Data..."
+  
+  local tSelectedLine, theSelectedID
+  
+  put the dghilitedline of group "dgModules" into tSelectedLine
+  if tSelectedLine is empty then
+    answer info "Please select a Module to edit."
+    exit uiExportModule
+  end if
+  
+  put the uSelectedID of group "dgModules" into theSelectedID
+  
+  put module.findOne(theSelectedID) into tResultA["module"]
+  put consignee.findByModuleId(theSelectedID) into tResultA["consignee"]
+  put spot.findByModuleId(theSelectedID) into tResultA["spot"]
+  put workorder.findByModuleId(theSelectedID) into tResultA["workorder"]
+  put carType.findByModuleId(theSelectedID) into tResultA["carType"]
+  
+  updateStatus "Creating Saving Data..."
+  put ArrayToJSON(tResultA,,true) into tDataA
+  
+  put specialFolderPath("Documents") into tPath
+  put "/" & tResultA["module"]["name"] & ".json" after tPath
+  replace " " with "_" in tPath
+  
+  updateStatus "Waiting on export file selection..."
+  ask file "Export Module as" with tPath
+  if it is not empty then
+    updateStatus "Writing File..."
+    put it into tPath
+    put tDataA into URL ("binfile:" & tPath)
+    updateStatus "File Save!"
+    wait 1 seconds
+  end if
+  updateStatus ""
+end uiExportModule
+
 
 
 command uiClearData

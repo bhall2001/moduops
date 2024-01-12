@@ -26,7 +26,12 @@ on preOpenCard
   put train.findOne(sTrainId) into tTrainA
   
   put tTrainA["symbol"] into field "symbol"
-  put quote & tTrainA["name"] & quote into field "name"
+  
+  if tTrainA["name"] is not empty then
+    put quote & tTrainA["name"] & quote into field "name"
+  else
+    put "" into field "name"
+  end if
   
   put yard.nameById(tTrainA["origin"]) into field "origin"
   put yard.nameById(tTrainA["destination"]) into field "destination"
@@ -50,6 +55,10 @@ on preOpenCard
   end if
   
   set the menuhistory of button "tabSelect" to 1 -- make the first tab from the left the active one
+  
+  // update layout name field
+  put config.get("name") into field "layoutName"
+  
 end preOpenCard
 
 

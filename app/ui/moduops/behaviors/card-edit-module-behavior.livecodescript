@@ -28,9 +28,8 @@ on openCard
   // update ui
   uiUpdateData tModuleA
   
-  // enable the export menu
-  put getMenuItemNumber("File", "Export Module...") into tMenuItemNumber
-  enable menuitem tMenuItemNumber of menu "File"
+  // update layout name field
+  put config.get("name") into field "layoutName"
   
   unlock screen
 end openCard
@@ -49,9 +48,6 @@ on closeCard
   set the cModuleUUID of card "Modules/Towns" to the cActiveModule of this card
   uiClearFields
   
-  // disable the export menu
-  put getMenuItemNumber("File", "Export Module...") into tMenuItemNumber
-  disable menuitem tMenuItemNumber of menu "File"
 end closeCard
 
 

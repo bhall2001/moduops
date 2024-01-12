@@ -20,6 +20,9 @@ on preOpenCard
   
   buildMenu
   set the disabled of button "Save" to true
+  
+  // update layout name field
+  put config.get("name") into field "layoutName"
 end preOpenCard
 
 
