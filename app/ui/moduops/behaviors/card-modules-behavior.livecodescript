@@ -378,7 +378,9 @@ command uiExportModule
   updateStatus "Creating Saving Data..."
   put ArrayToJSON(tResultA,,true) into tDataA
   
-  put specialFolderPath("Documents") into tPath
+  // get the path to the modules last accessed
+  put getLastFilePath("lastModulePath") into tPath
+  
   put "/" & tResultA["module"]["name"] & ".json" after tPath
   replace " " with "_" in tPath
   
