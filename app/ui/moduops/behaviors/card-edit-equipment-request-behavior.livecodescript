@@ -179,7 +179,7 @@ end selectClass
 function saveData
   local tDataA, tResult
   local tEquipmentSelected // list of line numbers in data grid for each equipment selected
-  local tEquipmentA // array holding each line of equipement
+  local tEquipmentA // array holding each line of equipment
   
   lock screen
   

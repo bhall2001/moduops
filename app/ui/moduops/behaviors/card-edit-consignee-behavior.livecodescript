@@ -25,18 +25,13 @@ on preOpenCard
     disable button "New Request"
     show button "cancel"
     
-    if the cIsNew of card "Edit Consignee" is false then
-      
-      // TODO: delete
-      put the cIsNew of card "Edit Consignee"
-      
+    if the cIsNew of card "Edit Consignee" is false then    
       
       if  carType.count() = 0 then
-        put "Unable to create a new request until equipement is defined." into field "errorText"
+        put "Unable to create equipment requests until equipment is defined." into field "errorText"
       else
-        put "Unable to create a new request until a drop zone is defined." into field "errorText"
+        put "Unable to create equipment requests until a drop zone is defined." into field "errorText"
       end if
-      
       
       show field "errorText"
     else
