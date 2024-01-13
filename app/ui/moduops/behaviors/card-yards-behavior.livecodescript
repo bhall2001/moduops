@@ -23,6 +23,9 @@ A
 setProp uPercent pValue
   put pValue into field "percentStorage"
   set the uPercent of this card to pValue
+  
+  // save this to the database
+  get config.set("yardStoragePercent", pValue)
 end uPercent
 
 
@@ -75,8 +78,20 @@ on openCard
   uiClear
   put yard.findMany() into sYardListA
   set the dgData of group "dgYards" to sYardListA
-  set the uPercent of this card to 100
-  set the thumbpos of scrollbar "storage" to 100
+  
+  // setup yard storage % scrollbar
+  if config.get("yardStoragePercent") is not empty then
+    set the uPercent of this card to config.get("yardStoragePercent")
+    set the thumbpos of scrollbar "storage" to config.get("yardStoragePercent")
+  else
+    set the uPercent of this card to 70
+    set the thumbpos of scrollbar "storage" to 70
+  end if
+  
+  // disable the storage slider
+  set the disabled of scrollbar "storage" to true
+  
+  
   put "" into field "totalCars"
   put "" into field "totalCPW"
   put "" into field "yardUsed"
