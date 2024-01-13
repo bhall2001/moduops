@@ -1,7 +1,7 @@
 ﻿script "card-dashboard-behavior"
 on openCard
   local tTemp, tStatsA
-   
+  
   lock screen
   
   // update layout name field
@@ -75,6 +75,8 @@ on openStack
   
   get net.isConnected()
   
+  __checkVersion
+  
   // load most recent layout if pref is set to do so
   if prefsGetPref("loadRecentLayout") is 1 then
     // load the last used layout file
@@ -120,20 +122,24 @@ command __checkVersion
     exit __checkVersion
   end if
   
-  // first check if this is expire version
-  put myVersion() into tVersion
-  
-  put net.hostUrl() & "/api/versionCheck/moduops/" & tVersion into tUrl
-  
-  put htmlGetSync(tUrl) into tResponse
-  
-  // true response means this is the current version
-  if tResponse contains "true" then
-    exit __checkVersion
-  end if
-  
-  // if we get here there's a newer version of moduops ready to download
-  answer info "A new version of ModuOps is ready to download at www.moduops.com."
+  try
+    // first check if this is expire version
+    put myVersion() into tVersion
+    
+    put net.hostUrl() & "/api/versionCheck/moduops/" & tVersion into tUrl
+    
+    put htmlGetSync(tUrl) into tResponse
+    
+    // true response means this is the current version
+    if tResponse contains "true" then
+      exit __checkVersion
+    end if
+    
+    // if we get here there's a newer version of moduops ready to download
+    answer info "A new version of ModuOps is ready to download at www.moduops.com."
+  catch error
+    // we'll do nothing if there's an error...
+  end try
   
 end __checkVersion
 
