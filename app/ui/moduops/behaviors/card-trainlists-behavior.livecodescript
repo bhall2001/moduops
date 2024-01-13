@@ -151,11 +151,6 @@ function addManifest pManifestStyle pPageWidth
     if aWorkorder["carTypeRemarks"] <> empty then
       put "<p>" & aWorkorder["carTypeRemarks"] & "</p>" & return after tOutput
     end if
-    
-    -- output consignee remarks on next line
-    if aWorkorder["consigneeRemarks"] <> empty then
-      put "<p>" & aWorkorder["consigneeRemarks"] & "</p>" & return after tOutput
-    end if
   end repeat
   
   return tOutput
