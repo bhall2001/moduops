@@ -193,3 +193,23 @@ on textChanged
 end textChanged
 
 
+command __uiIntitRegionMenu
+  local tMenuItems
+  
+  put the keys of getWorldRegionA() into tMenuItems
+  sort lines of tMenuItems
+  set the text of button "regionMenu" to "" & return & tMenuItems
+  set the label of button "regionMenu" to ""
+  set the disabled of button "regionMenu" to false
+  
+  set the label of button "subRegionMenu" to ""
+  set the disabled of button "subRegionMenu" to true
+  
+  set the label of button "countryMenu" to ""
+  set the disabled of button "countryMenu" to true
+  
+  set the label of button "organizationMenu" to ""
+  set the disabled of button "organizationMenu" to true
+end __uiIntitRegionMenu
+
+

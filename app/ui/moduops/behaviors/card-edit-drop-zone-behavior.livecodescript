@@ -67,7 +67,7 @@ command uiUpdateData pDataA
   
   lock screen
   // get module data
-  put module.findOne(sActiveSpot) into tModuleA
+  put module.findOne(sActiveModule) into tModuleA
   
   // update module name
   put tModuleA["name"] into field "module"

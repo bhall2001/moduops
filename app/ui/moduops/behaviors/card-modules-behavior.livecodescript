@@ -262,7 +262,7 @@ command uiImportModule
   // get the path to the modules last accessed
   put getLastFilePath("lastModulePath") into tPath
   
-  answer file "Import Module:" with tPath with type "TEXT|json"
+  answer file "Add module to layout..." with tPath with type "TEXT|json"
   
   if it is empty then exit uiImportModule
   
@@ -385,7 +385,7 @@ command uiExportModule
   replace " " with "_" in tPath
   
   updateStatus "Waiting on export file selection..."
-  ask file "Export Module as" with tPath
+  ask file "Save module as..." with tPath
   if it is not empty then
     updateStatus "Writing File..."
     put it into tPath

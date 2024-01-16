@@ -1,4 +1,6 @@
 ﻿script "libUtilities"
+local sWorldRegionA
+
 function htmlGetSync pUrl
   local htmlData
   local tHeaders, tResult, tBytes, tRecvHeaders
@@ -124,3 +126,26 @@ command clearLayoutRecentMenu
   updateLayoutRecentMenu
   
 end clearLayoutRecentMenu
+
+
+
+command initWorldRegionA
+  local tSourceA
+  local tWorldRegionA
+  
+  put  JSONToArray(the cWorldRegions of stack "Module Operations") into tSourceA
+  
+  repeat for each element aCountry in tSourceA
+    if aCountry["region"] is "Antarctic" then
+      put "Antarctic" into aCountry["subRegion"]
+    end if
+    put aCountry["name"] into tWorldRegionA[aCountry["region"]][aCountry["subRegion"]][aCountry["name"]["common"]]
+  end repeat
+  
+  put tWorldRegionA into sWorldRegionA
+end initWorldRegionA
+
+
+function getWorldRegionA
+  return sWorldRegionA
+end getWorldRegionA
