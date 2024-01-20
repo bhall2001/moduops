@@ -108,7 +108,7 @@ command uiLoadLayout
   put getLastFilePath() into tPath
   
   set the visible of graphic "blocker" to true
-
+  
   answer file "Select file to open..." with tPath with type "TEXT File|mop2|MOP2" titled "Open file"
   set the visible of graphic "blocker" to false
   wait 300 milliseconds
@@ -609,3 +609,13 @@ on appleEvent pClass, pEventID, pSender
   end if
   pass appleEvent   
 end appleEvent
+
+
+
+on suspendStack
+  if "Answer Dialog" is among the lines of the openStacks then
+    set the loc of stack "answer dialog" to the loc of stack "Module Operations"
+  end if
+  
+  pass suspendStack
+end suspendStack

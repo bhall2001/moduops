@@ -262,7 +262,7 @@ command uiImportModule
   // get the path to the modules last accessed
   put getLastFilePath("lastModulePath") into tPath
   
-  answer file "Add module to layout..." with tPath with type "TEXT|json"
+  answer files "Add module to layout..." with tPath with type "TEXT|json"
   
   if it is empty then exit uiImportModule
   
@@ -271,82 +271,88 @@ command uiImportModule
   // save the path to start from same location if import reselected
   setLastFilePath tPath, "lastModulePath" 
   
-  updateStatus "Reading File..."
-  put  URL ("binfile:" & tPath) into tTemp
-  
-  updateStatus "Decoding Data..."
-  put JSONToArray(tTemp) into tDataA
-  
-  if tDataA is not an array then exit uiImportModule
-  
-  if module.findOne(tDataA["module"]["id"]) is not empty then
-    answer error "Import Failed. Module already exists."
-    exit uiImportModule
-  end if
-  
-  // add module
-  get module.create(tDataA["module"])
-  
-  // load consignees
-  repeat for each element aConsignee in tDataA["consignee"]
-    if consignee.findOne(aConsignee["id"]) is not empty then
-      // skip if a duplicate
-      next repeat
-    end if
-    get consignee.create(aConsignee)
-  end repeat
-  
-  // remove duplicate spots
-  repeat for each element aSpot in tDataA["spot"]
-    if spot.findOne(aSpot["id"]) is not empty then
-      // skip if a duplicate
-      next repeat
-    end if
-    get spot.create(aSpot)
-  end repeat
-  
-  // update car types
-  // NOTE: this must happen before workorders in the event
-  // that an existing car type can be reused for work orders
-  repeat for each element aCar in tDataA["carType"]
-    ## Online insert car types if they do not already exist in the DB
-    if carType.findOne(aCar["id"]) is empty then
-      
-      ## now let's check if there's a "match" already in the carType table
-      ## We assume if Class, Description and Length match then
-      ## there's a duplicate car type and we should change the imported
-      ## type to the car type that exists.
-      put aCar["class"] into tCriteriaA["class"]
-      put aCar["description"] into tCriteriaA["description"]
-      put aCar["length"] into tCriteriaA["length"]
-      put carType.findMany(tCriteriaA) into tTempA
-      
-      if tTempA is empty then
-        get carType.create(aCar)
-      else
-        repeat with i = 1 to number of elements in tDataA["workorder"]
-          if tDataA["workorder"][i]["carId"] = aCar["id"] then
-            put tTempA[1]["id"] into tDataA["workorder"][i]["carId"]
-          end if
-        end repeat
-      end if
-    end if
-  end repeat
-  
-  // add workorders
-  repeat for each element aWorkorder in tDataA["workorder"]
-    if workorder.findOne(aWorkorder["id"]) is not empty then
-      // delete duplicate work order
-      get workorder.delete(aWorkorder["id"])
-    end if
-    put aWorkorder["id"] into tWorkorderDTO["id"]
-    put aWorkorder["carId"] into tWorkorderDTO["carId"]
-    put aWorkorder["spotId"] into tWorkorderDTO["spotId"]
-    put aWorkorder["consigneeId"] into tWorkorderDTO["consigneeId"]
-    put aWorkorder["cpw"] into tWorkorderDTO["cpw"]
-    put aWorkorder["remarks"] into tWorkorderDTO["remarks"]
+  repeat for each line aFile in tPath
     
-    get workorder.create(tWorkorderDTO)
+    
+    updateStatus "Reading File..."
+    put  URL ("binfile:" & aFile) into tTemp
+    
+    updateStatus "Decoding Data..."
+    put JSONToArray(tTemp) into tDataA
+    
+    if tDataA is not an array then exit uiImportModule
+    
+    if module.findOne(tDataA["module"]["id"]) is not empty then
+      set the itemDelimiter to "/"
+      answer error "Module already exists:" && item -1 of aFile
+      set the itemDelimiter to ","
+      next repeat
+    end if
+    
+    // add module
+    get module.create(tDataA["module"])
+    
+    // load consignees
+    repeat for each element aConsignee in tDataA["consignee"]
+      if consignee.findOne(aConsignee["id"]) is not empty then
+        // skip if a duplicate
+        next repeat
+      end if
+      get consignee.create(aConsignee)
+    end repeat
+    
+    // remove duplicate spots
+    repeat for each element aSpot in tDataA["spot"]
+      if spot.findOne(aSpot["id"]) is not empty then
+        // skip if a duplicate
+        next repeat
+      end if
+      get spot.create(aSpot)
+    end repeat
+    
+    // update car types
+    // NOTE: this must happen before workorders in the event
+    // that an existing car type can be reused for work orders
+    repeat for each element aCar in tDataA["carType"]
+      ## Online insert car types if they do not already exist in the DB
+      if carType.findOne(aCar["id"]) is empty then
+        
+        ## now let's check if there's a "match" already in the carType table
+        ## We assume if Class, Description and Length match then
+        ## there's a duplicate car type and we should change the imported
+        ## type to the car type that exists.
+        put aCar["class"] into tCriteriaA["class"]
+        put aCar["description"] into tCriteriaA["description"]
+        put aCar["length"] into tCriteriaA["length"]
+        put carType.findMany(tCriteriaA) into tTempA
+        
+        if tTempA is empty then
+          get carType.create(aCar)
+        else
+          repeat with i = 1 to number of elements in tDataA["workorder"]
+            if tDataA["workorder"][i]["carId"] = aCar["id"] then
+              put tTempA[1]["id"] into tDataA["workorder"][i]["carId"]
+            end if
+          end repeat
+        end if
+      end if
+    end repeat
+    
+    // add workorders
+    repeat for each element aWorkorder in tDataA["workorder"]
+      if workorder.findOne(aWorkorder["id"]) is not empty then
+        // delete duplicate work order
+        get workorder.delete(aWorkorder["id"])
+      end if
+      put aWorkorder["id"] into tWorkorderDTO["id"]
+      put aWorkorder["carId"] into tWorkorderDTO["carId"]
+      put aWorkorder["spotId"] into tWorkorderDTO["spotId"]
+      put aWorkorder["consigneeId"] into tWorkorderDTO["consigneeId"]
+      put aWorkorder["cpw"] into tWorkorderDTO["cpw"]
+      put aWorkorder["remarks"] into tWorkorderDTO["remarks"]
+      
+      get workorder.create(tWorkorderDTO)
+    end repeat
   end repeat
   
   dispatch "openCard" to card "Modules/Towns"
