@@ -50,8 +50,10 @@ on preOpenCard
   
   if the cSchedulingEngine of stack "Module Operations" = "Random" then
     hide group "Select Consignee"
+    show field "MRBT Notice"
   else
     show group "Select Consignee"
+    hide field "MRBT Notice"
   end if
   
   set the menuhistory of button "tabSelect" to 1 -- make the first tab from the left the active one
