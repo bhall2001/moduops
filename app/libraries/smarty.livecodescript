@@ -183,7 +183,12 @@ command generateManifest
       -- if there are no cars matching request move to next WO
       if tCarTypeA is not an array then
         next repeat
-      end if      
+      end if
+      
+      // if there is an invalid car length, skip this work order
+      if tCarTypeA["length"] is "" or tCarTypeA["length"] < 1 then
+        next repeat
+      end if 
       
       if (tUseConsignee <> "") then
         if (tSelectedWO["track"] = tUseConsignee) then
