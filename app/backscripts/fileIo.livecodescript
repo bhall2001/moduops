@@ -43,6 +43,9 @@ function createNewDataFile
     // update the recent menu with this new file
     updateLayoutRecentMenu tFileName
     
+    // intitialize data as needed here
+    get config.set("lengthUnit", "feet")
+    
     wait 1 sec with messages
   end if
   

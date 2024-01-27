@@ -425,6 +425,11 @@ command datalayer.migrate
     // add minLength to train table
     get datalayer.addColumn("train", "minLength", "INTEGER")
   end if
+  
+  -- add lengthUnit if it does not exist
+  if config.get("lengthUnit") is empty then
+    get config.set("lengthUnit", "feet")
+  end if
 end datalayer.migrate
 
 

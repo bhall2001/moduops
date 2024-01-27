@@ -13,6 +13,9 @@ on preOpenCard
   
   // update layout name field
   put config.get("name") into field "layoutName"
+  
+  // update the length unit
+  put "(" & config.get("lengthUnit") & ")" into field "lengthUnit"
 end preOpenCard
 
 
