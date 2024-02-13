@@ -24,13 +24,11 @@ on preOpenCard
   
   put the cTrainUUID of this card into sTrainId
   put train.findOne(sTrainId) into tTrainA
-  
-  put tTrainA["symbol"] into field "symbol"
-  
+    
   if tTrainA["name"] is not empty then
-    put quote & tTrainA["name"] & quote into field "name"
+    put tTrainA["name"] && "(" & tTrainA["symbol"] & ")" into field "name"
   else
-    put "" into field "name"
+    put tTrainA["symbol"] into field "name"
   end if
   
   put yard.nameById(tTrainA["origin"]) into field "origin"
@@ -238,10 +236,9 @@ end closeCard
 
 
 on uiClearData
-  put "" into field "symbol"
-  put "" into field "origin"
-  put "" into field "destination"
-  put "" into field "name"
+  put "" into field "origin" of card "Route" of stack "Module Operations"
+  put "" into field "destination" of card "Route" of stack "Module Operations"
+  put "" into field "name" of card "Route" of stack "Module Operations"
   set the dgText of group "dgRoute" to ""
   set the dgText of group "dgModules" to ""
   set the dgText of group "dgConsignees" to ""

@@ -65,6 +65,8 @@ on openStack
   set the dgProp[ "dim on focusOut" ] of group "dgTrains" of card "Train Sequence" to false
   set the dgProp[ "dim on focusOut" ] of group "dgSequence" of card "Train Sequence" to false
   set the dgProp[ "dim on focusOut" ] of group "dgRoute" of card "Route" to false
+  set the dgProp[ "dim on focusOut" ] of group "dgOrders" of card "Route" to false
+  set the dgProp[ "dim on focusOut" ] of group "dgConsignees" of card "Route" to false
   set the dgProp[ "dim on focusOut" ] of group "dgTrains" of card "Trainlists" to false
   set the dgProp[ "dim on focusOut" ] of group "dgYards" of card "Yards" to false
   

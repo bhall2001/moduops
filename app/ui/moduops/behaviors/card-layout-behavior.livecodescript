@@ -1,6 +1,6 @@
 ﻿script "card-layout-behavior"
 
-constant kFIELDS = "name,location,organization,trainlistHeader,runChief,dccChief,opsChief,endDate,startDate"
+constant kFIELDS = "name,location,organization,trainlistHeader,trainlistFooter,runChief,dccChief,opsChief,endDate,startDate"
 
 on preOpenCard
   set the layerMode of group "layoutForm" to "scrolling"
@@ -21,7 +21,6 @@ end preOpenCard
 When a field closes, save the data to the database
 */
 on closeField
-  put return & the short name of the target & ": " & the text of the target after message
   get config.set(the short name of the target, the text of the target)
   
   // update layout title when layout name field updates

@@ -128,12 +128,23 @@ update db when characters are typed in field
 */
 private command __updateSpotField pFieldname
   local tDataA, tResult
+  local tNewData
   
   if pFieldName is not among the items of kFIELD_NAMES then
     exit __updateSpotField
   end if
   
   put field pFieldname into tDataA[pFieldname]
+  
+  // convert track field to uppercase
+  if pFieldname = "track" then
+    put "" into tNewData
+    repeat for each char i in field "track"
+      put toUpper(i) after tNewData
+    end repeat
+    put tNewData into tDataA["track"]
+  end if
+  
   put field "id" into tDataA["id"]
   
   put spot.update(tDataA) into tResult

@@ -232,6 +232,8 @@ function yard.findOne pId
   datalayer.where "id", pId
   put datalayer.select("spot") into tResultA
   
+  --  if tResultA is empty then return tResultA
+  
   if tResultA is not an array then
     throw "ERROR:" && tResultA
   end if

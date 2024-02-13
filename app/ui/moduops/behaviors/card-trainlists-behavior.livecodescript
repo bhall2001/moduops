@@ -168,6 +168,7 @@ on openCard
   put "" into cd fld "trainlist"
   
   put config.get("favorSlider") into tFavor
+  set the hilite of button "useCode" to config.get("useCode") is 1
   
   if tFavor is a number then
     set the thumbPosition of scrollbar "favorScale" of card "Trainlists" to tFavor
@@ -204,25 +205,17 @@ function outputSpot pManifestStyle pPageWidth pDataA
     put pDataA["code"] into tCarCode
   else
     if pPageWidth = "Half" then
-      put pDataA["class"] & "-" & pDataA["short"] into tCarCode
+      if pDataA["class"] is not " " and pDataA["class"] is not empty then
+        put pDataA["class"] & "-" & pDataA["short"] into tCarCode
+      else
+        put pDataA["short"] into tCarCode
+      end if
     else
       put pDataA["description"] into tCarCode
     end if
   end if
   
   put tCarCode && pDataA["Length"] & "'" into tCarDesc
-  
-  /*
-  if pPageWidth = "Half" then
-    put tCarCode & " " & pDataA["Length"] &  "'" into tCarDesc
-  else
-    if the cPageStyle of this card = "MRBT" then
-      put tCarCode & " " & pDataA["Length"] &  "'" into tCarDesc
-    else
-      put pDataA["description"] & " " & pDataA["length"] & "'" into tCarDesc
-    end if
-  end if
-  */
   
   put "" into tResult
   
@@ -313,11 +306,6 @@ function outputHeader pTrainA
   local tTrains, tActiveTrain, tHeader
   
   put "" into tHeader
-  
-  ## Output Page Header
-  if config.get("trainlistHeader") is not empty then
-    put "<p>" & config.get("trainlistHeader") & "</p>" & return after tHeader
-  end if
   
   -- Event Title
   if config.get("name") is not empty then
@@ -486,44 +474,59 @@ end outputHeader
   end outputFooter
   
   
-  function outputTwoColumns pManifest
-    -----
-    local tStartLine
-    -----
-    
-    local tTemp, tReturn
-    
-    put wordWrappedHTML(pManifest, 54) into pManifest
-    
-    put "" into tTemp
-    repeat with i = 1 to 39
-      if (i = 39) and char 4 of line i of pManifest = "[" then
-        put 39 into tStartLine
-        exit repeat
-      else        
-        put line i of pManifest & return after tTemp
-        put 40 into tStartLine
-      end if
-    end repeat
-    
-    if the number of lines of pManifest > 40 then
-      put return & "<p></p>                            -- OVER --" after tTemp
-    end if
-    
-    set the htmlText of cd fld "Column 1" of cd 1 of stack "2 Columns" to tTemp
-    
-    put tTemp & return into tReturn
-    put "" into tTemp
-    repeat with i = tStartLine to number of lines of pManifest
+function outputTwoColumns pManifest
+  -----
+  local tStartLine
+  -----
+  
+  local tTemp, tReturn
+  
+  put wordWrappedHTML(pManifest, 54) into pManifest
+  
+  put "" into tTemp
+  repeat with i = 1 to 39
+    if (i = 39) and char 4 of line i of pManifest = "[" then
+      put 39 into tStartLine
+      exit repeat
+    else        
       put line i of pManifest & return after tTemp
-    end repeat
-    
-    set the htmlText of cd fld "Column 2" of cd 1 of stack "2 Columns" to tTemp
-    
-    put tTemp after tReturn
-    
-    return pManifest   
-  end outputTwoColumns
+      put 40 into tStartLine
+    end if
+  end repeat
+  
+  // add OVER when more than 40 lines
+  if the number of lines of pManifest > 40 then
+    put return & "<p></p>                            -- OVER --" after tTemp
+  end if
+  
+  set the htmlText of cd fld "Column 1" of cd 1 of stack "2 Columns" to tTemp
+  
+  // set header/footer fields for column 1
+  set the htmlText of cd fld "Header1" of cd 1 of stack "2 Columns" to config.get("trainlistHeader")
+  set the htmlText of cd fld "Footer1" of cd 1 of stack "2 Columns" to config.get("trainlistFooter")
+  
+  put tTemp & return into tReturn
+  put "" into tTemp
+  repeat with i = tStartLine to number of lines of pManifest
+    put line i of pManifest & return after tTemp
+  end repeat
+  
+  set the htmlText of cd fld "Column 2" of cd 1 of stack "2 Columns" to tTemp
+  
+  if number of lines of pManifest > 39 then
+    // set header/footer fields for column 1
+    set the htmlText of cd fld "Header2" of cd 1 of stack "2 Columns" to config.get("trainlistHeader")
+    set the htmlText of cd fld "Footer2" of cd 1 of stack "2 Columns" to config.get("trainlistFooter")
+  else
+    // set header/footer fields for column 1
+    set the htmlText of cd fld "Header2" of cd 1 of stack "2 Columns" to ""
+    set the htmlText of cd fld "Footer2" of cd 1 of stack "2 Columns" to ""
+  end if
+  
+  put tTemp after tReturn
+  
+  return pManifest   
+end outputTwoColumns
   
   on uiAdjustSpacing pSpacing
     set the textheight of cd fld "trainlist" to pSpacing
