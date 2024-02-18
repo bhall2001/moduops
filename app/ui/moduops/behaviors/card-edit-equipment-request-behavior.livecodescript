@@ -130,7 +130,6 @@ on closeCard
   put "" into field "remarks"
   set the dgText of group "dgSpots" to ""
   set the dgText of group "dgCarTypes" to ""
-  set the disabled of button "Save" to true
   unlock screen
   
 end closeCard

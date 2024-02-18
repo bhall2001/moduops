@@ -90,7 +90,6 @@ on uiClearFields
   put "" into field "description"
   put "" into field "remarks"
   
-  set the disabled of button "Save" to true
   unlock screen
 end uiClearFields
 

@@ -41,6 +41,9 @@ on openCard
   
   _uiEnableNavigation
   
+  set the backgroundColor of button "Dashboard" of group "sidebarMenu" of group "groupBackground" of card "Dashboard" of me to "#008080"
+  set the foregroundColor of button "Dashboard" of group "sidebarMenu" of group "groupBackground" of card "Dashboard" of me to "#FFFFFF"
+  
   unlock screen
   pass openCard
 end openCard
@@ -62,6 +65,7 @@ on openStack
   set the dgProp[ "dim on focusOut" ] of group "dgModules" of card "Modules/Towns" to false
   set the dgProp[ "dim on focusOut" ] of group "dgSpots" of card "Equipment Request" to false
   set the dgProp[ "dim on focusOut" ] of group "dgCarTypes" of card "Equipment Request" to false
+  set the dgProp[ "dim on focusOut" ] of group "dgWorkorders" of card "Edit Consignee" to false
   set the dgProp[ "dim on focusOut" ] of group "dgTrains" of card "Train Sequence" to false
   set the dgProp[ "dim on focusOut" ] of group "dgSequence" of card "Train Sequence" to false
   set the dgProp[ "dim on focusOut" ] of group "dgRoute" of card "Route" to false

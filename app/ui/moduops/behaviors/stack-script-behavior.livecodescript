@@ -108,6 +108,7 @@ command uiLoadLayout
   put getLastFilePath() into tPath
   
   set the visible of graphic "blocker" to true
+  set the layer of graphic "blocker" to top
   
   answer file "Select file to open..." with tPath with type "TEXT File|mop2|MOP2" titled "Open file"
   set the visible of graphic "blocker" to false
@@ -122,7 +123,7 @@ command uiLoadLayout
   
   openLayoutFile tDataFile
   
-  send "mouseUp" to button "Dashboard" of group "sidebarMenu" of group "groupBackground" of me
+  send "mouseUp" to button "Dashboard" of group "sidebarMenu" of group "groupBackground" of me in 100 ticks
   
 end uiLoadLayout
 
@@ -208,6 +209,8 @@ command uiConvertFile
   put specialFolderPath("Documents") into tPath
   
   set the visible of graphic "blocker" to true
+  set the layer of graphic "blocker" to top
+  
   answer file "Select file to convert..." with tPath with type "MOP File|mop|MOP"
   set the visible of graphic "blocker" to false
   wait 300 milliseconds

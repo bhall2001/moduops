@@ -61,7 +61,13 @@ on preOpenCard
 end preOpenCard
 
 
+on openCard
+  send "openField" to field "name" of me
+end openCard
+
+
 on closeCard
+  if the short name of me is not "Edit Consignee" then pass closeCard
   local tId
   
   if the cIsNew of this card is true then
@@ -104,14 +110,11 @@ on uiClearFields
   put "" into field "module"
   set the dgText of group "dgWorkorders" to ""
   
-  set the disabled of button "Save" to true
   unlock screen
 end uiClearFields
 
 
-on uiDisableButtons
-  set the disabled of button "Save" to true
-  
+on uiDisableButtons  
   set the disabled of button "Edit Request" to true
   set the foregroundColor of button "Edit Request" to ""
   --set the blendLevel of button "Edit Request" to 60
@@ -206,7 +209,6 @@ on loadWorkOrders
   
   if the number of elements of tDataA > 0 then
     set the cIsNew of this card to false
-    set the visible of button id 2590776 to false
   end if
   
   set the dgData of group "dgWorkorders" to tDataA

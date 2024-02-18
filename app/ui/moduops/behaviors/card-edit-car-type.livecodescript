@@ -47,6 +47,8 @@ on openCard
   put tCarType["remarks"] into field "remarks"
    
   unlock screen
+  
+  
 end openCard
 
 
