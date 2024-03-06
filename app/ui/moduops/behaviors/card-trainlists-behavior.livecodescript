@@ -64,7 +64,7 @@ on buildManifest
   set the htmlText of field "trainlist" to tManifest
   
   if sManifestStyle = "MRBT" then
-    set the textfont of cd fld "trainlist" to "Courier"
+    set the textfont of cd fld "trainlist" to "Courier New"
   else if sManifestStyle = "Modern" then
     set the textfont of cd fld "trainlist" to "Arial"
   end if
@@ -206,9 +206,9 @@ function outputSpot pManifestStyle pPageWidth pDataA
   else
     if pPageWidth = "Half" then
       if pDataA["class"] is not " " and pDataA["class"] is not empty then
-        put pDataA["class"] & "-" & pDataA["short"] into tCarCode
+        put pDataA["class"] & "-" & char 1 to 12 of pDataA["short"] into tCarCode
       else
-        put pDataA["short"] into tCarCode
+        put char 1 to 12 of pDataA["short"] into tCarCode
       end if
     else
       put pDataA["description"] into tCarCode
@@ -267,16 +267,17 @@ function outputSpot pManifestStyle pPageWidth pDataA
       put number of characters of tTemp into tCharCount
       
       if pPageWidth = "Half" then
-        if tTemp > 23 then
-          put character 1 to 12 of tTemp & "-" & character (tCharCount-10) to tCharCount of tTemp into tTemp
+        if tTemp > 15 then
+          --          put character 1 to 12 of tTemp & "-" & character (tCharCount-10) to tCharCount of tTemp into tTemp
+          put character 1 to 15 of tTemp into tTemp
+          
         else
           put "                                " after tTemp
-          put character 1 to 24 of tTemp into tTemp
+          put character 1 to 15 of tTemp into tTemp
         end if
       else
         if tCharCount > 31 then
           put character 1 to 16 of tTemp & "-" & character (tCharCount-14) to tCharCount of tTemp into tTemp
-          put "  " after tTemp
         else
           put "                                " after tTemp
           put character 1 to 34 of tTemp into tTemp
@@ -286,13 +287,20 @@ function outputSpot pManifestStyle pPageWidth pDataA
       put "  " after tTemp
       
       put tCarDesc after tTemp
-      put "                                                  " after tTemp
-      put character 1 to 56 of tTemp into tTemp
       
-      put " ___________________ " after tTemp
+      if pPageWidth = "half" then
+        put "                                                     " after tTemp
+        put char 1 to 34 of tTemp into tTemp
+        put " ___________________" after tTemp
+      else
+        put "                                                  " after tTemp
+        put character 1 to 56 of tTemp into tTemp
+        
+        put " ___________________ " after tTemp
+      end if
       
       if pPageWidth="Half" then
-        put character 1 to 46 of tTemp & "<br />" & return after tResult
+        put character 1 to 47 of tTemp & "<br />" & return after tResult
       else
         put tTemp & "<br />" & return after tResult
       end if

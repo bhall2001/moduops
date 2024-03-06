@@ -107,11 +107,11 @@ command uiLoadLayout
   // get the last file path for file dialog
   put getLastFilePath() into tPath
   
-  set the visible of graphic "blocker" to true
-  set the layer of graphic "blocker" to top
+  set the visible of group "blocker" to true
+  set the layer of group "blocker" to top
   
-  answer file "Select file to open..." with tPath with type "TEXT File|mop2|MOP2" titled "Open file"
-  set the visible of graphic "blocker" to false
+  answer file "Please select a layout file" with tPath with type "TEXT File|mop2|MOP2" titled "Open file"
+  set the visible of group "blocker" to false
   wait 300 milliseconds
   
   if it is empty then exit uiLoadLayout
@@ -208,11 +208,11 @@ command uiConvertFile
   // load old file
   put specialFolderPath("Documents") into tPath
   
-  set the visible of graphic "blocker" to true
-  set the layer of graphic "blocker" to top
+  set the visible of group "blocker" to true
+  set the layer of group "blocker" to top
   
   answer file "Select file to convert..." with tPath with type "MOP File|mop|MOP"
-  set the visible of graphic "blocker" to false
+  set the visible of group "blocker" to false
   wait 300 milliseconds
   
   // process old file adding records to the database
