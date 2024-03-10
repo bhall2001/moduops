@@ -7,6 +7,8 @@ local sSpotA
 local sManifestA
 local sCarTypeA
 local sPrevModule, sPrevConsignee, sPrevSpot
+local sFieldList = "Column1,Header1,Footer1,Column2,Header2,Footer2"
+
 
 
 on buildManifest
@@ -205,7 +207,9 @@ function outputSpot pManifestStyle pPageWidth pDataA
     put pDataA["code"] into tCarCode
   else
     if pPageWidth = "Half" then
-      if pDataA["class"] is not " " and pDataA["class"] is not empty then
+      if pDataA["class"] is not " " \
+            and pDataA["class"] is not empty \
+            and sManifestStyle is not "MRBT" then
         put pDataA["class"] & "-" & char 1 to 12 of pDataA["short"] into tCarCode
       else
         put char 1 to 12 of pDataA["short"] into tCarCode
@@ -215,7 +219,12 @@ function outputSpot pManifestStyle pPageWidth pDataA
     end if
   end if
   
-  put tCarCode && pDataA["Length"] & "'" into tCarDesc
+  // output selected equipment
+  put tCarCode && pDataA["Length"] into tCarDesc
+  if pPageWidth is "full" or (pPageWidth is "half" and pManifestStyle is not "MRBT") then
+    put "'" after tCarDesc
+  end if
+  
   
   put "" into tResult
   
@@ -267,9 +276,9 @@ function outputSpot pManifestStyle pPageWidth pDataA
       put number of characters of tTemp into tCharCount
       
       if pPageWidth = "Half" then
-        if tTemp > 15 then
-          --          put character 1 to 12 of tTemp & "-" & character (tCharCount-10) to tCharCount of tTemp into tTemp
-          put character 1 to 15 of tTemp into tTemp
+        if number of chars of tTemp > 15 and last word of tTemp is a number then
+          put character 1 to 13 of tTemp & character -2 to -1 of tTemp into tTemp
+          --          put character 1 to 15 of tTemp into tTemp
           
         else
           put "                                " after tTemp
@@ -288,9 +297,17 @@ function outputSpot pManifestStyle pPageWidth pDataA
       
       put tCarDesc after tTemp
       
+      local tRowChars
+      
+      if sManifestStyle = "MRBT" then
+        put 31 into tRowChars
+      else 
+        put 34 into tRowChars
+      end if
+      
       if pPageWidth = "half" then
         put "                                                     " after tTemp
-        put char 1 to 34 of tTemp into tTemp
+        put char 1 to tRowChars of tTemp into tTemp
         put " ___________________" after tTemp
       else
         put "                                                  " after tTemp
@@ -300,7 +317,7 @@ function outputSpot pManifestStyle pPageWidth pDataA
       end if
       
       if pPageWidth="Half" then
-        put character 1 to 47 of tTemp & "<br />" & return after tResult
+        put character 1 to 46 of tTemp & "<br />" & return after tResult
       else
         put tTemp & "<br />" & return after tResult
       end if
@@ -330,163 +347,160 @@ function outputHeader pTrainA
   
   return tHeader
 end outputHeader
+
+/*
+returns the termination instructions as html
+*/
+function outputTerminationInstructions pTrainA
+  local tOutput
+  
+  if pTrainA["terminationInstructions"] is not empty then
+    put "<br />" into tOutput
+    repeat for each line aLine in pTrainA["terminationInstructions"]
+      put aline & "<br />" after tOutput
+    end repeat
+    // delete the last <br /> tag in output
+    delete char -6 to -1 of tOutput
+  end if
+  
+  return tOutput
+end outputTerminationInstructions
+
+/*
+returns crew instructions as html
+*/
+function outputCrewInstructions pTrainA
+  local tTrains, tActiveTrain, tInstructions
+  
+  if pTrainA["instructions"] <> empty then
+    
+    put "<p><b>CREW INSTRUCTIONS</b></p>" & return after tInstructions
+    
+    // output crew instructions from the train data
+    repeat for each line aLine in pTrainA["instructions"]
+      put aLine & "<br />" after tInstructions
+    end repeat
+    
+    delete char -6 to -1 of tInstructions
+    
+    ###put pTrainA["instructions"] into field "convert"
+    ###put the htmltext of fld "convert" after tInstructions
+    
+  end if  
+  
+  return tInstructions
+end outputCrewInstructions
+
+
+function outputModuleName pStyle, pModule, pStopNum
+  local tResult
+  
+  switch pStyle
+    case "Modern"
+      put "<p><b>Scheduled work at " & pModule after tResult
+      break
+    case "MRBT"
+      put "<p><b>" & pModule after tResult
+  end switch
+  
+  if the cSchedulingEngine of stack "Module Operations" is not "Random" then
+    if sTrainRouteA[pStopNum]["dir"] <> "" then
+      put " (" after tResult
+      switch sTrainRouteA[pStopNum]["dir"]
+        case "O"
+          put "Outbound" after tResult
+          break
+        case "R"
+          put "Return" after tResult
+          break
+        case "N"
+          put "North" after tResult
+          break
+        case "S"
+          put "South" after tResult
+          break
+        case "E"
+          put "East" after tResult
+          break
+        case "W"
+          put "West" after tResult
+          break
+      end switch
+      put ")" after tResult
+    end if
+  end if
+  
+  put "</b></p>" & return after tResult
+  return tResult     
+end outputModuleName
+
+
+function outputConsignee theStyle, theConsignee, theSpot
+  -----
+  local manifest,tConsignee,tConsignees
+  local trainManifest,tSpotID,tConsigneeID
+  -----
+  
   
   /*
-  returns the termination instructions as html
+  -- add the consignee to the output     
+  put item 5 of line i of trainManifest into tSpotID
+  put tSpots[tSpotID]["ConsigneeID"] into tConsigneeID
+  if the hilite of button "1/2 Page Width" then
+    put "</p><p>      " after manifest
+  end if
+  put "  " & tConsignees[tConsigneeID]["Name"] & "                       " into tConsignee
+  if tConsignees[tConsigneeID]["Name"] <> tSpots[tSpotID]["Spot"] then
+    put " " & tSpots[tSpotID]["Spot"] after tConsignee
+  end if
+  
+  put character 1 to 22 of tConsignee into tConsignee
+  put tConsignee after manifest
+  
+  put "  " after manifest
   */
-  function outputTerminationInstructions pTrainA
-    local tOutput
-    
-    if pTrainA["terminationInstructions"] is not empty then
-      put "<br />" into tOutput
-      repeat for each line aLine in pTrainA["terminationInstructions"]
-        put aline & "<br />" after tOutput
-      end repeat
-      // delete the last <br /> tag in output
-      delete char -6 to -1 of tOutput
-    end if
-    
-    return tOutput
-  end outputTerminationInstructions
+end outputConsignee
+
+
+function outputTrainOrigin  pTrainA, pPageWidth
+  local tTrainOut
+  put "<p><b>Train departs " & yard.nameById(pTrainA["origin"]) after tTrainOut
   
-  /*
-  returns crew instructions as html
-  */
-  function outputCrewInstructions pTrainA
-    local tTrains, tActiveTrain, tInstructions
-    
-    if pTrainA["instructions"] <> empty then
-      
-      put "<p><b>CREW INSTRUCTIONS</b></p>" & return after tInstructions
-      
-      // output crew instructions from the train data
-      repeat for each line aLine in pTrainA["instructions"]
-        put aLine & "<br />" after tInstructions
-      end repeat
-      
-      delete char -6 to -1 of tInstructions
-      
-      ###put pTrainA["instructions"] into field "convert"
-      ###put the htmltext of fld "convert" after tInstructions
-      
-    end if  
-    
-    return tInstructions
-  end outputCrewInstructions
+  if pPageWidth="Half" then
+    put "</b></p><p><b>" after tTrainOut
+  end if
   
+  if the cCarCount of this card is empty then
+    set the cCarCount of this card to 0
+  end if
   
-  function outputModuleName pStyle, pModule, pStopNum
-    local tResult
-    
-    switch pStyle
-      case "Modern"
-        put "<p><b>Scheduled work at " & pModule after tResult
-        break
-      case "MRBT"
-        put "<p><b>" & pModule after tResult
-    end switch
-    
-    if the cSchedulingEngine of stack "Module Operations" is not "Random" then
-      if sTrainRouteA[pStopNum]["dir"] <> "" then
-        put " (" after tResult
-        switch sTrainRouteA[pStopNum]["dir"]
-          case "O"
-            put "Outbound" after tResult
-            break
-          case "R"
-            put "Return" after tResult
-            break
-          case "N"
-            put "North" after tResult
-            break
-          case "S"
-            put "South" after tResult
-            break
-          case "E"
-            put "East" after tResult
-            break
-          case "W"
-            put "West" after tResult
-            break
-        end switch
-        put ")" after tResult
-      end if
-    end if
-    
-    put "</b></p>" & return after tResult
-    return tResult     
-  end outputModuleName
+  put " with " & the cCarCount of this card after tTrainOut
+  put " cars (" & the cTrainLength of this card & " feet)</b></p>" after tTrainOut
   
+  return tTrainOut
+end outputTrainOrigin
+
+
+function outputFooter pTrainA, pPageWidth
+  local tTrains, tActiveTrain, tFooter
   
-  function outputConsignee theStyle, theConsignee, theSpot
-    -----
-    local manifest,tConsignee,tConsignees
-    local trainManifest,tSpotID,tConsigneeID
-    -----
-    
-    
-    /*
-    -- add the consignee to the output     
-    put item 5 of line i of trainManifest into tSpotID
-    put tSpots[tSpotID]["ConsigneeID"] into tConsigneeID
-    if the hilite of button "1/2 Page Width" then
-      put "</p><p>      " after manifest
-    end if
-    put "  " & tConsignees[tConsigneeID]["Name"] & "                       " into tConsignee
-    if tConsignees[tConsigneeID]["Name"] <> tSpots[tSpotID]["Spot"] then
-      put " " & tSpots[tSpotID]["Spot"] after tConsignee
-    end if
-    
-    put character 1 to 22 of tConsignee into tConsignee
-    put tConsignee after manifest
-    
-    put "  " after manifest
-    */
-  end outputConsignee
+  -- Footer of manifest starts here
+  if pPageWidth = "Half" then
+    ##put "<p> </p>" & return after tFooter
+  end if
+  put "<p><b>Train Terminates " & yard.nameById(pTrainA["destination"]) & "</b></p>" after tFooter
+  if pPageWidth = "Half" then
+    ##put "<p> </p>" & return after tFooter
+  end if
+  put "<p>Train Complete at: ______________________</p>" & return after tFooter
+  put "<p>Comments: </p>" & return after tFooter
   
-  
-  function outputTrainOrigin  pTrainA, pPageWidth
-    local tTrainOut
-    put "<p><b>Train departs " & yard.nameById(pTrainA["origin"]) after tTrainOut
-    
-    if pPageWidth="Half" then
-      put "</b></p><p><b>" after tTrainOut
-    end if
-    
-    if the cCarCount of this card is empty then
-      set the cCarCount of this card to 0
-    end if
-    
-    put " with " & the cCarCount of this card after tTrainOut
-    put " cars (" & the cTrainLength of this card & " feet)</b></p>" after tTrainOut
-    
-    return tTrainOut
-  end outputTrainOrigin
-  
-  
-  function outputFooter pTrainA, pPageWidth
-    local tTrains, tActiveTrain, tFooter
-    
-    -- Footer of manifest starts here
-    if pPageWidth = "Half" then
-      ##put "<p> </p>" & return after tFooter
-    end if
-    put "<p><b>Train Terminates " & yard.nameById(pTrainA["destination"]) & "</b></p>" after tFooter
-    if pPageWidth = "Half" then
-      ##put "<p> </p>" & return after tFooter
-    end if
-    put "<p>Train Complete at: ______________________</p>" & return after tFooter
-    put "<p>Comments: </p>" & return after tFooter
-    
-    return tFooter
-  end outputFooter
-  
-  
+  return tFooter
+end outputFooter
+
+
 function outputTwoColumns pManifest
-  -----
   local tStartLine
-  -----
-  
   local tTemp, tReturn
   
   put wordWrappedHTML(pManifest, 54) into pManifest
@@ -507,7 +521,7 @@ function outputTwoColumns pManifest
     put return & "<p></p>                            -- OVER --" after tTemp
   end if
   
-  set the htmlText of cd fld "Column 1" of cd 1 of stack "2 Columns" to tTemp
+  set the htmlText of cd fld "Column1" of cd 1 of stack "2 Columns" to tTemp
   
   // set header/footer fields for column 1
   set the htmlText of cd fld "Header1" of cd 1 of stack "2 Columns" to config.get("trainlistHeader")
@@ -519,7 +533,7 @@ function outputTwoColumns pManifest
     put line i of pManifest & return after tTemp
   end repeat
   
-  set the htmlText of cd fld "Column 2" of cd 1 of stack "2 Columns" to tTemp
+  set the htmlText of cd fld "Column2" of cd 1 of stack "2 Columns" to tTemp
   
   if number of lines of pManifest > 39 then
     // set header/footer fields for column 1
@@ -531,225 +545,247 @@ function outputTwoColumns pManifest
     set the htmlText of cd fld "Footer2" of cd 1 of stack "2 Columns" to ""
   end if
   
+  // set the font based on format selected
+  repeat for each item aField in sFieldList
+    if sManifestStyle = "MRBT" then
+      set the textfont of field aField of cd 1 of stack "2 Columns" to "Courier New"
+    else if sManifestStyle = "Modern" then
+      set the textfont of of field aField of cd 1 of stack "2 Columns" to "Arial"
+    end if
+  end repeat
+  
+  // set font size and height
+  if sManifestStyle = "MRBT" then
+    set the textSize of field "Column1" of cd 1 of stack "2 Columns" to 11
+    set the textSize of field "Column2" of cd 1 of stack "2 Columns" to 11
+    set the textHeight of field "Column1" of cd 1 of stack "2 Columns" to 17
+    set the textHeight of field "Column2" of cd 1 of stack "2 Columns" to 17
+  else
+    set the textSize of field "Column1" of cd 1 of stack "2 Columns" to 11
+    set the textSize of field "Column2" of cd 1 of stack "2 Columns" to 11
+    set the textHeight of field "Column1" of cd 1 of stack "2 Columns" to 18
+    set the textHeight of field "Column2" of cd 1 of stack "2 Columns" to 18
+  end if
+  
   put tTemp after tReturn
   
   return pManifest   
 end outputTwoColumns
+
+on uiAdjustSpacing pSpacing
+  set the textheight of cd fld "trainlist" to pSpacing
+end uiAdjustSpacing
+
+
+on scheduleMRBT
+  --  -----
+  --  local tArrayKey,tSpotID,tCarID
+  --  local tManifest,tTrainRoute,tConsignees
+  --  local tModuleID,tTrainOrders,tRandomWO
+  --  local tModules,tCarTypes,tWOIndex
+  --  local tTrainLength,tCarCount,randomNumber
+  --  local tWillItFit
+  --  local tWorkFactor,woCount
+  --  -----
   
-  on uiAdjustSpacing pSpacing
-    set the textheight of cd fld "trainlist" to pSpacing
-  end uiAdjustSpacing
+  --  set cursor to watch
   
+  --  local tStopNum, tModule, tDirection, tRoute, tRouteIndustries
+  --  local tTrains, freqTotal, tConsignee, tWorkorders, tSpots, tActiveTrain
   
-  on scheduleMRBT
-    --  -----
-    --  local tArrayKey,tSpotID,tCarID
-    --  local tManifest,tTrainRoute,tConsignees
-    --  local tModuleID,tTrainOrders,tRandomWO
-    --  local tModules,tCarTypes,tWOIndex
-    --  local tTrainLength,tCarCount,randomNumber
-    --  local tWillItFit
-    --  local tWorkFactor,woCount
-    --  -----
-    
-    --  set cursor to watch
-    
-    --  local tStopNum, tModule, tDirection, tRoute, tRouteIndustries
-    --  local tTrains, freqTotal, tConsignee, tWorkorders, tSpots, tActiveTrain
-    
-    --  put "" into tManifest
-    --  put the cTrains of stack "Module Operations" into tTrains
-    --  put the cActiveTrain of stack "Module Operations" into tActiveTrain
-    --  put tTrains[tActiveTrain]["Route"] into tTrainRoute
-    
-    --  if tTrainRoute = "" then
-    --    answer warning "This train does not have a Route defined." with "OK"
-    --    set the cManifest of stack "Module Operations" to tManifest
-    --    break
-    --  end if
-    
-    --  put the cConsignees of stack "Module Operations" into tConsignees
-    --  put the cWorkorders of stack "Module Operations" into tWorkorders
-    --  put the cModules of stack "Module Operations" into tModules
-    --  put the cCarTypes of stack "Module Operations" into tCarTypes
-    --  put the cSpots of stack "Module Operations" into tSpots
-    
-    --  put "" into tRouteIndustries
-    --  put 0 into freqTotal
-    --  put 1 into tWOIndex
-    --  put 0 into cd fld "Train Length" of cd 1 of stack "MRBT"
-    --  put 0 into cd fld "Car Count" of cd 1 of stack "MRBT"
-    
-    --  set the itemDelimiter to tab
-    
-    --  -- with each stop on the train route, list the consignees that are potentially serviced
-    --  repeat with tStopNum = 1 to number of lines of tTrainRoute
-    
-    --    -- get the Module name for this stop
-    --    put item 3 of line tStopNum of tTrainRoute into tModule
-    
-    --    -- get the Module ID
-    --    put item 2 of line tStopNum of tTrainRoute into tModuleID
-    
-    --    -- check if this is a Special Train Order
-    --    if tModuleID > 99999 then
-    
-    --      put tStopNum*1000 into tManifest[tModuleID]["index"]
-    --      put tModuleID into tManifest[tModuleID]["ModuleID"]
-    --      put tModule into tManifest[tModuleID]["Module"]
-    
-    --    else
-    
-    --      -- get the direction of the current module
-    --      ##put item 2 of line tStopNum of tRoute into tDirection
-    
-    --      -- for the current module, get each consignee
-    --      repeat for each element aWorkorder in tWorkorders
-    --        if aWorkorder["ModuleID"] = tModuleID then
-    --          put tWOIndex into tTrainOrders[tWOIndex]["ID"]
-    --          put tStopNum into tTrainOrders[tWOIndex]["Stop"]
-    --          put tModuleID into tTrainOrders[tWOIndex]["ModuleID"]
-    --          put aWorkorder["ID"] into tTrainOrders[tWOIndex]["WOID"]
-    --          put aWorkorder["ConsigneeID"] into tTrainOrders[tWOIndex]["ConsigneeID"]
-    --          put tModules[tModuleID]["Name"] into tTrainOrders[tWOIndex]["Module"]
-    --          put aWorkorder["SpotID"] into tTrainOrders[tWOIndex]["SpotID"]
-    --          put aWorkorder["CarID"] into tTrainOrders[tWOIndex]["CarID"]
-    --          put aWorkorder["CPW"] into tTrainOrders[tWOIndex]["CPW"]
-    --          put freqTotal + aWorkorder["CPW"] into freqTotal
-    --          put freqTotal into tTrainOrders[tWOIndex]["Total"]
-    
-    --          add 1 to tWOIndex
-    --        end if
-    --      end repeat
-    
-    --    end if
-    --  end repeat
-    
-    --  -- with the industries listed, generate a random list of consingees to perform work at.
-    --  ##put tRouteIndustries into field "routeIndustries"   
-    --  set the dgData of group "dgTrainOrders" of cd 1 of stack "MRBT" to tTrainOrders
-    --  put freqTotal into field "freqTotal" of cd 1 of stack "MRBT"
-    
-    --  -- Need to zero out each spots used length
-    --  ##repeat for each element aSpot in tSpots
-    --  ##put 0 into tSpots[aSpot["ID"]]["Used"]
-    --  ##end repeat
-    
-    
-    --  -- for lack of a better method right now, I've arbitraily picked a maximum of 100 workorders
-    --  -- to attempt to schedule. Once I've got this software working better I'll come back and figure
-    --  -- a better way to determine how many workorders to schedule.
-    --  put "" into tRandomWO
-    
-    --  put (the cEconomy of stack "Module Operations")/1.5 into tWorkFactor
-    
-    --  -- not sure why this happens just yet but just encase cEcomomy is 0
-    --  if tWorkFactor = 0 then put 2 into tWorkFactor
-    
-    --  put the number of elements of tTrainOrders into woCount
-    --  put tTrains[tActiveTrain]["Length"] into tTrainLength
-    --  put 1 into tCarCount
-    
-    --  repeat with i = 1 to (woCount*tWorkFactor)
-    --    put random(freqTotal) into randomNumber
-    --    ##put randomNumber & tab after tRandomIndustries
-    
-    --    put logarithmicSearch (tTrainOrders, randomNumber, 1, woCount) into tArrayKey
-    --    if tArrayKey = 0 then 
-    --      break
-    --    end if
-    
-    --    put tTrainOrders[tArrayKey]["SpotID"] into tSpotID
-    --    put tTrainOrders[tArrayKey]["CarID"] into tCarID
-    
-    --    if (tTrainLength-tCarTypes[tCarID]["Length"]) > 0 then
-    --      put tSpots[tSpotID]["Length"] - tSpots[tSpotID]["Used"] - tCarTypes[tCarID]["Length"] into tWillItFit
-    --      if  tWillItFit >= 0 then 
-    --        put tTrainOrders[tArrayKey]["Stop"]*1000+tSpots[tSpotID]["Track"] into tManifest[tCarCount]["index"]
-    --        put tTrainOrders[tArrayKey]["ConsigneeID"] into tManifest[tCarCount]["ConsigneeID"]
-    --        put tTrainOrders[tArrayKey]["WOID"] into tManifest[tCarCount]["WOID"]
-    --        put tTrainOrders[tArrayKey]["ModuleID"] into tManifest[tCarCount]["ModuleID"]
-    --        put tTrainOrders[tArrayKey]["SpotID"] into tManifest[tCarCount]["SpotID"]
-    --        put tSpots[tSpotID]["Spot"] into tManifest[tCarCount]["Spot"]
-    --        put tSpots[tSpotID]["Track"] into tManifest[tCarCount]["Track"]
-    --        put tTrainOrders[tArrayKey]["CarID"] into tCarID
-    --        put tCarID into tManifest[tCarCount]["CarID"]
-    --        put tTrainOrders[tArrayKey]["Module"] into tManifest[tCarCount]["Module"]
-    --        put tCarTypes[tCarID]["Description"] into tManifest[tCarCount]["Description"]
-    --        put tCarTypes[tCarID]["Length"] into tManifest[tCarCount]["Length"]
-    --        subtract tCarTypes[tCarID]["Length"] from tTrainLength
-    --        add tCarTypes[tCarID]["Length"] to tSpots[tSpotID]["Used"]
-    --        add tCarTypes[tCarID]["Length"] to cd fld "Train Length" of cd 1 of stack "MRBT"
-    --        add 1 to tCarCount
-    --      end if
-    --    else
-    --      exit repeat
-    --    end if
-    
-    --    put tCarCount-1 into cd fld "Car Count" of cd 1 of stack "MRBT"
-    --    set the dgData of group "dgManifest" of cd 1 of stack "MRBT" to tManifest
-    --    set the cManifest of stack "Module Operations" to tManifest
-    --  end repeat
-  end scheduleMRBT
+  --  put "" into tManifest
+  --  put the cTrains of stack "Module Operations" into tTrains
+  --  put the cActiveTrain of stack "Module Operations" into tActiveTrain
+  --  put tTrains[tActiveTrain]["Route"] into tTrainRoute
+  
+  --  if tTrainRoute = "" then
+  --    answer warning "This train does not have a Route defined." with "OK"
+  --    set the cManifest of stack "Module Operations" to tManifest
+  --    break
+  --  end if
+  
+  --  put the cConsignees of stack "Module Operations" into tConsignees
+  --  put the cWorkorders of stack "Module Operations" into tWorkorders
+  --  put the cModules of stack "Module Operations" into tModules
+  --  put the cCarTypes of stack "Module Operations" into tCarTypes
+  --  put the cSpots of stack "Module Operations" into tSpots
+  
+  --  put "" into tRouteIndustries
+  --  put 0 into freqTotal
+  --  put 1 into tWOIndex
+  --  put 0 into cd fld "Train Length" of cd 1 of stack "MRBT"
+  --  put 0 into cd fld "Car Count" of cd 1 of stack "MRBT"
+  
+  --  set the itemDelimiter to tab
+  
+  --  -- with each stop on the train route, list the consignees that are potentially serviced
+  --  repeat with tStopNum = 1 to number of lines of tTrainRoute
+  
+  --    -- get the Module name for this stop
+  --    put item 3 of line tStopNum of tTrainRoute into tModule
+  
+  --    -- get the Module ID
+  --    put item 2 of line tStopNum of tTrainRoute into tModuleID
+  
+  --    -- check if this is a Special Train Order
+  --    if tModuleID > 99999 then
+  
+  --      put tStopNum*1000 into tManifest[tModuleID]["index"]
+  --      put tModuleID into tManifest[tModuleID]["ModuleID"]
+  --      put tModule into tManifest[tModuleID]["Module"]
+  
+  --    else
+  
+  --      -- get the direction of the current module
+  --      ##put item 2 of line tStopNum of tRoute into tDirection
+  
+  --      -- for the current module, get each consignee
+  --      repeat for each element aWorkorder in tWorkorders
+  --        if aWorkorder["ModuleID"] = tModuleID then
+  --          put tWOIndex into tTrainOrders[tWOIndex]["ID"]
+  --          put tStopNum into tTrainOrders[tWOIndex]["Stop"]
+  --          put tModuleID into tTrainOrders[tWOIndex]["ModuleID"]
+  --          put aWorkorder["ID"] into tTrainOrders[tWOIndex]["WOID"]
+  --          put aWorkorder["ConsigneeID"] into tTrainOrders[tWOIndex]["ConsigneeID"]
+  --          put tModules[tModuleID]["Name"] into tTrainOrders[tWOIndex]["Module"]
+  --          put aWorkorder["SpotID"] into tTrainOrders[tWOIndex]["SpotID"]
+  --          put aWorkorder["CarID"] into tTrainOrders[tWOIndex]["CarID"]
+  --          put aWorkorder["CPW"] into tTrainOrders[tWOIndex]["CPW"]
+  --          put freqTotal + aWorkorder["CPW"] into freqTotal
+  --          put freqTotal into tTrainOrders[tWOIndex]["Total"]
+  
+  --          add 1 to tWOIndex
+  --        end if
+  --      end repeat
+  
+  --    end if
+  --  end repeat
+  
+  --  -- with the industries listed, generate a random list of consingees to perform work at.
+  --  ##put tRouteIndustries into field "routeIndustries"   
+  --  set the dgData of group "dgTrainOrders" of cd 1 of stack "MRBT" to tTrainOrders
+  --  put freqTotal into field "freqTotal" of cd 1 of stack "MRBT"
+  
+  --  -- Need to zero out each spots used length
+  --  ##repeat for each element aSpot in tSpots
+  --  ##put 0 into tSpots[aSpot["ID"]]["Used"]
+  --  ##end repeat
   
   
-  function spurExists moduleName, industryName, spurID, spurName
-    --  -----
-    --  local existingSpurs
-    --  -----
-    
-    --  put field "SpurData" into existingSpurs
-    --  set the itemDelimiter to tab
-    
-    --  repeat with spurIndex = 1 to number of lines of existingSpurs
-    
-    --    if (item 1 of line spurIndex of existingSpurs = moduleName) and (item 2 of line spurIndex of existingSpurs = industryName) and (item 3 of line spurIndex of existingSpurs = spurID) and (item 4 of line spurIndex of existingSpurs = spurName) then
-    --      return true
-    --      exit spurExists
-    --    end if
-    --  end repeat
-    
-    --  -- if we make it here then the spur does not already exists in the existing spur list
-    --  return false
-  end spurExists
+  --  -- for lack of a better method right now, I've arbitraily picked a maximum of 100 workorders
+  --  -- to attempt to schedule. Once I've got this software working better I'll come back and figure
+  --  -- a better way to determine how many workorders to schedule.
+  --  put "" into tRandomWO
   
+  --  put (the cEconomy of stack "Module Operations")/1.5 into tWorkFactor
   
-  function logarithmicSearch @pArray pItem pLeft pRight
-    local tIndex
-    local tResult
-    # create a new range pointer that points to the item that lies
-    # right between the left and right range pointers
-    put round ((pLeft + pRight) / 2) into tIndex
+  --  -- not sure why this happens just yet but just encase cEcomomy is 0
+  --  if tWorkFactor = 0 then put 2 into tWorkFactor
+  
+  --  put the number of elements of tTrainOrders into woCount
+  --  put tTrains[tActiveTrain]["Length"] into tTrainLength
+  --  put 1 into tCarCount
+  
+  --  repeat with i = 1 to (woCount*tWorkFactor)
+  --    put random(freqTotal) into randomNumber
+  --    ##put randomNumber & tab after tRandomIndustries
+  
+  --    put logarithmicSearch (tTrainOrders, randomNumber, 1, woCount) into tArrayKey
+  --    if tArrayKey = 0 then 
+  --      break
+  --    end if
+  
+  --    put tTrainOrders[tArrayKey]["SpotID"] into tSpotID
+  --    put tTrainOrders[tArrayKey]["CarID"] into tCarID
+  
+  --    if (tTrainLength-tCarTypes[tCarID]["Length"]) > 0 then
+  --      put tSpots[tSpotID]["Length"] - tSpots[tSpotID]["Used"] - tCarTypes[tCarID]["Length"] into tWillItFit
+  --      if  tWillItFit >= 0 then 
+  --        put tTrainOrders[tArrayKey]["Stop"]*1000+tSpots[tSpotID]["Track"] into tManifest[tCarCount]["index"]
+  --        put tTrainOrders[tArrayKey]["ConsigneeID"] into tManifest[tCarCount]["ConsigneeID"]
+  --        put tTrainOrders[tArrayKey]["WOID"] into tManifest[tCarCount]["WOID"]
+  --        put tTrainOrders[tArrayKey]["ModuleID"] into tManifest[tCarCount]["ModuleID"]
+  --        put tTrainOrders[tArrayKey]["SpotID"] into tManifest[tCarCount]["SpotID"]
+  --        put tSpots[tSpotID]["Spot"] into tManifest[tCarCount]["Spot"]
+  --        put tSpots[tSpotID]["Track"] into tManifest[tCarCount]["Track"]
+  --        put tTrainOrders[tArrayKey]["CarID"] into tCarID
+  --        put tCarID into tManifest[tCarCount]["CarID"]
+  --        put tTrainOrders[tArrayKey]["Module"] into tManifest[tCarCount]["Module"]
+  --        put tCarTypes[tCarID]["Description"] into tManifest[tCarCount]["Description"]
+  --        put tCarTypes[tCarID]["Length"] into tManifest[tCarCount]["Length"]
+  --        subtract tCarTypes[tCarID]["Length"] from tTrainLength
+  --        add tCarTypes[tCarID]["Length"] to tSpots[tSpotID]["Used"]
+  --        add tCarTypes[tCarID]["Length"] to cd fld "Train Length" of cd 1 of stack "MRBT"
+  --        add 1 to tCarCount
+  --      end if
+  --    else
+  --      exit repeat
+  --    end if
+  
+  --    put tCarCount-1 into cd fld "Car Count" of cd 1 of stack "MRBT"
+  --    set the dgData of group "dgManifest" of cd 1 of stack "MRBT" to tManifest
+  --    set the cManifest of stack "Module Operations" to tManifest
+  --  end repeat
+end scheduleMRBT
+
+
+function spurExists moduleName, industryName, spurID, spurName
+  --  -----
+  --  local existingSpurs
+  --  -----
+  
+  --  put field "SpurData" into existingSpurs
+  --  set the itemDelimiter to tab
+  
+  --  repeat with spurIndex = 1 to number of lines of existingSpurs
+  
+  --    if (item 1 of line spurIndex of existingSpurs = moduleName) and (item 2 of line spurIndex of existingSpurs = industryName) and (item 3 of line spurIndex of existingSpurs = spurID) and (item 4 of line spurIndex of existingSpurs = spurName) then
+  --      return true
+  --      exit spurExists
+  --    end if
+  --  end repeat
+  
+  --  -- if we make it here then the spur does not already exists in the existing spur list
+  --  return false
+end spurExists
+
+
+function logarithmicSearch @pArray pItem pLeft pRight
+  local tIndex
+  local tResult
+  # create a new range pointer that points to the item that lies
+  # right between the left and right range pointers
+  put round ((pLeft + pRight) / 2) into tIndex
+  
+  #if we are at the first index then we are done
+  if tIndex = 1 then
+    put tIndex into tResult
+    # if we have found the matching item then stop processing and return it
+  else if pArray[tIndex-1]["Total"] < pItem and pArray[tIndex]["Total"] >= pItem then
+    put tIndex into tResult
     
-    #if we are at the first index then we are done
-    if tIndex = 1 then
-      put tIndex into tResult
-      # if we have found the matching item then stop processing and return it
-    else if pArray[tIndex-1]["Total"] < pItem and pArray[tIndex]["Total"] >= pItem then
-      put tIndex into tResult
-      
-      # if any of the range pointers have the same value
-      # then the item we are looking for does not exist in the array and we return 0
-    else if (pLeft = pRight or pLeft = tIndex or pRight = tIndex) then
-      put 1 into tResult
-      
-      # if we have not yet found a match and none of the range pointers have the same
-      # value then call logarithmicSearch again with a smaller search range
-      # we are effectively halving the search area, each time we call logarithmicSearch
-    else if pArray[tIndex]["Total"] > pItem then
-      put logarithmicSearch (pArray, pItem, pLeft, tIndex) into tResult
-    else
-      put logarithmicSearch (pArray, pItem, tIndex, pRight) into tResult
-    end if
-    return tResult
-  end logarithmicSearch
-  
-  
-  function formatRemarks pRemarks
-    local tResult
+    # if any of the range pointers have the same value
+    # then the item we are looking for does not exist in the array and we return 0
+  else if (pLeft = pRight or pLeft = tIndex or pRight = tIndex) then
+    put 1 into tResult
     
-    repeat with i = 1 to number of lines of pRemarks
-      put "<p>" & line i of pRemarks & "</p>" & return after tResult
-    end repeat   
-    return tResult
-  end formatRemarks
+    # if we have not yet found a match and none of the range pointers have the same
+    # value then call logarithmicSearch again with a smaller search range
+    # we are effectively halving the search area, each time we call logarithmicSearch
+  else if pArray[tIndex]["Total"] > pItem then
+    put logarithmicSearch (pArray, pItem, pLeft, tIndex) into tResult
+  else
+    put logarithmicSearch (pArray, pItem, tIndex, pRight) into tResult
+  end if
+  return tResult
+end logarithmicSearch
+
+
+function formatRemarks pRemarks
+  local tResult
+  
+  repeat with i = 1 to number of lines of pRemarks
+    put "<p>" & line i of pRemarks & "</p>" & return after tResult
+  end repeat   
+  return tResult
+end formatRemarks
