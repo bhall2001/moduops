@@ -76,7 +76,7 @@ command uiNewLayout
   
   send "mouseUp" to button "Dashboard" of group "sidebarMenu" of group "groupBackground" of me
   
-  answer info "Data file created!"
+  answer info "Layout file created!"
 end uiNewLayout
 
 
