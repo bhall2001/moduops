@@ -18,6 +18,11 @@ on preOpenCard
   else
     set the label of button "done" of card "Edit Train" to "Done"
   end if
+  
+  // update the length unit
+  put "(" & config.get("lengthUnit") & ")" into field "lengthUnit"
+  put "(" & config.get("lengthUnit") & ")" into field "minLengthUnit"
+  
 end preOpenCard
 
 
@@ -59,6 +64,9 @@ on openCard
   put train.findOne(sActiveTrain) into tTrainA
   
   uiUpdate tTrainA
+  
+  // update layout name field
+  put config.get("name") into field "layoutName"
   
   unlock screen
 end openCard

@@ -136,6 +136,27 @@ function spot.deleteAll
   get datalayer.deleteAll("spot")
 end spot.deleteAll
 
+
+/*
+delete all spots for a given module id
+
+parameters
+pModuleId string id of module to delete spots for
+*/
+command spot.deleteByModuleId pModuleId
+  local tSpotA
+  
+  if pModuleId is empty then return empty
+  
+  // find all the spots in the module
+  put spot.findByModuleId(pModuleId) into tSpotA
+  
+  // Loop over all the spots and delete them
+  repeat for each key spotIndex in tSpotA
+    get spot.delete(tSpotA[spotIndex]["id"])
+  end repeat
+end spot.deleteByModuleId
+
 /*
 find spots by module id
 */
@@ -210,6 +231,8 @@ function yard.findOne pId
   datalayer.where "isYard", true
   datalayer.where "id", pId
   put datalayer.select("spot") into tResultA
+  
+  --  if tResultA is empty then return tResultA
   
   if tResultA is not an array then
     throw "ERROR:" && tResultA

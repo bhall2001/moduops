@@ -46,6 +46,36 @@ function train.findOne pId
 end train.findOne
 
 
+
+/**
+get all records from the train table
+
+Example:
+put train.getAll() into tTrainA
+
+Description:
+get all the records of the train table
+
+Returns:
+array of train records
+
+Tags: tags
+**/
+function train.getAll
+  local tTrainA
+  
+  try
+    return datalayer.fetchAll("train") into tTrainA
+  catch error
+    throw error
+  end try
+  
+end train.getAll
+
+
+
+
+
 /**
 create a new train
 
@@ -238,3 +268,82 @@ function train.addNames pTrainA
   
   return tResultA
 end train.addNames
+
+
+
+/*
+delete module from train route.
+
+It is intentional that this code does not have a commit block. That is handled by
+logic that is deleting a module and related items when a module is removed from
+a layout.
+
+paramerters
+pModuleId string id of the module to delete
+*/
+command train.deleteModulefromRoute pModuleId
+  local tTrainA
+  local tNewTrainA
+  local tRouteA
+  local tNewRouteA
+  local tNewRouteIndex
+  local tSpotA
+  
+  // get all the trains in the layout
+  put train.getAll() into tTrainA
+  
+  // loop over each of the trains
+  repeat with tTrainIndex = 1 to number of elements of tTrainA
+    
+    // first up we need to check if module is train origin/destination
+    put spot.findOne(tTrainA[tTrainIndex]["origin"]) into tSpotA
+    if tSpotA["moduleId"] = pModuleId then
+      // delete this train when train origin is on module being deleted
+      get train.delete(tTrainA[tTrainIndex]["id"])
+      next repeat
+    end if
+    
+    put spot.findOne(tTrainA[tTrainIndex]["destination"]) into tSpotA
+    if tSpotA["moduleId"] = pModuleId then
+      // delete this train when train destination is on module being deleted
+      get train.delete(tTrainA[tTrainIndex]["id"])
+      next repeat
+    end if
+    
+    // initialize the new train record
+    put tTrainA[tTrainIndex] into tNewTrainA
+    
+    // convert the train's route from json to an array
+    put JSONToArray(tTrainA[tTrainIndex]["route"])  into tRouteA
+    
+    // initialize new route variables
+    put empty into tNewRouteA
+    put 0 into tNewRouteIndex
+    
+    // loop over the train route array
+    repeat with tRouteIndex = 1 to number of elements of tRouteA
+      // when a route contains the module to delete, skip adding it to the new route
+      if tRouteA[tRouteIndex]["moduleId"] = pModuleId then next repeat
+      
+      // we have a stop that needs to be added to the new route
+      // increment the index
+      add 1 to tNewRouteIndex
+      
+      // add this stop to the route
+      put tRouteA[tRouteIndex] into tNewRouteA[tNewRouteIndex]
+      
+      // update the stop number in the new route
+      put tNewRouteIndex into tNewRouteA[tNewRouteIndex]["stop"]
+    end repeat
+    
+    // add the new route to the new train
+    if tNewRouteA is an array then
+      put ArrayToJSON(tNewRouteA,"object") into tNewTrainA["route"]
+    else
+      put empty into tNewTrainA["route"]
+    end if
+    
+    // update the train in the database
+    get train.update(tNewTrainA)        
+  end repeat
+end train.deleteModulefromRoute

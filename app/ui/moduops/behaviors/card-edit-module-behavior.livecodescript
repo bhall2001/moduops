@@ -28,9 +28,8 @@ on openCard
   // update ui
   uiUpdateData tModuleA
   
-  // enable the export menu
-  put getMenuItemNumber("File", "Export Module...") into tMenuItemNumber
-  enable menuitem tMenuItemNumber of menu "File"
+  // update layout name field
+  put config.get("name") into field "layoutName"
   
   unlock screen
 end openCard
@@ -49,9 +48,6 @@ on closeCard
   set the cModuleUUID of card "Modules/Towns" to the cActiveModule of this card
   uiClearFields
   
-  // disable the export menu
-  put getMenuItemNumber("File", "Export Module...") into tMenuItemNumber
-  disable menuitem tMenuItemNumber of menu "File"
 end closeCard
 
 
@@ -94,7 +90,6 @@ on uiClearFields
   put "" into field "description"
   put "" into field "remarks"
   
-  set the disabled of button "Save" to true
   unlock screen
 end uiClearFields
 
@@ -195,5 +190,25 @@ end __updateModuleField
 on textChanged
   __updateModuleField the short name of the target
 end textChanged
+
+
+command __uiIntitRegionMenu
+  local tMenuItems
+  
+  put the keys of getWorldRegionA() into tMenuItems
+  sort lines of tMenuItems
+  set the text of button "regionMenu" to "" & return & tMenuItems
+  set the label of button "regionMenu" to ""
+  set the disabled of button "regionMenu" to false
+  
+  set the label of button "subRegionMenu" to ""
+  set the disabled of button "subRegionMenu" to true
+  
+  set the label of button "countryMenu" to ""
+  set the disabled of button "countryMenu" to true
+  
+  set the label of button "organizationMenu" to ""
+  set the disabled of button "organizationMenu" to true
+end __uiIntitRegionMenu
 
 

@@ -5,10 +5,7 @@ Fetch all records from a given table
 function datalayer.fetchAll pTable
   if pTable is empty then throw "datalayer.fetchAll Error: pTable is emtpy"
   
-  local tQuery
-  put "SELECT * FROM" && pTable into tQuery
-  
-  return libDBFetchAsArray(tQuery)
+  return dbGet(pTable)
 end datalayer.fetchAll
 
 
@@ -428,6 +425,11 @@ command datalayer.migrate
     // add minLength to train table
     get datalayer.addColumn("train", "minLength", "INTEGER")
   end if
+  
+  -- add lengthUnit if it does not exist
+  if config.get("lengthUnit") is empty then
+    get config.set("lengthUnit", "feet")
+  end if
 end datalayer.migrate
 
 
@@ -515,3 +517,18 @@ private function _dsToDict @pDataA, pKeyField, pValueField
   return tResultA
   
 end _dsToDict
+
+
+command datalayer.begin
+  dbExecuteSQL "BEGIN" 
+end datalayer.begin
+
+
+command datalayer.commit
+  dbExecuteSQL "COMMIT"
+end datalayer.commit
+
+
+command datalayer.rollback
+  dbExecuteSQL "ROLLBACK"
+end datalayer.rollback

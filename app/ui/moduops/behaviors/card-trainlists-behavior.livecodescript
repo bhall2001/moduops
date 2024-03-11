@@ -7,6 +7,8 @@ local sSpotA
 local sManifestA
 local sCarTypeA
 local sPrevModule, sPrevConsignee, sPrevSpot
+local sFieldList = "Column1,Header1,Footer1,Column2,Header2,Footer2"
+
 
 
 on buildManifest
@@ -64,7 +66,7 @@ on buildManifest
   set the htmlText of field "trainlist" to tManifest
   
   if sManifestStyle = "MRBT" then
-    set the textfont of cd fld "trainlist" to "Courier"
+    set the textfont of cd fld "trainlist" to "Courier New"
   else if sManifestStyle = "Modern" then
     set the textfont of cd fld "trainlist" to "Arial"
   end if
@@ -151,11 +153,6 @@ function addManifest pManifestStyle pPageWidth
     if aWorkorder["carTypeRemarks"] <> empty then
       put "<p>" & aWorkorder["carTypeRemarks"] & "</p>" & return after tOutput
     end if
-    
-    -- output consignee remarks on next line
-    if aWorkorder["consigneeRemarks"] <> empty then
-      put "<p>" & aWorkorder["consigneeRemarks"] & "</p>" & return after tOutput
-    end if
   end repeat
   
   return tOutput
@@ -165,18 +162,26 @@ end addManifest
 on openCard
   local tFavor
   
+  lock screen
+  
   put train.findMany() into sTrainA
   set the dgData of group "dgTrains" to train.addNames(sTrainA)
   
   put "" into cd fld "trainlist"
   
   put config.get("favorSlider") into tFavor
+  set the hilite of button "useCode" to config.get("useCode") is 1
   
   if tFavor is a number then
     set the thumbPosition of scrollbar "favorScale" of card "Trainlists" to tFavor
   else
     set the thumbPosition of scrollbar "favorScale" of card "Trainlists" to 1
   end if
+  
+  // update layout name field
+  put config.get("name") into field "layoutName"
+  
+  unlock screen
   
   pass openCard
 end openCard
@@ -202,25 +207,24 @@ function outputSpot pManifestStyle pPageWidth pDataA
     put pDataA["code"] into tCarCode
   else
     if pPageWidth = "Half" then
-      put pDataA["class"] & "-" & pDataA["short"] into tCarCode
+      if pDataA["class"] is not " " \
+            and pDataA["class"] is not empty \
+            and sManifestStyle is not "MRBT" then
+        put pDataA["class"] & "-" & char 1 to 12 of pDataA["short"] into tCarCode
+      else
+        put char 1 to 12 of pDataA["short"] into tCarCode
+      end if
     else
       put pDataA["description"] into tCarCode
     end if
   end if
   
-  put tCarCode && pDataA["Length"] & "'" into tCarDesc
-  
-  /*
-  if pPageWidth = "Half" then
-    put tCarCode & " " & pDataA["Length"] &  "'" into tCarDesc
-  else
-    if the cPageStyle of this card = "MRBT" then
-      put tCarCode & " " & pDataA["Length"] &  "'" into tCarDesc
-    else
-      put pDataA["description"] & " " & pDataA["length"] & "'" into tCarDesc
-    end if
+  // output selected equipment
+  put tCarCode && pDataA["Length"] into tCarDesc
+  if pPageWidth is "full" or (pPageWidth is "half" and pManifestStyle is not "MRBT") then
+    put "'" after tCarDesc
   end if
-  */
+  
   
   put "" into tResult
   
@@ -272,16 +276,17 @@ function outputSpot pManifestStyle pPageWidth pDataA
       put number of characters of tTemp into tCharCount
       
       if pPageWidth = "Half" then
-        if tTemp > 23 then
-          put character 1 to 12 of tTemp & "-" & character (tCharCount-10) to tCharCount of tTemp into tTemp
+        if number of chars of tTemp > 15 and last word of tTemp is a number then
+          put character 1 to 13 of tTemp & character -2 to -1 of tTemp into tTemp
+          --          put character 1 to 15 of tTemp into tTemp
+          
         else
           put "                                " after tTemp
-          put character 1 to 24 of tTemp into tTemp
+          put character 1 to 15 of tTemp into tTemp
         end if
       else
         if tCharCount > 31 then
           put character 1 to 16 of tTemp & "-" & character (tCharCount-14) to tCharCount of tTemp into tTemp
-          put "  " after tTemp
         else
           put "                                " after tTemp
           put character 1 to 34 of tTemp into tTemp
@@ -291,10 +296,25 @@ function outputSpot pManifestStyle pPageWidth pDataA
       put "  " after tTemp
       
       put tCarDesc after tTemp
-      put "                                                  " after tTemp
-      put character 1 to 56 of tTemp into tTemp
       
-      put " ___________________ " after tTemp
+      local tRowChars
+      
+      if sManifestStyle = "MRBT" then
+        put 31 into tRowChars
+      else 
+        put 34 into tRowChars
+      end if
+      
+      if pPageWidth = "half" then
+        put "                                                     " after tTemp
+        put char 1 to tRowChars of tTemp into tTemp
+        put " ___________________" after tTemp
+      else
+        put "                                                  " after tTemp
+        put character 1 to 56 of tTemp into tTemp
+        
+        put " ___________________ " after tTemp
+      end if
       
       if pPageWidth="Half" then
         put character 1 to 46 of tTemp & "<br />" & return after tResult
@@ -312,10 +332,10 @@ function outputHeader pTrainA
   
   put "" into tHeader
   
-  ## Output Page Header
-  
   -- Event Title
-  put "<b>" & cd fld "setup_name" of cd "Preferences" of stack "Module Operations" & "</b>" & return after tHeader
+  if config.get("name") is not empty then
+    put "<b>" & config.get("name") & "</b>" & return after tHeader
+  end if
   
   -- Manifest Train details
   put "<p>TRAINLIST for TRAIN: " & pTrainA["symbol"] & "</p>" & return after tHeader
@@ -480,10 +500,7 @@ end outputFooter
 
 
 function outputTwoColumns pManifest
-  -----
   local tStartLine
-  -----
-  
   local tTemp, tReturn
   
   put wordWrappedHTML(pManifest, 54) into pManifest
@@ -499,11 +516,16 @@ function outputTwoColumns pManifest
     end if
   end repeat
   
+  // add OVER when more than 40 lines
   if the number of lines of pManifest > 40 then
     put return & "<p></p>                            -- OVER --" after tTemp
   end if
   
-  set the htmlText of cd fld "Column 1" of cd 1 of stack "2 Columns" to tTemp
+  set the htmlText of cd fld "Column1" of cd 1 of stack "2 Columns" to tTemp
+  
+  // set header/footer fields for column 1
+  set the htmlText of cd fld "Header1" of cd 1 of stack "2 Columns" to config.get("trainlistHeader")
+  set the htmlText of cd fld "Footer1" of cd 1 of stack "2 Columns" to config.get("trainlistFooter")
   
   put tTemp & return into tReturn
   put "" into tTemp
@@ -511,7 +533,39 @@ function outputTwoColumns pManifest
     put line i of pManifest & return after tTemp
   end repeat
   
-  set the htmlText of cd fld "Column 2" of cd 1 of stack "2 Columns" to tTemp
+  set the htmlText of cd fld "Column2" of cd 1 of stack "2 Columns" to tTemp
+  
+  if number of lines of pManifest > 39 then
+    // set header/footer fields for column 1
+    set the htmlText of cd fld "Header2" of cd 1 of stack "2 Columns" to config.get("trainlistHeader")
+    set the htmlText of cd fld "Footer2" of cd 1 of stack "2 Columns" to config.get("trainlistFooter")
+  else
+    // set header/footer fields for column 1
+    set the htmlText of cd fld "Header2" of cd 1 of stack "2 Columns" to ""
+    set the htmlText of cd fld "Footer2" of cd 1 of stack "2 Columns" to ""
+  end if
+  
+  // set the font based on format selected
+  repeat for each item aField in sFieldList
+    if sManifestStyle = "MRBT" then
+      set the textfont of field aField of cd 1 of stack "2 Columns" to "Courier New"
+    else if sManifestStyle = "Modern" then
+      set the textfont of of field aField of cd 1 of stack "2 Columns" to "Arial"
+    end if
+  end repeat
+  
+  // set font size and height
+  if sManifestStyle = "MRBT" then
+    set the textSize of field "Column1" of cd 1 of stack "2 Columns" to 11
+    set the textSize of field "Column2" of cd 1 of stack "2 Columns" to 11
+    set the textHeight of field "Column1" of cd 1 of stack "2 Columns" to 17
+    set the textHeight of field "Column2" of cd 1 of stack "2 Columns" to 17
+  else
+    set the textSize of field "Column1" of cd 1 of stack "2 Columns" to 11
+    set the textSize of field "Column2" of cd 1 of stack "2 Columns" to 11
+    set the textHeight of field "Column1" of cd 1 of stack "2 Columns" to 18
+    set the textHeight of field "Column2" of cd 1 of stack "2 Columns" to 18
+  end if
   
   put tTemp after tReturn
   

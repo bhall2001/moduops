@@ -10,6 +10,12 @@ on preOpenCard
   else
     set the visible of button "cancel" to false
   end if
+  
+  // update layout name field
+  put config.get("name") into field "layoutName"
+  
+  // update the length unit
+  put "(" & config.get("lengthUnit") & ")" into field "lengthUnit"
 end preOpenCard
 
 
@@ -39,8 +45,10 @@ on openCard
   put tCarType["short"] into field "short"
   put tCarType["length"] into field "length"
   put tCarType["remarks"] into field "remarks"
-  
+   
   unlock screen
+  
+  
 end openCard
 
 
@@ -199,3 +207,5 @@ command eraMenuPick pItemName
   put pItemName into tDataA["era"]
   put carType.update(tDataA) into tResult
 end eraMenuPick
+
+

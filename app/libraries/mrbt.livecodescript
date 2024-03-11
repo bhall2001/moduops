@@ -192,6 +192,11 @@ command generateManifest
         next repeat
       end if
       
+      // if there is an invalid car length, skip this work order
+      if tCarTypeA["length"] is "" or tCarTypeA["length"] < 1 then
+        next repeat
+      end if
+      
       put spot.findOne(tSelectedWO["spotId"]) into tSpotA
       
       if (tUseConsignee <> "") then

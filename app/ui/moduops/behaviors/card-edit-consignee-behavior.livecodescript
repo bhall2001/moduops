@@ -25,18 +25,13 @@ on preOpenCard
     disable button "New Request"
     show button "cancel"
     
-    if the cIsNew of card "Edit Consignee" is false then
-      
-      // TODO: delete
-      put the cIsNew of card "Edit Consignee"
-      
+    if the cIsNew of card "Edit Consignee" is false then    
       
       if  carType.count() = 0 then
-        put "Unable to create a new request until equipement is defined." into field "errorText"
+        put "Unable to create equipment requests until equipment is defined." into field "errorText"
       else
-        put "Unable to create a new request until a drop zone is defined." into field "errorText"
+        put "Unable to create equipment requests until a drop zone is defined." into field "errorText"
       end if
-      
       
       show field "errorText"
     else
@@ -59,11 +54,20 @@ on preOpenCard
   
   uiUpdateData tDataA
   
+  // update layout name field
+  put config.get("name") into field "layoutName"
+  
   pass preOpenCard
 end preOpenCard
 
 
+on openCard
+  send "openField" to field "name" of me
+end openCard
+
+
 on closeCard
+  if the short name of me is not "Edit Consignee" then pass closeCard
   local tId
   
   if the cIsNew of this card is true then
@@ -106,14 +110,11 @@ on uiClearFields
   put "" into field "module"
   set the dgText of group "dgWorkorders" to ""
   
-  set the disabled of button "Save" to true
   unlock screen
 end uiClearFields
 
 
-on uiDisableButtons
-  set the disabled of button "Save" to true
-  
+on uiDisableButtons  
   set the disabled of button "Edit Request" to true
   set the foregroundColor of button "Edit Request" to ""
   --set the blendLevel of button "Edit Request" to 60
@@ -208,7 +209,6 @@ on loadWorkOrders
   
   if the number of elements of tDataA > 0 then
     set the cIsNew of this card to false
-    set the visible of button id 2590776 to false
   end if
   
   set the dgData of group "dgWorkorders" to tDataA

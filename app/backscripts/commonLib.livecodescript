@@ -49,3 +49,16 @@ function reuseConsignee pCPW
       return false
   end switch
 end reuseConsignee
+
+
+/*
+convert a date to ISO 8601 format YYY-MM-DD
+*/
+function toISODate @pDate
+  local tDate
+  
+  put pDate into tDate
+  convert tDate to dateItems
+  
+  return item 1 of tDate & "-" & format("%02s", item 2 of tDate) & "-" & format("%02s", item 3 of tDate)
+end toISODate

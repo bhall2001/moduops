@@ -197,3 +197,52 @@ private function __sql.consigneeSpots
         "INNER JOIN spot ON workorder.spotId = spot.id" & return && \
         "WHERE consignee.moduleId = :1" & return
 end __sql.consigneeSpots
+
+
+/*
+delete all consignees with a given moduele id
+
+parameters
+pModuleId string id of module to delete
+*/
+command consignee.deleteByModuleId pModuleId
+  local tConsigneeA
+  local tEquipmentA
+  local tWorkOrderA
+  local tCriteriaA
+  local tCarTypeWorkorderA
+  
+  // get all the consignees for this module
+  put consignee.findByModuleId(pModuleId) into tConsigneeA
+  
+  // for each consignee we need to delete all the workorders (equipment requests)
+  repeat with consigneeIndex = 1 to number of elements of tConsigneeA
+    put workorder.findByConsigneeId(tConsigneeA[consigneeIndex]["id"]) into tWorkOrderA
+    
+    // for each work order we have a little work
+    repeat with workorderIndex = 1 to number of elements of tWorkOrderA
+      // save the equipment id as an index in an array. This de-dups the cars for us
+      put tWorkOrderA[workorderIndex]["carId"] into tEquipmentA[tWorkOrderA[workorderIndex]["carId"]]
+      
+      // now we need to delete the work order
+      get workorder.delete(tWorkOrderA[workorderIndex]["id"])
+    end repeat
+    
+    // now we need to detail any equipment that is no longer being used
+    repeat for each key aCar in tEquipmentA
+      put aCar into tCriteriaA["carId"]
+      put workorder.findMany(tCriteriaA) into tCarTypeWorkorderA
+      
+      // if there are still work orders using this equipment go to the next equipment
+      if the number of elements of tCarTypeWorkorderA > 0 then next repeat
+      
+      // nothing is using this equipment so we can delete it
+      get carType.delete(aCar)
+    end repeat
+    
+    // now we can delete the consignee record from the database
+    get consignee.delete(tConsigneeA[consigneeIndex]["id"])
+  end repeat
+  
+end consignee.deleteByModuleId
+

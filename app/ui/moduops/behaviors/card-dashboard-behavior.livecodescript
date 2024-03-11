@@ -1,8 +1,11 @@
 ﻿script "card-dashboard-behavior"
 on openCard
   local tTemp, tStatsA
-   
+  
   lock screen
+  
+  // update layout name field
+  put config.get("name") into field "layoutName"
   
   put "module,Modules/Towns:" & return & \
         "carType,Rollingstock:" & return & \
@@ -38,6 +41,9 @@ on openCard
   
   _uiEnableNavigation
   
+  set the backgroundColor of button "Dashboard" of group "sidebarMenu" of group "groupBackground" of card "Dashboard" of me to "#008080"
+  set the foregroundColor of button "Dashboard" of group "sidebarMenu" of group "groupBackground" of card "Dashboard" of me to "#FFFFFF"
+  
   unlock screen
   pass openCard
 end openCard
@@ -59,9 +65,14 @@ on openStack
   set the dgProp[ "dim on focusOut" ] of group "dgModules" of card "Modules/Towns" to false
   set the dgProp[ "dim on focusOut" ] of group "dgSpots" of card "Equipment Request" to false
   set the dgProp[ "dim on focusOut" ] of group "dgCarTypes" of card "Equipment Request" to false
+  set the dgProp[ "dim on focusOut" ] of group "dgWorkorders" of card "Edit Consignee" to false
   set the dgProp[ "dim on focusOut" ] of group "dgTrains" of card "Train Sequence" to false
   set the dgProp[ "dim on focusOut" ] of group "dgSequence" of card "Train Sequence" to false
   set the dgProp[ "dim on focusOut" ] of group "dgRoute" of card "Route" to false
+  set the dgProp[ "dim on focusOut" ] of group "dgOrders" of card "Route" to false
+  set the dgProp[ "dim on focusOut" ] of group "dgConsignees" of card "Route" to false
+  set the dgProp[ "dim on focusOut" ] of group "dgTrains" of card "Trainlists" to false
+  set the dgProp[ "dim on focusOut" ] of group "dgYards" of card "Yards" to false
   
   // limit recent menu to last 10 items
   fileSystemSetMaxRecentFiles 10
@@ -70,6 +81,8 @@ on openStack
   updateLayoutRecentMenu
   
   get net.isConnected()
+  
+  __checkVersion
   
   // load most recent layout if pref is set to do so
   if prefsGetPref("loadRecentLayout") is 1 then
@@ -92,12 +105,6 @@ private command _uiEnableNavigation
   
   set the visible of graphic "navigationPreferences" to not tHasFile
   set the visible of graphic "dashboardModules" to not tHasFile
-  
-  // there is a separate disable graphic over Operations Session menu on dashboard.
-  // this feature is not live yet. In order to prevent a doubling of the 
-  // grey out on the menu, this graphic needs to do the opposite of the other 
-  // hiding graphics.
-  set the visible of graphic "operationsSession" to tHasFile
   
   if not tHasFile then
     updateSidebarUI
@@ -122,20 +129,24 @@ command __checkVersion
     exit __checkVersion
   end if
   
-  // first check if this is expire version
-  put myVersion() into tVersion
-  
-  put net.hostUrl() & "/api/versionCheck/moduops/" & tVersion into tUrl
-  
-  put htmlGetSync(tUrl) into tResponse
-  
-  // true response means this is the current version
-  if tResponse contains "true" then
-    exit __checkVersion
-  end if
-  
-  // if we get here there's a newer version of moduops ready to download
-  answer info "A new version of ModuOps is ready to download at www.moduops.com."
+  try
+    // first check if this is expire version
+    put myVersion() into tVersion
+    
+    put net.hostUrl() & "/api/versionCheck/moduops/" & tVersion into tUrl
+    
+    put htmlGetSync(tUrl) into tResponse
+    
+    // true response means this is the current version
+    if tResponse contains "true" then
+      exit __checkVersion
+    end if
+    
+    // if we get here there's a newer version of moduops ready to download
+    answer info "A new version of ModuOps is ready to download at www.moduops.com."
+  catch error
+    // we'll do nothing if there's an error...
+  end try
   
 end __checkVersion
 

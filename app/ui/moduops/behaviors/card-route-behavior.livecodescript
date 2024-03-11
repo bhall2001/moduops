@@ -24,9 +24,12 @@ on preOpenCard
   
   put the cTrainUUID of this card into sTrainId
   put train.findOne(sTrainId) into tTrainA
-  
-  put tTrainA["symbol"] into field "symbol"
-  put quote & tTrainA["name"] & quote into field "name"
+    
+  if tTrainA["name"] is not empty then
+    put tTrainA["name"] && "(" & tTrainA["symbol"] & ")" into field "name"
+  else
+    put tTrainA["symbol"] into field "name"
+  end if
   
   put yard.nameById(tTrainA["origin"]) into field "origin"
   put yard.nameById(tTrainA["destination"]) into field "destination"
@@ -34,6 +37,7 @@ on preOpenCard
   set the dgText of group "dgOrders" to tTrainA["orders"]
   
   put tTrainA["route"] into tTempA
+  
   put jsonToArray(tTempA) into tTempA
   
   set the dgData of group "dgRoute" to tTempA
@@ -44,11 +48,17 @@ on preOpenCard
   
   if the cSchedulingEngine of stack "Module Operations" = "Random" then
     hide group "Select Consignee"
+    show field "MRBT Notice"
   else
     show group "Select Consignee"
+    hide field "MRBT Notice"
   end if
   
   set the menuhistory of button "tabSelect" to 1 -- make the first tab from the left the active one
+  
+  // update layout name field
+  put config.get("name") into field "layoutName"
+  
 end preOpenCard
 
 
@@ -211,7 +221,7 @@ function addModuleStop
       break
       
   end switch
-    
+  
   return tStopA
 end addModuleStop
 
@@ -226,10 +236,9 @@ end closeCard
 
 
 on uiClearData
-  put "" into field "symbol"
-  put "" into field "origin"
-  put "" into field "destination"
-  put "" into field "name"
+  put "" into field "origin" of card "Route" of stack "Module Operations"
+  put "" into field "destination" of card "Route" of stack "Module Operations"
+  put "" into field "name" of card "Route" of stack "Module Operations"
   set the dgText of group "dgRoute" to ""
   set the dgText of group "dgModules" to ""
   set the dgText of group "dgConsignees" to ""
@@ -294,7 +303,12 @@ function saveRecord
     add 1 to i
   end repeat
   
-  put arrayToJson(tTemp, true) into tDataA["route"]
+  if tTemp is an array then
+    put arrayToJson(tTemp, "array") into tDataA["route"]
+  else
+    put empty into tDataA["route"]
+  end if
+  
   put sTrainId into tDataA["id"]
   
   put train.update(tDataA) into tResult

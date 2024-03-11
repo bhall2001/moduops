@@ -5,8 +5,14 @@ end preOpenCard
 
 
 on openCard
+  lock screen
   // load Car Type data to UI
   loadCarTypeData
+  
+  // update layout name field
+  put config.get("name") into field "layoutName"
+  
+  unlock screen
 end openCard
 
 
