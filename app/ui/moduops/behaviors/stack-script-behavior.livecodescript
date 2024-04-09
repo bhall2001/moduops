@@ -6,8 +6,8 @@ local sCarTypeID -- active car type ID
 
 // Version number
 local sMajor = 5
-local sMinor = 4
-local sPatch = 1
+local sMinor = 3
+local sPatch = 2
 
 
 ##
@@ -76,7 +76,7 @@ command uiNewLayout
   
   send "mouseUp" to button "Dashboard" of group "sidebarMenu" of group "groupBackground" of me
   
-  answer info "Layout file created!"
+  answer info "Data file created!"
 end uiNewLayout
 
 
@@ -107,11 +107,10 @@ command uiLoadLayout
   // get the last file path for file dialog
   put getLastFilePath() into tPath
   
-  set the visible of group "blocker" to true
-  set the layer of group "blocker" to top
-  
-  answer file "Please select a layout file" with tPath with type "TEXT File|mop2|MOP2" titled "Open file"
-  set the visible of group "blocker" to false
+  set the visible of graphic "blocker" to true
+
+  answer file "Select file to open..." with tPath with type "TEXT File|mop2|MOP2" titled "Open file"
+  set the visible of graphic "blocker" to false
   wait 300 milliseconds
   
   if it is empty then exit uiLoadLayout
@@ -123,7 +122,7 @@ command uiLoadLayout
   
   openLayoutFile tDataFile
   
-  send "mouseUp" to button "Dashboard" of group "sidebarMenu" of group "groupBackground" of me in 100 ticks
+  send "mouseUp" to button "Dashboard" of group "sidebarMenu" of group "groupBackground" of me
   
 end uiLoadLayout
 
@@ -208,11 +207,9 @@ command uiConvertFile
   // load old file
   put specialFolderPath("Documents") into tPath
   
-  set the visible of group "blocker" to true
-  set the layer of group "blocker" to top
-  
+  set the visible of graphic "blocker" to true
   answer file "Select file to convert..." with tPath with type "MOP File|mop|MOP"
-  set the visible of group "blocker" to false
+  set the visible of graphic "blocker" to false
   wait 300 milliseconds
   
   // process old file adding records to the database
@@ -612,13 +609,3 @@ on appleEvent pClass, pEventID, pSender
   end if
   pass appleEvent   
 end appleEvent
-
-
-
-on suspendStack
-  if "Answer Dialog" is among the lines of the openStacks then
-    set the loc of stack "answer dialog" to the loc of stack "Module Operations"
-  end if
-  
-  pass suspendStack
-end suspendStack
