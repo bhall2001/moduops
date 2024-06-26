@@ -49,7 +49,7 @@
 local sTrainRoute -- Active Train's Route (List of stops)
 local sTrainRouteA -- Active Train's Route (Array of stops)
 local sManifestA -- Train's Manifest
-local sCumTotal -- Cumulative Total for weighted random selection
+local sCumulativeTotal -- Cumulative Total for weighted random selection
 local sWorkordersA -- All potential work for a given route
 local sExcludeConsignee -- List of Consignees that train does not handle
 
@@ -71,6 +71,15 @@ command generateManifest
   put "Starting Smarter Scheduler..." into field "status" of card "trainlists" of stack "Module Operations"
   lock screen
   
+  // initialize all variables
+  put empty into sTrainRoute
+  put empty into sTrainRouteA
+  put empty into sManifestA
+  put empty into sCumulativeTotal
+  put empty into sWorkordersA
+  put empty into sExcludeConsignee  
+  
+  
   put 1 into tManifestIndex
   put the cTrainUUID of card "Trainlists" of stack "Module Operations" into tTrainId
   put train.findOne(tTrainId) into tTrainsA
@@ -86,7 +95,7 @@ command generateManifest
   put jsonToArray(sTrainRoute) into sTrainRouteA
   
   put 0 into tTrainLength
-  put 0 into sCumTotal
+  put 0 into sCumulativeTotal
   put 0 into tConsigneeCnt
   
   put "" into sManifestA
@@ -383,8 +392,8 @@ private command __smtAppendWorkorders pStopNum, pModuleId, pConsigneeId, pTrainD
       --      put aWO into sWorkordersA[tWOIndex]
       --      put pTrainDir into sWorkordersA[tWOIndex]["trainDir"]
       --      put pStopNum into sWorkordersA[tWOIndex]["stop"]
-      --      put aWO["cpw"] + sCumTotal into sCumTotal
-      --      put sCumTotal into sWorkordersA[tWOIndex]["cumTotal"]
+      --      put aWO["cpw"] + sCumulativeTotal into sCumulativeTotal
+      --      put sCumulativeTotal into sWorkordersA[tWOIndex]["cumTotal"]
     end if
   end repeat
 end __smtAppendWorkorders

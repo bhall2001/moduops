@@ -136,15 +136,6 @@ private command __updateSpotField pFieldname
   
   put field pFieldname into tDataA[pFieldname]
   
-  // convert track field to uppercase
-  if pFieldname = "track" then
-    put "" into tNewData
-    repeat for each char i in field "track"
-      put toUpper(i) after tNewData
-    end repeat
-    put tNewData into tDataA["track"]
-  end if
-  
   put field "id" into tDataA["id"]
   
   put spot.update(tDataA) into tResult
