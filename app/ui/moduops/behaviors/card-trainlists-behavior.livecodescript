@@ -17,6 +17,7 @@ local sFieldList = "Column1,Header1,Footer1,Column2,Header2,Footer2"
 
 on buildManifest
   local tManifest, tTempA
+  local tSwitchListA
   
   put the cWidth of this card into sPageWidth
   put the cPageStyle of this card into sManifestStyle
@@ -34,10 +35,13 @@ on buildManifest
   local trainManifest,moduleName,theModule
   local tSpots,tWorkorders,tConsignees
   local tOutput
+  local tSwitchListColumn2
+  local tSortedList
+  local tSortedModuleList
   -----
   
   // clear variables
- 
+  
   
   lock screen
   
@@ -46,27 +50,57 @@ on buildManifest
   
   if sManifestStyle = "SwitchList" then
     -- Train Manifest
-    put __generateSwitchListManifest() into tManifest
-    put tManifest["switchListTowns"] into field "switchListTowns" of card 1 of stack "switchlist"
-    put tManifest["switchList"] into field "switchList" of card 1 of stack "switchlist"
+    put __generateSwitchListManifest() into tSwitchListA
+    put tSwitchListA["switchListTowns"] into field "switchListTowns" of card 1 of stack "switchlist"
+    put tSwitchListA["switchList"] into field "switchList" of card 1 of stack "switchlist"
+    put tSwitchListA["switchListTowns"] into field "switchListTowns" of card 1 of stack "switchlist2"
+    put tSwitchListA["switchList"] into field "switchList" of card 1 of stack "switchlist2"
+    put config.get("name") into field "Header1" of card 1 of stack "switchlist"
+    put config.get("name") into field "Header1" of card 1 of stack "switchlist2"
     put "" into tOutput
     
-    local tCarTypeList
-    get the keys of tManifest["carTypes"]
+    // output a key of car types
+    // sort the car types
+    get the keys of tSwitchListA["carTypes"]
     sort lines of it ascending
-    put it into tCarTypeList
+    put it into tSortedList
     
-    repeat for each line aCarType in tCarTypeList
-      put aCarType & " - " after tOutput
-      repeat for each item aCar in tManifest["carTypes"][aCarType]
-        put aCar & ", " after tOutput
+    // loop over sorted list of car types outputing what is needed
+    repeat for each line aCarType in tSortedList
+      put aCarType & " - " after tSwitchListColumn2
+      repeat for each item aCar in tSwitchListA["carTypes"][aCarType]
+        put aCar & ", " after tSwitchListColumn2
       end repeat
-      delete last char of tOutput
-      delete last char of tOutput
-      put "<br />" & return after tOutput
+      delete last char of tSwitchListColumn2
+      delete last char of tSwitchListColumn2
+      put "<br />" & return after tSwitchListColumn2
     end repeat
     
-    put tOutput & "<br />"after tManifest
+    put tOutput & "<br />"after tSwitchListColumn2
+    
+    put empty into tSortedList
+    
+    // output track reference
+    // sort the module list
+    get the keys of tSwitchListA["tracks"]
+    sort lines of it ascending
+    put it into tSortedModuleList
+    
+    repeat for each line aModule in tSortedModuleList
+      put "<b>" & aModule & "</b><br />" & return after tSwitchListColumn2
+      
+      // sort the track keys
+      get the keys of tSwitchListA["tracks"][aModule]
+      sort lines of it ascending
+      put it into tSortedList
+      
+      repeat for each line aTrack in tSortedList
+        put aTrack && "-" && tSwitchListA["tracks"][aModule][aTrack] &"<br />" & return  after tSwitchListColumn2
+      end repeat
+      put "<br />" after tSwitchListColumn2
+    end repeat
+    
+    delete last line of tSwitchListColumn2
     --    exit buildManifest
   end if
   
@@ -107,8 +141,11 @@ on buildManifest
       set the textfont of cd fld "trainlist" to "Arial"
       break
     case "SwitchList"
-      set the HTMLText of field "Column2" of card 1 of stack "switchlist" to tManifest
+      set the HTMLText of field "Column2" of card 1 of stack "switchlist" to tSwitchListColumn2 & tManifest
+      set the HTMLText of field "Column2" of card 1 of stack "switchlist2" to tSwitchListColumn2
+      set the HTMLText of field "Column3" of card 1 of stack "switchlist2" to tManifest
       put sTrainA["symbol"] into field "trainSymbol" of card 1 of stack "switchlist"
+      put sTrainA["symbol"] into field "trainSymbol" of card 1 of stack "switchlist2"
       break
   end switch
   
@@ -295,19 +332,24 @@ end __generateTextManifest
 
 
 
-constant STARS = "********************"
+constant STARS = "******************************"
 --constant STARS = ""
 
 function __generateSwitchListManifest
   local tOutputA
   local tCarTypeA
   local i
+  local tOrigin
+  local tPrevOrigin
+  local tTrackA
   
   put 0 into i
   
   put "" into sSchedPrevModule
   
   put smarty.output(sTrainUUID) into sManifestA
+  
+  put yard.findOne(sTrainA["origin"]) into tOrigin
   
   repeat for each element aWorkorder in sManifestA
     add 1 to i
@@ -321,13 +363,30 @@ function __generateSwitchListManifest
     end if
     
     put return after tOutputA["switchListTowns"]
-    put tab & aWorkorder["code"] & "-" & aWorkorder["length"] & tab & tab & aWorkorder["track"] & return after tOutputA["switchList"]
+    
+    put tab & aWorkorder["code"] & "-" & aWorkorder["length"] & tab after tOutputA["switchList"]
+    if tOrigin["track"] <> tPrevOrigin then
+      put tOrigin["track"] & tab after tOutputA["switchlist"]
+      put tOrigin["track"] into tPrevOrigin
+    else
+      put "  ''" & tab after tOutputA["switchlist"]
+    end if
+    put aWorkorder["track"] & return after tOutputA["switchList"]
+    
+    // add a car type description if it does not already exist
     if aWorkorder["description"] is not among the items of tCarTypeA[aWorkorder["code"]] then
       put aWorkorder["description"] & "," after tCarTypeA[aWorkorder["code"]]
     end if
+    
+    // add track references
+    if tTrackA[aWorkorder["moduleName"]][aWorkorder["track"]] is empty then
+      put aWorkorder["spot"] into tTrackA[aWorkorder["moduleName"]][aWorkorder["track"]]
+    end if
+    
   end repeat
   
   put tCarTypeA into tOutputA["carTypes"]
+  put tTrackA into tOutputA["tracks"]
   
   return tOutputA
 end __generateSwitchListManifest
