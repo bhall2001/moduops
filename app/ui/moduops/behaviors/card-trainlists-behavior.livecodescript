@@ -136,9 +136,11 @@ on buildManifest
   switch sManifestStyle
     case "MRBT"
       set the textfont of cd fld "trainlist" to "Courier New"
+      set the visible of image "stack thumbnail" of me to false
       break
     case "Modern"
       set the textfont of cd fld "trainlist" to "Arial"
+      set the visible of image "stack thumbnail" of me to false
       break
     case "SwitchList"
       set the HTMLText of field "Column2" of card 1 of stack "switchlist" to tSwitchListColumn2 & tManifest
@@ -146,6 +148,11 @@ on buildManifest
       set the HTMLText of field "Column3" of card 1 of stack "switchlist2" to tManifest
       put sTrainA["symbol"] into field "trainSymbol" of card 1 of stack "switchlist"
       put sTrainA["symbol"] into field "trainSymbol" of card 1 of stack "switchlist2"
+      
+      CreateThumbnail "switchlist"
+      set the visible of image "stack thumbnail" of me to true
+      set the htmltext of field "trainlist" to empty
+      
       break
   end switch
   
@@ -1023,3 +1030,34 @@ function formatRemarks pRemarks
   end repeat   
   return tResult
 end formatRemarks
+
+
+on CreateThumbnail pStackName
+  local tImageName
+  	
+  lock screen 
+  -- pick a unique name for the image
+  put "stack thumbnail" into tImageName
+  if there is an image tImageName then
+    delete image tImageName
+  end if
+  
+  -- create an image for the thumbnail
+  create image tImageName
+  set the visible of image tImageName to true
+  set the resizequality of image tImageName to "best"
+  
+  hide button "Print" of card 1 of stack pStackName
+  export snapshot from card 1 of stack "switchlist" to image tImageName as PNG
+  show button "Print" of card 1 of stack "switchlist"
+  
+  set the width of image tImageName to 280
+  set the height of image tImageName to 364
+  -- make the new size permanent
+  set the imagedata of image tImageName to the imagedata of image tImageName
+  
+  set the left of image tImageName to 810
+  set the top of image tImageName to 173
+  
+  unlock screen
+end CreateThumbnail
