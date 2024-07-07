@@ -59,6 +59,20 @@ on buildManifest
     put config.get("name") into field "Header1" of card 1 of stack "switchlist2"
     put "" into tOutput
     
+    -- Manifest Header
+    put outputHeader(sTrainA) after tSwitchListColumn2
+    
+    -- Train Origin, Car Count & Length
+    put outputTrainOrigin(sTrainA, sPageWidth) after tSwitchListColumn2
+    
+    -- Crew Instruction
+    put outputCrewInstructions(sTrainA) after tSwitchListColumn2
+    
+    -- Train Manifest
+    put addManifest(sManifestStyle, sPageWidth) after tSwitchListColumn2
+    
+    put "<br /><br />" after tSwitchListColumn2
+    
     // output a key of car types
     // sort the car types
     get the keys of tSwitchListA["carTypes"]
@@ -66,8 +80,9 @@ on buildManifest
     put it into tSortedList
     
     // loop over sorted list of car types outputing what is needed
+    put "<b>Equipment Reference</b><br />"& return after tSwitchListColumn2
     repeat for each line aCarType in tSortedList
-      put aCarType & " - " after tSwitchListColumn2
+      put ""& aCarType & " - " after tSwitchListColumn2
       repeat for each item aCar in tSwitchListA["carTypes"][aCarType]
         put aCar & ", " after tSwitchListColumn2
       end repeat
@@ -102,19 +117,22 @@ on buildManifest
     
     delete last line of tSwitchListColumn2
     --    exit buildManifest
+    
+  else
+    
+    -- Manifest Header
+    put outputHeader(sTrainA) after tManifest
+    
+    -- Train Origin, Car Count & Length
+    put outputTrainOrigin(sTrainA, sPageWidth) after tManifest
+    
+    -- Crew Instruction
+    put outputCrewInstructions(sTrainA) after tManifest
+    
+    -- Train Manifest
+    put addManifest(sManifestStyle, sPageWidth) after tManifest
+    
   end if
-  
-  -- Manifest Header
-  put outputHeader(sTrainA) after tManifest
-  
-  -- Train Origin, Car Count & Length
-  put outputTrainOrigin(sTrainA, sPageWidth) after tManifest
-  
-  -- Crew Instruction
-  put outputCrewInstructions(sTrainA) after tManifest
-  
-  -- Train Manifest
-  put addManifest(sManifestStyle, sPageWidth) after tManifest
   
   -- Termination Instructions
   put outputTerminationInstructions(sTrainA) after tManifest
@@ -251,7 +269,7 @@ function __generateSwitchlistInstructions pPageWidth
   end repeat
   
   repeat for each key moduleId in tResultA
-    put "<p><b>" & tResultA[moduleId]["moduleName"] & "</b></p>" & return after tOutput
+    put "<br /><p><b>" & tResultA[moduleId]["moduleName"] & "</b></p>" & return after tOutput
     if tResultA[moduleId]["moduleRemarks"] is not empty then
       put "<p>" & tResultA[moduleId]["moduleRemarks"] & "</p>" & return after tOutput
     end if
