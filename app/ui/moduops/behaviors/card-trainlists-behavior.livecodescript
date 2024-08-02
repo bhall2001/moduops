@@ -55,8 +55,8 @@ on buildManifest
     put tSwitchListA["switchList"] into field "switchList" of card 1 of stack "switchlist"
     put tSwitchListA["switchListTowns"] into field "switchListTowns" of card 1 of stack "switchlist2"
     put tSwitchListA["switchList"] into field "switchList" of card 1 of stack "switchlist2"
-    put config.get("name") into field "Header1" of card 1 of stack "switchlist"
-    put config.get("name") into field "Header1" of card 1 of stack "switchlist2"
+    put toUpper(config.get("name")) into field "Header1" of card 1 of stack "switchlist"
+    put toUpper(config.get("name")) into field "Header1" of card 1 of stack "switchlist2"
     put "" into tOutput
     
     -- Manifest Header
@@ -448,6 +448,7 @@ end openCard
 
 on closeCard
   put "" into cd fld "trainlist"
+  hide image "stack thumbnail"
 end closeCard
 
 
@@ -597,7 +598,7 @@ function outputHeader pTrainA
   end if
   
   -- Manifest Train details
-  put "<p><b>TRAIN:</b>" && pTrainA["name"] && "<b>[" & pTrainA["symbol"] & "]</b>" & "</p>" & return after tHeader
+  put "<p><b>TRAIN: </b>" & pTrainA["name"] & " [" & pTrainA["symbol"] & "]</p>" & return after tHeader
   
   ## Output train name if there is one listed
   --  if pTrainA["name"] is not empty then
@@ -723,7 +724,7 @@ end outputConsignee
 
 function outputTrainOrigin  pTrainA, pPageWidth
   local tTrainOut
-  put "<p><b>Departs:</b>" && yard.nameById(pTrainA["origin"]) after tTrainOut
+  put "<p><b>Departs:</b> " & yard.nameById(pTrainA["origin"]) after tTrainOut
   
   --  if pPageWidth="Half" then
   --    put "</p><p>" after tTrainOut
@@ -733,7 +734,7 @@ function outputTrainOrigin  pTrainA, pPageWidth
     set the cCarCount of this card to 0
   end if
   
-  put "<p><b>Length:</b>" && the cCarCount of this card after tTrainOut
+  put "<p><b>Length:</b> " & the cCarCount of this card after tTrainOut
   put " cars (" & the cTrainLength of this card & " feet)</p>" after tTrainOut
   
   return tTrainOut
