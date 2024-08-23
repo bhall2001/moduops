@@ -1,24 +1,29 @@
 ﻿script "card-trainlists-behavior"
 local sPageWidth, sManifestStyle
-local sTrainUUID, sTrainA, sTrainRouteA
+local sTrainUUID
+local sTrainsA // all trains
+local sTrainA // the selected train
+local sTrainRouteA
 local sModuleA
 local sConsigneeA
 local sSpotA
 local sManifestA
 local sCarTypeA
 local sPrevModule, sPrevConsignee, sPrevSpot
+local sSchedPrevModule
 local sFieldList = "Column1,Header1,Footer1,Column2,Header2,Footer2"
 
 
 
 on buildManifest
-  local tManifest, tTrainA, tTempA
+  local tManifest, tTempA
+  local tSwitchListA
   
   put the cWidth of this card into sPageWidth
   put the cPageStyle of this card into sManifestStyle
   put the cTrainUUID of card "Trainlists" into sTrainUUID
-  put train.findOne(sTrainUUID) into tTrainA
-  put tTrainA["route"] into tTempA
+  put train.findOne(sTrainUUID) into sTrainA
+  put sTrainA["route"] into tTempA
   put jsonToArray(tTempA) into sTrainRouteA
   
   -----
@@ -29,30 +34,111 @@ on buildManifest
   local tModuleID,manifestRemarks,tSpotID
   local trainManifest,moduleName,theModule
   local tSpots,tWorkorders,tConsignees
+  local tOutput
+  local tSwitchListColumn2
+  local tSortedList
+  local tSortedModuleList
   -----
+  
+  // clear variables
+  
   
   lock screen
   
   put "" into tManifest
   put "" into field "trainlist"
   
-  -- Manifest Header
-  put outputHeader(tTrainA) after tManifest
-  
-  -- Train Origin, Car Count & Length
-  put outputTrainOrigin(tTrainA, sPageWidth) after tManifest
-  
-  -- Crew Instruction
-  put outputCrewInstructions(tTrainA) after tManifest
-  
-  -- Train Manifest
-  put addManifest(sManifestStyle, sPageWidth) after tManifest
+  if sManifestStyle = "SwitchList" then
+    -- Train Manifest
+    put __generateSwitchListManifest() into tSwitchListA
+    put tSwitchListA["switchListTowns"] into field "switchListTowns" of card 1 of stack "switchlist"
+    put tSwitchListA["switchList"] into field "switchList" of card 1 of stack "switchlist"
+    put tSwitchListA["switchListTowns"] into field "switchListTowns" of card 1 of stack "switchlist2"
+    put tSwitchListA["switchList"] into field "switchList" of card 1 of stack "switchlist2"
+    put toUpper(config.get("name")) into field "Header1" of card 1 of stack "switchlist"
+    put toUpper(config.get("name")) into field "Header1" of card 1 of stack "switchlist2"
+    put "" into tOutput
+    
+    -- Manifest Header
+    put outputHeader(sTrainA) after tSwitchListColumn2
+    
+    -- Train Origin, Car Count & Length
+    put outputTrainOrigin(sTrainA, sPageWidth) after tSwitchListColumn2
+    
+    -- Crew Instruction
+    put outputCrewInstructions(sTrainA) after tSwitchListColumn2
+    
+    -- Train Manifest
+    put addManifest(sManifestStyle, sPageWidth) after tSwitchListColumn2
+    
+    put "<br /><br />" after tSwitchListColumn2
+    
+    // output a key of car types
+    // sort the car types
+    get the keys of tSwitchListA["carTypes"]
+    sort lines of it ascending
+    put it into tSortedList
+    
+    // loop over sorted list of car types outputing what is needed
+    put "<b>Equipment Reference</b><br />"& return after tSwitchListColumn2
+    repeat for each line aCarType in tSortedList
+      put ""& aCarType & " - " after tSwitchListColumn2
+      repeat for each item aCar in tSwitchListA["carTypes"][aCarType]
+        put aCar & ", " after tSwitchListColumn2
+      end repeat
+      delete last char of tSwitchListColumn2
+      delete last char of tSwitchListColumn2
+      put "<br />" & return after tSwitchListColumn2
+    end repeat
+    
+    put tOutput & "<br />"after tSwitchListColumn2
+    
+    put empty into tSortedList
+    
+    // output track reference
+    // sort the module list
+    get the keys of tSwitchListA["tracks"]
+    sort lines of it ascending
+    put it into tSortedModuleList
+    
+    repeat for each line aModule in tSortedModuleList
+      put "<b>" & aModule & "</b><br />" & return after tSwitchListColumn2
+      
+      // sort the track keys
+      get the keys of tSwitchListA["tracks"][aModule]
+      sort lines of it ascending
+      put it into tSortedList
+      
+      repeat for each line aTrack in tSortedList
+        put aTrack && "-" && tSwitchListA["tracks"][aModule][aTrack] &"<br />" & return  after tSwitchListColumn2
+      end repeat
+      put "<br />" after tSwitchListColumn2
+    end repeat
+    
+    delete last line of tSwitchListColumn2
+    --    exit buildManifest
+    
+  else
+    
+    -- Manifest Header
+    put outputHeader(sTrainA) after tManifest
+    
+    -- Train Origin, Car Count & Length
+    put outputTrainOrigin(sTrainA, sPageWidth) after tManifest
+    
+    -- Crew Instruction
+    put outputCrewInstructions(sTrainA) after tManifest
+    
+    -- Train Manifest
+    put addManifest(sManifestStyle, sPageWidth) after tManifest
+    
+  end if
   
   -- Termination Instructions
-  put outputTerminationInstructions(tTrainA) after tManifest
+  put outputTerminationInstructions(sTrainA) after tManifest
   
   -- Footer
-  put outputFooter(tTrainA, sPageWidth) after tManifest
+  put outputFooter(sTrainA, sPageWidth) after tManifest
   
   set the htmlText of field "trainlist" to tManifest
   if sPageWidth = "Half" then
@@ -65,18 +151,49 @@ on buildManifest
   
   set the htmlText of field "trainlist" to tManifest
   
-  if sManifestStyle = "MRBT" then
-    set the textfont of cd fld "trainlist" to "Courier New"
-  else if sManifestStyle = "Modern" then
-    set the textfont of cd fld "trainlist" to "Arial"
-  end if
+  switch sManifestStyle
+    case "MRBT"
+      set the textfont of cd fld "trainlist" to "Courier New"
+      set the visible of image "stack thumbnail" of me to false
+      break
+    case "Modern"
+      set the textfont of cd fld "trainlist" to "Arial"
+      set the visible of image "stack thumbnail" of me to false
+      break
+    case "SwitchList"
+      set the HTMLText of field "Column2" of card 1 of stack "switchlist" to tSwitchListColumn2 & tManifest
+      set the HTMLText of field "Column2" of card 1 of stack "switchlist2" to tSwitchListColumn2
+      set the HTMLText of field "Column3" of card 1 of stack "switchlist2" to tManifest
+      put sTrainA["symbol"] into field "trainSymbol" of card 1 of stack "switchlist"
+      put sTrainA["symbol"] into field "trainSymbol" of card 1 of stack "switchlist2"
+      
+      CreateThumbnail "switchlist"
+      set the visible of image "stack thumbnail" of me to true
+      set the htmltext of field "trainlist" to empty
+      
+      break
+  end switch
+  
+  --  if sManifestStyle = "MRBT" then
+  --    set the textfont of cd fld "trainlist" to "Courier New"
+  --  else if sManifestStyle = "Modern" then
+  --    set the textfont of cd fld "trainlist" to "Arial"
+  --  end if
+  
+  
   
   unlock screen
 end buildManifest
 
 
+
+
+
+
 function addManifest pManifestStyle pPageWidth
   local tOutput, tIndex, tManifestA, tFlag
+  
+  put empty into sManifestA
   
   ## load in all cars for a train into the Manifest
   if the cSchedulingEngine of stack "Module Operations" = "Random" then
@@ -122,6 +239,87 @@ function addManifest pManifestStyle pPageWidth
   ##put "<p><font size=8>" after manifest
   put "" into sPrevModule
   
+  switch pManifestStyle
+    case "SwitchList"
+      return __generateSwitchlistInstructions("half")
+      break
+    default
+      return __generateTextManifest(pManifestStyle, pPageWidth)
+  end switch
+end addManifest
+
+
+
+
+function __generateSwitchlistInstructions pPageWidth
+  local tOutput
+  local tResultA
+  
+  repeat for each element aWorkorder in sManifestA
+    if aWorkorder["moduleRemarks"] is not empty then
+      put aWorkorder["moduleRemarks"] into tResultA[aWorkOrder["moduleId"]]["moduleRemarks"]
+      put aWorkorder["moduleName"] into tResultA[aWorkOrder["moduleId"]]["moduleName"]
+    end if
+    
+    if aWorkorder["consigneeRemarks"] is not empty then
+      put aWorkorder["consigneeRemarks"] into tResultA[aWorkOrder["moduleId"]]["consignee"]["consigneeId"]["consigneeRemarks"]
+      put aWorkorder["consigneeName"] into tResultA[aWorkOrder["moduleId"]]["consignee"]["consigneeId"]["consigneeName"]
+      put aWorkorder["moduleName"] into tResultA[aWorkOrder["moduleId"]]["moduleName"]
+    end if
+  end repeat
+  
+  repeat for each key moduleId in tResultA
+    put "<br /><p><b>" & tResultA[moduleId]["moduleName"] & "</b></p>" & return after tOutput
+    if tResultA[moduleId]["moduleRemarks"] is not empty then
+      put "<p>" & tResultA[moduleId]["moduleRemarks"] & "</p>" & return after tOutput
+    end if
+    repeat for each key consigneeId in tResultA[moduleId]["consignee"]
+      put "<p>" & tResultA[moduleId]["consignee"][consigneeId]["consigneeName"] & "</p>" & return after tOutput
+      put formatRemarks( tResultA[moduleId]["consignee"][consigneeId]["consigneeRemarks"] ) after tOutput
+    end repeat
+  end repeat
+  
+  --  ## Check if this is a Train Order and add to output
+  --  if aWorkorder["workorderId"] = "" then
+  --    put "<p>" & aWorkorder["description"] & "</p>" after tOutput
+  --    next repeat
+  --  end if
+  
+  --  -- Module Name only when there's a new module in Manifest
+  --  if aWorkorder["moduleName"] <> sPrevModule then      
+  --    put  "<p><b>" & aWorkorder["moduleName"] & "</b></p>" & return after tOutput
+  
+  --    -- Add module remarks
+  --    if aWorkOrder["moduleRemarks"] is not empty then
+  --      put formatRemarks(aWorkOrder["moduleRemarks"]) after tOutput
+  --    end if
+  
+  --    put aWorkorder["moduleName"] into sPrevModule
+  --  end if
+  
+  --  -- output work order remarks on next line
+  --  if aWorkorder["workOrderRemarks"] <> empty then
+  --    put "<p>" & aWorkorder["workOrderRemarks"] & "</p>" & return after tOutput
+  --  end if
+  
+  --    put outputSpot(pManifestStyle, pPageWidth, aWorkorder) after tOutput
+  
+  -- output car remarks on next line
+  --    if aWorkorder["carTypeRemarks"] <> empty then
+  --      put "<p>" & aWorkorder["carTypeRemarks"] & "</p>" & return after tOutput
+  --    end if
+  return tOutput
+end __generateSwitchlistInstructions
+
+
+
+/*
+generates the text version of the manifest. This is the "long" form
+of the manifest used originally for the modern version of the trainlist
+*/
+function __generateTextManifest pManifestStyle, pPageWidth
+  local tOutput
+  
   repeat for each element aWorkorder in sManifestA
     
     ## Check if this is a Train Order and add to output
@@ -154,9 +352,70 @@ function addManifest pManifestStyle pPageWidth
       put "<p>" & aWorkorder["carTypeRemarks"] & "</p>" & return after tOutput
     end if
   end repeat
-  
   return tOutput
-end addManifest
+end __generateTextManifest
+
+
+
+constant STARS = "******************************"
+--constant STARS = ""
+
+function __generateSwitchListManifest
+  local tOutputA
+  local tCarTypeA
+  local i
+  local tOrigin
+  local tPrevOrigin
+  local tTrackA
+  
+  put 0 into i
+  
+  put "" into sSchedPrevModule
+  
+  put smarty.output(sTrainUUID) into sManifestA
+  
+  put yard.findOne(sTrainA["origin"]) into tOrigin
+  
+  repeat for each element aWorkorder in sManifestA
+    add 1 to i
+    // see if we are over the limit for output currently 27 lines
+    if i > 27 then next repeat
+    
+    if aWorkorder["moduleName"] <> sSchedPrevModule then
+      put STARS && toUpper(aWorkorder["moduleName"]) && STARS & return after tOutputA["switchListTowns"]
+      put return after tOutputA["switchList"]
+      put aWorkorder["moduleName"] into sSchedPrevModule
+    end if
+    
+    put return after tOutputA["switchListTowns"]
+    
+    put tab & aWorkorder["code"] & "-" & aWorkorder["length"] & tab after tOutputA["switchList"]
+    if tOrigin["track"] <> tPrevOrigin then
+      put tOrigin["track"] & tab after tOutputA["switchlist"]
+      put tOrigin["track"] into tPrevOrigin
+    else
+      put "  ''" & tab after tOutputA["switchlist"]
+    end if
+    put aWorkorder["track"] & return after tOutputA["switchList"]
+    
+    // add a car type description if it does not already exist
+    if aWorkorder["description"] is not among the items of tCarTypeA[aWorkorder["code"]] then
+      put aWorkorder["description"] & "," after tCarTypeA[aWorkorder["code"]]
+    end if
+    
+    // add track references
+    if tTrackA[aWorkorder["moduleName"]][aWorkorder["track"]] is empty then
+      put aWorkorder["spot"] into tTrackA[aWorkorder["moduleName"]][aWorkorder["track"]]
+    end if
+    
+  end repeat
+  
+  put tCarTypeA into tOutputA["carTypes"]
+  put tTrackA into tOutputA["tracks"]
+  
+  return tOutputA
+end __generateSwitchListManifest
+
 
 
 on openCard
@@ -164,8 +423,8 @@ on openCard
   
   lock screen
   
-  put train.findMany() into sTrainA
-  set the dgData of group "dgTrains" to train.addNames(sTrainA)
+  put train.findMany() into sTrainsA
+  set the dgData of group "dgTrains" to train.addNames(sTrainsA)
   
   put "" into cd fld "trainlist"
   
@@ -189,6 +448,7 @@ end openCard
 
 on closeCard
   put "" into cd fld "trainlist"
+  hide image "stack thumbnail"
 end closeCard
 
 
@@ -338,12 +598,12 @@ function outputHeader pTrainA
   end if
   
   -- Manifest Train details
-  put "<p>TRAINLIST for TRAIN: " & pTrainA["symbol"] & "</p>" & return after tHeader
+  put "<p><b>TRAIN: </b>" & pTrainA["name"] & " [" & pTrainA["symbol"] & "]</p>" & return after tHeader
   
   ## Output train name if there is one listed
-  if pTrainA["name"] is not empty then
-    put "<p>Train -  " & pTrainA["name"] & "</p>" & return after tHeader
-  end if
+  --  if pTrainA["name"] is not empty then
+  --    put "<p>Train -  " & pTrainA["name"] & "</p>" & return after tHeader
+  --  end if
   
   return tHeader
 end outputHeader
@@ -464,18 +724,18 @@ end outputConsignee
 
 function outputTrainOrigin  pTrainA, pPageWidth
   local tTrainOut
-  put "<p><b>Train departs " & yard.nameById(pTrainA["origin"]) after tTrainOut
+  put "<p><b>Departs:</b> " & yard.nameById(pTrainA["origin"]) after tTrainOut
   
-  if pPageWidth="Half" then
-    put "</b></p><p><b>" after tTrainOut
-  end if
+  --  if pPageWidth="Half" then
+  --    put "</p><p>" after tTrainOut
+  --  end if
   
   if the cCarCount of this card is empty then
     set the cCarCount of this card to 0
   end if
   
-  put " with " & the cCarCount of this card after tTrainOut
-  put " cars (" & the cTrainLength of this card & " feet)</b></p>" after tTrainOut
+  put "<p><b>Length:</b> " & the cCarCount of this card after tTrainOut
+  put " cars (" & the cTrainLength of this card & " feet)</p>" after tTrainOut
   
   return tTrainOut
 end outputTrainOrigin
@@ -488,11 +748,11 @@ function outputFooter pTrainA, pPageWidth
   if pPageWidth = "Half" then
     ##put "<p> </p>" & return after tFooter
   end if
-  put "<p><b>Train Terminates " & yard.nameById(pTrainA["destination"]) & "</b></p>" after tFooter
+  put "<p><b>Terminate:</b> " & yard.nameById(pTrainA["destination"]) & "</p>" after tFooter
   if pPageWidth = "Half" then
     ##put "<p> </p>" & return after tFooter
   end if
-  put "<p>Train Complete at: ______________________</p>" & return after tFooter
+  put "<p><b>Complete at:</b> ______________________</p>" & return after tFooter
   put "<p>Comments: </p>" & return after tFooter
   
   return tFooter
@@ -789,3 +1049,34 @@ function formatRemarks pRemarks
   end repeat   
   return tResult
 end formatRemarks
+
+
+on CreateThumbnail pStackName
+  local tImageName
+  	
+  lock screen 
+  -- pick a unique name for the image
+  put "stack thumbnail" into tImageName
+  if there is an image tImageName then
+    delete image tImageName
+  end if
+  
+  -- create an image for the thumbnail
+  create image tImageName
+  set the visible of image tImageName to true
+  set the resizequality of image tImageName to "best"
+  
+  hide button "Print" of card 1 of stack pStackName
+  export snapshot from card 1 of stack "switchlist" to image tImageName as PNG
+  show button "Print" of card 1 of stack "switchlist"
+  
+  set the width of image tImageName to 280
+  set the height of image tImageName to 364
+  -- make the new size permanent
+  set the imagedata of image tImageName to the imagedata of image tImageName
+  
+  set the left of image tImageName to 810
+  set the top of image tImageName to 173
+  
+  unlock screen
+end CreateThumbnail

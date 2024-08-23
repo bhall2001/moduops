@@ -16,6 +16,10 @@ on preOpenCard
   
   // update the length unit
   put "(" & config.get("lengthUnit") & ")" into field "lengthUnit"
+  
+  // update era menu
+  set the label of button "Era" to " "
+  
 end preOpenCard
 
 
@@ -23,6 +27,8 @@ on openCard
   local tClass, tClassList, tCarType
   
   lock screen
+  
+  uiClearFields
   
   put getCarTypeID() into sActiveID
   
@@ -39,21 +45,25 @@ on openCard
   end repeat
   
   put tCarType["id"] into field "id"
-  set the label of button "era" to tCarType["era"]
+  
+  if tCarType["era"] is not empty then
+    set the label of button "era" to tCarType["era"]
+  else
+    set the label of button "era" to " "
+  end if
+  
   put tCarType["code"] into field "code"
   put tCarType["description"] into field "description"
   put tCarType["short"] into field "short"
   put tCarType["length"] into field "length"
   put tCarType["remarks"] into field "remarks"
-   
+  
   unlock screen
-  
-  
 end openCard
 
 
 on closeCard
-  uiClearFields
+  --  uiClearFields
 end closeCard
 
 
@@ -87,8 +97,8 @@ on uiClearFields
   --  set the menuHistory of button "Class" to 1
   --  set the menuHistory of button "Era" to 1
   
-  set the label of button "Class" to " "
-  set the label of button "Era" to " "
+  --  set the label of button "Class" to " "
+  --  set the label of button "Era" to " "
   
   put "" into field "Code"
   put "" into field "Description" 
