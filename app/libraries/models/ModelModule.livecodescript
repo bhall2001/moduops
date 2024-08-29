@@ -143,3 +143,16 @@ count number of records
 function module.count
   return datalayer.count("module")
 end module.count
+
+
+function module.detailReport
+  local tReportA
+  local tModuleDetailReportSQL
+
+  put moduleDetailReportSQL() into tModuleDetailReportSQL
+
+  put datalayer.QueryAsArray(tModuleDetailReportSQL) into tReportA
+
+  return tReportA
+
+end module.detailReport
