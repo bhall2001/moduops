@@ -1,106 +1,145 @@
 ﻿script "card-module-detail-report"
+local sModuleFilterItems
+local sOwnerFilterItems
+
 on preOpenCard
-   lock screen
+  lock screen
 end preOpenCard
 
-on openCard
-   local tModuleDetailA
+/**
+This function is called when a card is opened.
+It prepares the necessary data for the card and updates the user interface.
 
-   -- load report data
-   put loadModuleDetailData() into tModuleDetailA
-   set the pgData of widget "pgModuleDetail" to tModuleDetailA
+Parameters:
+None
+
+Return:
+None
+*/
+on openCard
+  local tModuleDetailA
+  
+  // clear module filter menu
+  set the label of button "ModuleFilterMenu" to " "
+  
+  // clear owner filter menu
+  set the label of button "OwnerFilterMenu" to " "
+  
+  displayFilteredModule
+  
+  -- build module filter menu
+  get buildModuleFilterItems()
+  
+  -- build owner filter menu
+  get buildOwnerFilterItems()
+  
 end openCard
 
-on closeCard
-
-end closeCard
 
 
-function loadModuleDetailData
-   local tModuleDetailSQL
+function loadModuleEquipmentData pModuleId, pOwner
+  local tModuleDetailA
+  
+  put module.equipmentReport(pModuleId, pOwner) into tModuleDetailA
+  
+  return tModuleDetailA
+  
+end loadModuleEquipmentData
 
-   put module.detailReport() into tModuleDetailSQL
-
-end loadModuleDetailData
 
 
-/**
-* Load Car Type data from DB to UI
-*/
-on loadCarRequestData
-   lock screen
-   
-   local tDataA
-   local tModuleID
-   local tWOA
-   local tModuleA
-   local tConsigneeA
-   local tCarTypeA
-   local tSpotA
-   local tIndex=1
-   
-   // Reset Active DB Record and Get all Modules
-   //dbResetQuery
-   // limit search from Module Search field
-   if field "searchModule" is not "" then
-      dbLike "name", field "searchModule"
-   end if
-   
-   put dbGet("module") into tModuleA
-   
-   if tModuleA is an array then
-      // get counts for Consignee, Drop Zone and Car Requests
-      repeat for each key aModule in tModuleA
-         //wait for 0 seconds with messages
-         put tModuleA[aModule]["UUID"] into tModuleID
-         
-         put mdbQueryWOByModuleID(tModuleID) into tWOA
-         
-         repeat for each key aRequest in tWOA
-            //wait for 0 seconds with messages
-            
-            // Get the Consignee data for this Workorder
-            //dbResetQuery
-            dbWhere "UUID", tWOA[aRequest]["consigneeID"]
-            put dbGet("consignee") into tConsigneeA
-            
-            // Get Car Type data for the car specified
-            //dbResetQuery
-            dbWhere "UUID", tWOA[aRequest]["carID"]
-            put dbGet("carType") into tCarTypeA
-            
-            // Get Spot data for the selected Workorder
-            dbWhere "UUID", tWOA[aRequest]["spotID"]
-            put dbGet("spot") into tSpotA
-            
-            // Set the report output data elements
-            put tModuleA[aModule]["name"] into tDataA[tIndex]["module"]
-            put tConsigneeA[1]["name"] into tDataA[tIndex]["consignee"]
-            put tCarTypeA[1]["class"] into tDataA[tIndex]["class"]
-            put tCarTypeA[1]["short"] into tDataA[tIndex]["short"]
-            put tCarTypeA[1]["length"] into tDataA[tIndex]["length"]
-            put tSpotA[1]["track"] into tDataA[tIndex]["dropZone"]
-            put tWOA[aRequest]["CPW"] into tDataA[tIndex]["CPW"]
-            add 1 to tIndex
-         end repeat
-      end repeat   
-      
-      // update the UI with the results of the query
-      set the dgData of group "dgCarRequests" to tDataA
-      
-   else
-      // no data found so clear out the UI
-      set the dgText of group "dgCarRequests" to ""
-   end if
-   
-   unlock screen
-end loadCarRequestData
+command displayFilteredModule pFilterMenuIndex
+  local tModuleDetailA
+  local tModuleId
+  
+  if pFilterMenuIndex is a number then
+    put sModuleFilterItems[pFilterMenuIndex]["moduleId"] into tModuleId
+  end if
+  
+  -- Calls the loadModuleEquipmentData function to retrieve the module detail report data.
+  put loadModuleEquipmentData(tModuleId) into tModuleDetailA
+  
+  if tModuleDetailA is not an array then
+    put sModuleFilterItems[pFilterMenuIndex]["moduleName"] into tModuleDetailA[1]["moduleName"]
+    put "No equipment requests" into tModuleDetailA[1]["consigneeName"]
+  end if
+  
+  -- Check if the retrieved data is an array.
+  if tModuleDetailA is an array then
+    -- If the data is an array, update the pgData property of the "pgModuleDetail" widget with the retrieved data.
+    set the pgData of widget "pgModuleDetail" to tModuleDetailA
+  end if
+end displayFilteredModule
 
-on searchModule
-   switch the cReportType of this card
-      case "Car Requests"
-         send "loadCarRequestData" to this card in 0 seconds
-         //loadCarRequestData
-         break
-   end switch
-end searchModule
+
+command displayFilteredOwner pFilterOwner
+  local tModuleDetailA
+  local tModuleIdList
+  local tWhere
+  
+  -- Calls the loadModuleEquipmentData function to retrieve the module detail report data.
+  put loadModuleEquipmentData(,pFilterOwner) into tModuleDetailA
+  
+  if tModuleDetailA is not an array then
+    put pFilterOwner into tModuleDetailA[1]["moduleName"]
+    put "No equipment requests" into tModuleDetailA[1]["consigneeName"]
+  end if
+  
+  -- Check if the retrieved data is an array.
+  if tModuleDetailA is an array then
+    -- If the data is an array, update the pgData property of the "pgModuleDetail" widget with the retrieved data.
+    set the pgData of widget "pgModuleDetail" to tModuleDetailA
+  end if
+end displayFilteredOwner
+
+
+
+function buildModuleFilterItems
+  local tModuleA
+  local tModuleFilterMenuItems
+  
+  put module.findMany(,"name") into tModuleA
+  
+  put empty into sModuleFilterItems
+  put " " into sModuleFilterItems[1]["moduleName"]
+  put "" into sModuleFilterItems[1]["moduleId"]
+  put " " & return after tModuleFilterMenuItems
+  
+  repeat with i = 1 to number of elements of tModuleA
+    put tModuleA[i]["name"] into sModuleFilterItems[i+1]["moduleName"]
+    put tModuleA[i]["id"] into sModuleFilterItems[i+1]["moduleId"]
+    put tModuleA[i]["name"] & return after tModuleFilterMenuItems
+  end repeat
+  
+  set the label of button "ModuleFilterMenu" to " "
+  set the menuHistory of button "ModuleFilterMenu" to 1
+  set the text of button "ModuleFilterMenu" to tModuleFilterMenuItems
+  
+end buildModuleFilterItems
+
+
+function buildOwnerFilterItems
+  local tModuleA
+  local tOwnerFilterMenuItems
+  local tPrevOwner
+  
+  put module.findMany(,"owner") into tModuleA
+  
+  put " " & return after tOwnerFilterMenuItems
+  
+  repeat with i = 1 to number of elements of tModuleA
+    if tModuleA[i]["owner"] is empty then next repeat
+    if tModuleA[i]["owner"] <> tPrevOwner then
+      put tModuleA[i]["owner"] & return after tOwnerFilterMenuItems
+      put tModuleA[i]["owner"] into tPrevOwner
+    end if
+    
+  end repeat
+  
+  set the label of button "OwnerFilterMenu" to " "
+  set the menuHistory of button "OwnerFilterMenu" to 1
+  set the text of button "OwnerFilterMenu" to tOwnerFilterMenuItems
+  
+end buildOwnerFilterItems
+
+

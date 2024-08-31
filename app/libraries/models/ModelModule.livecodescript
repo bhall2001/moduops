@@ -89,12 +89,16 @@ pCriteriaA array of fields/values to select on
 Returns:
 array of module records found in database
 **/
-function module.findMany pCriteriaA
+function module.findMany pCriteriaA, pOrderBy
   local tTeamA
   
   repeat for each key aCriteria in pCriteriaA
     datalayer.where aCriteria, pCriteriaA[aCriteria]
   end repeat
+  
+  if pOrderBy is not empty then
+    datalayer.orderBy pOrderBy
+  end if
   
   return datalayer.select("module", pCriteriaA)
 end module.findMany
@@ -145,14 +149,26 @@ function module.count
 end module.count
 
 
-function module.detailReport
+function module.equipmentReport pModuleId, pOwner
   local tReportA
   local tModuleDetailReportSQL
-
-  put moduleDetailReportSQL() into tModuleDetailReportSQL
-
-  put datalayer.QueryAsArray(tModuleDetailReportSQL) into tReportA
-
+  local tWhere
+  
+  if pModuleId is not empty then
+    put pModuleId into tWhere["moduleId"]
+  end if
+  
+  if pOwner is not empty then
+    put pOwner into tWhere["owner"]
+  end if
+  
+  put moduleDetailReportSQL(tWhere) into tModuleDetailReportSQL
+  
+  dbSetSQL tModuleDetailReportSQL
+  put dbGet() into tReportA
+  
+  --  put datalayer.QueryAsArray(tModuleDetailReportSQL) into tReportA
+  
   return tReportA
-
-end module.detailReport
+  
+end module.equipmentReport
