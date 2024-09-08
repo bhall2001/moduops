@@ -167,8 +167,6 @@ function module.equipmentReport pModuleId, pOwner
   dbSetSQL tModuleDetailReportSQL
   put dbGet() into tReportA
   
-  --  put datalayer.QueryAsArray(tModuleDetailReportSQL) into tReportA
-  
   return tReportA
   
 end module.equipmentReport

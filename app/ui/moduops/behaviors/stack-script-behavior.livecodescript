@@ -596,6 +596,8 @@ on preOpenStack
     loggerOpenLogMonitor
   end if
   --  _resetFileName
+  
+  set the uVersion of stack "Module Operations" to myVersion()
 end preOpenStack
 
 

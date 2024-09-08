@@ -33,7 +33,16 @@ on openCard
   -- build owner filter menu
   get buildOwnerFilterItems()
   
+  local tColumns
+  
+  hideShowPgColumns
+  
 end openCard
+
+
+on closeCard
+  hideMenus
+end closeCard
 
 
 
@@ -141,5 +150,116 @@ function buildOwnerFilterItems
   set the text of button "OwnerFilterMenu" to tOwnerFilterMenuItems
   
 end buildOwnerFilterItems
+
+
+command exportToCsv
+  local tModuleReport, tPgDataA
+  local tFileName, tFileContents
+  local tName
+  
+  put "equipment-requests" into tName
+  
+  if the label of button "ModuleFilterMenu" is not " " then
+    put "-" & the label of button "ModuleFilterMenu" after tName
+    replace " " with "-" in tName
+    put toLower(tName) into tName
+  end if
+  
+  if the label of button "OwnerFilterMenu" is not " " then
+    put "-" & the label of button "OwnerFilterMenu" after tName
+    replace " " with "-" in tName
+    put toLower(tName) into tName
+  end if
+  
+  put ".csv" after tName
+  
+  ask file "Please choose a where you want to save the file" with getLastFilePath() & "/" & tName with type "Comma Separated Values|csv|TEXT"
+  
+  if the result is "cancel" then exit exportToCsv
+  
+  put it into tFileName
+  ## Ensure the file extension is csv      
+  set the itemDel to "."      
+  if item 2 of tFileName is not "csv" then
+    put "csv" into item 2 of tFileName
+  end if
+  
+  put the pgData of widget "pgModuleDetail" into tPgDataA
+  
+  repeat for each element aRow in tPgDataA
+    put quote & aRow["moduleName"] & quote & tab after tModuleReport
+    put quote & aRow["consigneeName"] & quote & tab after tModuleReport
+    put quote & aRow["dropZoneRef"] & quote & tab after tModuleReport
+    put quote & aRow["dropZoneName"] & quote & tab after tModuleReport
+    
+    if config.get("EquipmentReportCode") = 1 then
+      put quote & aRow["code"] & quote & tab after tModuleReport
+    end if
+    
+    if config.get("EquipmentReportShort") = 1 then
+      put quote & aRow["short"] & quote  & tab after tModuleReport
+    end if
+    
+    put quote & aRow["equipment"] & quote & tab after tModuleReport
+    put aRow["length"] & tab after tModuleReport
+    put aRow["cpw"] after tModuleReport
+    
+    put return after tModuleReport
+  end repeat
+  
+  
+  replace tab with comma in tModuleReport
+  put "module,consignee,reference,zone,code,equipment,length,cpw" & return before tModuleReport
+  
+  ## Save the data out to file
+  put tModuleReport into URL ("file:" & tFileName)
+end exportToCsv
+
+
+command printReport
+  local tDataA
+  
+  put the pgData of widget "pgModuleDetail" of me into tDataA
+  set the uDataA of stack "Equipment Request Report" to tDataA
+  
+  if the label of button "ModuleFilterMenu" is not " " then
+    set the uReportTitle of stack "Equipment Request Report" to the label of button "ModuleFilterMenu"
+  end if
+  
+  if the label of button "OwnerFilterMenu" is not " " then
+    set the uReportTitle of stack "Equipment Request Report" to the label of button "OwnerFilterMenu"
+  end if
+  
+  send "printReport" to card 1 of stack "Equipment Request Report"
+end printReport
+
+
+command hideMenus pSource
+  local tIgnoreEvent
+  
+  put "ExportMenu,ColumnMenu,shortCheck,codeCheck,columnRect,codeLabel,shortLabel" into tIgnoreEvent
+  if pSource is among the items of tIgnoreEvent then exit hideMenus
+  
+  loggerLogMsg "pSource:" & pSource
+  
+  lock screen
+  set the visible of group "OutputButtonGroup" of me to false
+  set the visible of group "columnsMenuGroup" of me to false
+  unlock screen
+end hideMenus
+
+
+command hideShowPgColumns
+  local tColumns
+  local tConfigA
+  
+  put the pgColumns of widget "pgModuleDetail" into tColumns
+  
+  put config.get("EquipmentReportCode") = 1 into tColumns[5]["visible"]
+  put config.get("EquipmentReportShort") = 1 into tColumns[6]["visible"]
+  
+  set the pgColumns of widget "pgModuleDetail" to tColumns
+end hideShowPgColumns
+
 
 

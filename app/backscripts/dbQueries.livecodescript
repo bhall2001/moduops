@@ -12,6 +12,7 @@ function moduleDetailReportSQL pWhere
         "    spot.track as dropZoneRef," & return & \
         "    spot.spot as dropZoneName," & return & \
         "    carType.code," & return & \
+        "    carType.short," & return & \
         "    carType.description as equipment," & return & \
         "    carType.length," & return & \
         "   workorder.cpw" & return & \
@@ -29,7 +30,7 @@ function moduleDetailReportSQL pWhere
     put "WHERE owner = " & quote & dbEscapeSqlite(pWhere["owner"]) & quote & return after tResultSQL
   end if
   
-  put "ORDER BY module.name ASC, consignee.name ASC, spot.track ASC, carType.code ASC, carType.length ASC, carType.description ASC" after tResultSQL
+  put "ORDER BY module.name ASC, consignee.name ASC, spot.track ASC, carType.code ASC, carType.short, carType.length ASC, carType.description ASC" after tResultSQL
   
   return tResultSQL
 end moduleDetailReportSQL
