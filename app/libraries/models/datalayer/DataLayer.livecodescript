@@ -437,7 +437,7 @@ command datalayer.migrate
   end if
   
   if config.get("EquipmentReportShort") is empty then
-    get config.set("EquipmentReportCode", 0)
+    get config.set("EquipmentReportShort", 0)
   end if
 end datalayer.migrate
 
