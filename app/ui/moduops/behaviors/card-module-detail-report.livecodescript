@@ -66,6 +66,8 @@ command displayFilteredModule pFilterMenuIndex
   local tModuleDetailA
   local tModuleId
   
+  lock screen
+  
   if pFilterMenuIndex is a number then
     put sModuleFilterItems[pFilterMenuIndex]["moduleId"] into tModuleId
   end if
@@ -82,7 +84,9 @@ command displayFilteredModule pFilterMenuIndex
   if tModuleDetailA is an array then
     -- If the data is an array, update the pgData property of the "pgModuleDetail" widget with the retrieved data.
     set the pgData of widget "pgModuleDetail" to tModuleDetailA
+    set the scroll of widget "pgModuleDetail" of group id 3097118 of me to 0
   end if
+  unlock screen
 end displayFilteredModule
 
 
@@ -90,6 +94,8 @@ command displayFilteredOwner pFilterOwner
   local tModuleDetailA
   local tModuleIdList
   local tWhere
+  
+  lock screen
   
   -- Calls the loadModuleEquipmentData function to retrieve the module detail report data.
   put loadModuleEquipmentData(,pFilterOwner) into tModuleDetailA
@@ -103,7 +109,9 @@ command displayFilteredOwner pFilterOwner
   if tModuleDetailA is an array then
     -- If the data is an array, update the pgData property of the "pgModuleDetail" widget with the retrieved data.
     set the pgData of widget "pgModuleDetail" to tModuleDetailA
+    set the scroll of widget "pgModuleDetail" of group id 3097118 of me to 0
   end if
+  unlock screen
 end displayFilteredOwner
 
 
