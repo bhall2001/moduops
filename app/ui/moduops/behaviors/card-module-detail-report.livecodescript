@@ -45,6 +45,7 @@ end openCard
 
 
 on closeCard
+  if the short name of this card is not "Equipment Request Report" then pass closeCard
   hideMenus
 end closeCard
 
