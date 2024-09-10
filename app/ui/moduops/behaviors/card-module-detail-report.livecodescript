@@ -19,6 +19,8 @@ None
 on openCard
   local tModuleDetailA
   
+  if the short name of this card is not "Equipment Request Report" then pass openCard
+  
   // clear module filter menu
   set the label of button "ModuleFilterMenu" to " "
   
@@ -302,9 +304,7 @@ command hideMenus pSource
   
   put "ExportMenu,ColumnMenu,shortCheck,codeCheck,columnRect,codeLabel,shortLabel,OutputButtonGroup,exportCsv,exportTsv,print" into tIgnoreEvent
   if pSource is among the items of tIgnoreEvent then exit hideMenus
-  
-  loggerLogMsg "pSource:" & pSource
-  
+    
   lock screen
   set the visible of group "OutputButtonGroup" of me to false
   set the visible of group "columnsMenuGroup" of me to false
