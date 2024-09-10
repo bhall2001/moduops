@@ -27,14 +27,16 @@ on openCard
   
   displayFilteredModule
   
-  -- build module filter menu
+  // build module filter menu
   get buildModuleFilterItems()
   
-  -- build owner filter menu
+  // build owner filter menu
   get buildOwnerFilterItems()
   
-  local tColumns
+  // setup columns menu
+  __setupColumnMenu
   
+  // hide or show fields in the ui  
   hideShowPgColumns
   
 end openCard
@@ -157,20 +159,7 @@ command exportToCsv
   local tFileName, tFileContents
   local tName
   
-  put "equipment-requests" into tName
-  
-  if the label of button "ModuleFilterMenu" is not " " then
-    put "-" & the label of button "ModuleFilterMenu" after tName
-    replace " " with "-" in tName
-    put toLower(tName) into tName
-  end if
-  
-  if the label of button "OwnerFilterMenu" is not " " then
-    put "-" & the label of button "OwnerFilterMenu" after tName
-    replace " " with "-" in tName
-    put toLower(tName) into tName
-  end if
-  
+  put __getFilename() into tName
   put ".csv" after tName
   
   ask file "Please choose a where you want to save the file" with getLastFilePath() & "/" & tName with type "Comma Separated Values|csv|TEXT"
@@ -183,6 +172,47 @@ command exportToCsv
   if item 2 of tFileName is not "csv" then
     put "csv" into item 2 of tFileName
   end if
+  
+  put __getTsvData() into tModuleReport  
+  
+  replace tab with comma in tModuleReport
+  put "module,consignee,reference,zone,code,equipment,length,cpw" & return before tModuleReport
+  
+  ## Save the data out to file
+  put tModuleReport into URL ("file:" & tFileName)
+end exportToCsv
+
+
+command exportToTsv
+  local tModuleReport
+  local tFileName, tFileContents
+  local tName
+  
+  put __getFilename() into tName  
+  put ".tsv" after tName
+  
+  ask file "Please choose a where you want to save the file" with getLastFilePath() & "/" & tName with type "Comma Separated Values|tsv|TEXT"
+  
+  if the result is "cancel" then exit exportToTsv
+  
+  put it into tFileName
+  ## Ensure the file extension is tsv      
+  set the itemDel to "."      
+  if item 2 of tFileName is not "tsv" then
+    put "tsv" into item 2 of tFileName
+  end if
+  
+  put __getTsvData() into tModuleReport
+  
+  put "module,consignee,reference,zone,code,equipment,length,cpw" & return before tModuleReport
+  
+  ## Save the data out to file
+  put tModuleReport into URL ("file:" & tFileName)
+end exportToTsv
+
+
+private function __getTsvData
+  local tPgDataA, tModuleReport
   
   put the pgData of widget "pgModuleDetail" into tPgDataA
   
@@ -207,13 +237,46 @@ command exportToCsv
     put return after tModuleReport
   end repeat
   
+  return tModuleReport
+end __getTsvData
+
+
+private function __getFilename
+  local tName
   
-  replace tab with comma in tModuleReport
-  put "module,consignee,reference,zone,code,equipment,length,cpw" & return before tModuleReport
+  put "equipment-requests" into tName
   
-  ## Save the data out to file
-  put tModuleReport into URL ("file:" & tFileName)
-end exportToCsv
+  if the label of button "ModuleFilterMenu" is not " " then
+    put "-" & the label of button "ModuleFilterMenu" after tName
+    replace " " with "-" in tName
+    put toLower(tName) into tName
+  end if
+  
+  if the label of button "OwnerFilterMenu" is not " " then
+    put "-" & the label of button "OwnerFilterMenu" after tName
+    replace " " with "-" in tName
+    put toLower(tName) into tName
+  end if
+  
+  return tName
+end __getFilename
+
+
+
+private command __setupColumnMenu
+  if config.get("EquipmentReportCode") = 1 then
+    set the iconPresetName of widget "codeCheck" of group "columnsMenuGroup" to "check"
+  else
+    set the iconPresetName of widget "codeCheck" of group "columnsMenuGroup" to "check empty"
+  end if
+  
+  if config.get("EquipmentReportShort") = 1 then
+    set the iconPresetName of widget "shortCheck" of group "columnsMenuGroup" to "check"
+  else
+    set the iconPresetName of widget "shortCheck" of group "columnsMenuGroup" to "check empty"
+  end if
+end __setupColumnMenu
+
 
 
 command printReport
@@ -237,7 +300,7 @@ end printReport
 command hideMenus pSource
   local tIgnoreEvent
   
-  put "ExportMenu,ColumnMenu,shortCheck,codeCheck,columnRect,codeLabel,shortLabel" into tIgnoreEvent
+  put "ExportMenu,ColumnMenu,shortCheck,codeCheck,columnRect,codeLabel,shortLabel,OutputButtonGroup,exportCsv,exportTsv,print" into tIgnoreEvent
   if pSource is among the items of tIgnoreEvent then exit hideMenus
   
   loggerLogMsg "pSource:" & pSource
