@@ -587,6 +587,10 @@ on preOpenStack
   // set the app window title
   updateWindowTitle  
   
+  set the uVersion of stack "Module Operations" to myVersion()
+  
+  show group "blocker" of card "Dashboard" of stack "Module Operations"
+  
   // start at the Dashboard screen
   send "mouseUp" to button "Dashboard" of stack "Module Operations"
   
@@ -596,10 +600,26 @@ on preOpenStack
     loggerOpenLogMonitor
   end if
   --  _resetFileName
-  
-  set the uVersion of stack "Module Operations" to myVersion()
 end preOpenStack
 
+
+on openStack
+  --  set the location of stack "About ModuOps" to the location of stack "Module Operations"
+  --  hide button "close" of stack "About ModuOps"
+  --  set the thumbPosition of scrollbar "aboutWait" of card 1 of stack "About ModuOps" to 0
+  --  set the visible of scrollbar "aboutWait" of card 1 of stack "About ModuOps" to true
+  --  open stack "About ModuOps"
+  
+  --  repeat with i = 1 to 2
+  --    set the thumbPosition of scrollbar "aboutWait" of card 1 of stack "About ModuOps" to i
+  --    wait 1 seconds with messages
+  --  end repeat
+  --  set the thumbPosition of scrollbar "aboutWait" of card 1 of stack "About ModuOps" to 3
+  --  close stack "About ModuOps"
+  --  set the visible of scrollbar "aboutWait" of card 1 of stack "About ModuOps" to false
+  hide group "blocker" of card "Dashboard" of stack "Module Operations"
+  
+end openStack
 
 
 on appleEvent pClass, pEventID, pSender
