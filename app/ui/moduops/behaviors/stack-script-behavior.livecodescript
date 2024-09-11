@@ -74,9 +74,9 @@ command uiNewLayout
   unlock screen
   set cursor to arrow
   
-  send "mouseUp" to button "Dashboard" of group "sidebarMenu" of group "groupBackground" of me
+  send "mouseUp" to button "Layout" of group "sidebarMenu" of group "groupBackground" of me
   
-  answer info "Layout file created!"
+  answer info "New layout created!" & return & "Now enter details about the layout."
 end uiNewLayout
 
 
