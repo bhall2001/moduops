@@ -296,6 +296,9 @@ command printReport
   put the pgData of widget "pgModuleDetail" of me into tDataA
   set the uDataA of stack "Equipment Request Report" to tDataA
   
+  // initialize report title to ""
+  set the uReportTitle of stack "Equipment Request Report" to ""
+  
   if the label of button "ModuleFilterMenu" is not " " then
     set the uReportTitle of stack "Equipment Request Report" to the label of button "ModuleFilterMenu"
   end if
