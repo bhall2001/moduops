@@ -182,8 +182,15 @@ function addModuleStop
   
   switch (the label of button "selectConsignees")
     case "All"
-      put "All Consignees" into tStopA["consignee"]
-      put "ALL" into tStopA["consigneeID"]
+      if the dgHilitedLines of group "dgConsignees" is empty then
+        put "All Consignees" into tStopA["consignee"]
+        put "ALL" into tStopA["consigneeID"]
+      else
+        put the dgHilitedLines of group "dgConsignees" into theLine
+        put the dgDataOfLine[theLine] of group "dgConsignees" into tDataA
+        put tDataA["name"] into tStopA["consignee"]
+        put tDataA["id"] into tStopA["consigneeID"]
+      end if
       break
     case "A Only"
       if the dgHilitedLines of group "dgConsignees" is empty then
