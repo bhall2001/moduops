@@ -6,8 +6,8 @@ local sCarTypeID -- active car type ID
 
 // Version number
 local sMajor = 5
-local sMinor = 5
-local sPatch = 1
+local sMinor = 6
+local sPatch = 0
 
 
 ##
@@ -74,9 +74,9 @@ command uiNewLayout
   unlock screen
   set cursor to arrow
   
-  send "mouseUp" to button "Dashboard" of group "sidebarMenu" of group "groupBackground" of me
+  send "mouseUp" to button "Layout" of group "sidebarMenu" of group "groupBackground" of me
   
-  answer info "Layout file created!"
+  answer info "New layout created!" & return & "Now enter details about the layout."
 end uiNewLayout
 
 
@@ -107,11 +107,11 @@ command uiLoadLayout
   // get the last file path for file dialog
   put getLastFilePath() into tPath
   
-  set the visible of group "blocker" to true
-  set the layer of group "blocker" to top
+  --  set the visible of group "blocker" to true
+  --  set the layer of group "blocker" to top
   
   answer file "Please select a layout file" with tPath with type "TEXT File|mop2|MOP2" titled "Open file"
-  set the visible of group "blocker" to false
+  --  set the visible of group "blocker" to false
   wait 300 milliseconds
   
   if it is empty then exit uiLoadLayout
@@ -587,6 +587,10 @@ on preOpenStack
   // set the app window title
   updateWindowTitle  
   
+  set the uVersion of stack "Module Operations" to myVersion()
+  
+  show group "blocker" of card "Dashboard" of stack "Module Operations"
+  
   // start at the Dashboard screen
   send "mouseUp" to button "Dashboard" of stack "Module Operations"
   
@@ -598,6 +602,24 @@ on preOpenStack
   --  _resetFileName
 end preOpenStack
 
+
+on openStack
+  --  set the location of stack "About ModuOps" to the location of stack "Module Operations"
+  --  hide button "close" of stack "About ModuOps"
+  --  set the thumbPosition of scrollbar "aboutWait" of card 1 of stack "About ModuOps" to 0
+  --  set the visible of scrollbar "aboutWait" of card 1 of stack "About ModuOps" to true
+  --  open stack "About ModuOps"
+  
+  --  repeat with i = 1 to 2
+  --    set the thumbPosition of scrollbar "aboutWait" of card 1 of stack "About ModuOps" to i
+  --    wait 1 seconds with messages
+  --  end repeat
+  --  set the thumbPosition of scrollbar "aboutWait" of card 1 of stack "About ModuOps" to 3
+  --  close stack "About ModuOps"
+  --  set the visible of scrollbar "aboutWait" of card 1 of stack "About ModuOps" to false
+  hide group "blocker" of card "Dashboard" of stack "Module Operations"
+  
+end openStack
 
 
 on appleEvent pClass, pEventID, pSender

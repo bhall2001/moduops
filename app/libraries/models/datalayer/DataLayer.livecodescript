@@ -430,6 +430,15 @@ command datalayer.migrate
   if config.get("lengthUnit") is empty then
     get config.set("lengthUnit", "feet")
   end if
+  
+  // if there is not a default value for new equipment report, setup the values
+  if config.get("EquipmentReportCode") is empty then
+    get config.set("EquipmentReportCode", 1)
+  end if
+  
+  if config.get("EquipmentReportShort") is empty then
+    get config.set("EquipmentReportShort", 0)
+  end if
 end datalayer.migrate
 
 

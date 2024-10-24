@@ -6,3 +6,28 @@ on preOpenStack
   
   pass preOpenStack
 end preOpenStack
+
+on mouseDown
+  dispatch "hideMenus" to this card with the short name of the target
+  pass mouseDown
+end mouseDown
+
+on openField
+  dispatch "hideMenus" to this card with the short name of the target
+  pass openField
+end openField
+
+on hiliteChanged
+  dispatch "hideMenus" to this card with the short name of the target
+  pass hiliteChanged
+end hiliteChanged
+
+on dateChanged
+  dispatch "hideMenus" to this card with the short name of the target
+  pass dateChanged
+end dateChanged
+
+on dragStart
+ dispatch "hideMenus" to this card with the short name of the target
+ pass dragStart
+end dragStart

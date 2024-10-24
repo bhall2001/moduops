@@ -46,6 +46,10 @@ function createNewDataFile
     // intitialize data as needed here
     get config.set("lengthUnit", "feet")
     
+    // initialize report options
+    get config.set("EquipmentReportCode", 1)
+    get config.set("EquipmentReportShort", 0)
+    
     wait 1 sec with messages
   end if
   
